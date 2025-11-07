@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Al Bourakh Maps - Navigation GPS & Réservation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Optimisation performances mobile */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        button, a {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* LOGO STYLES */
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo-img {
+            width: 80px;
+            height: 60px;
+            object-fit: contain;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+            border-radius: 8px;
+        }
+
+        .hero-logo {
+            width: 200px;
+            height: 150px;
+            margin-bottom: 20px;
+            filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.4));
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .section-logo {
+            width: 120px;
+            height: 90px;
+            margin: 0 auto 20px;
+            display: block;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        /* Animation désactivée sur mobile pour performance */
+        @media (min-width: 769px) {
+            .brand-logo-img {
+                animation: logoFloat 3s ease-in-out infinite;
+            }
+            
+            @keyframes logoFloat {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #00A854, #FECB00, #E30613);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .hero-title {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5em;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        /* Live Stats */
+        .live-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 40px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            min-width: 180px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00A854;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            display: block;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .stat-trend {
+            display: block;
+            font-size: 0.9em;
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        /* Map Container */
+        .map-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .map-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .map-logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            transform: scale(1.02);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00A854;
+            font-size: 1.2em;
+            pointer-events: none;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #E30613;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .search-clear:hover {
+            background: #c00;
+        }
+
+        .map-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .map-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+        }
+
+        .map-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .map-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: #00A854;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #E30613;
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .map-wrapper {
+            position: relative;
+            display: flex;
+        }
+
+        #map {
+            flex: 1;
+            height: 600px;
+            position: relative;
+            touch-action: none;
+        }
+
+        /* Optimisation Google Maps pour Mobile */
+        .gm-style {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        }
+
+        .gm-style img {
+            max-width: none !important;
+        }
+
+        .gm-style-iw {
+            max-width: 90vw !important;
+        }
+
+        .gm-style-iw-d {
+            overflow: auto !important;
+            max-height: 300px !important;
+        }
+
+        /* Contrôles Maps sur mobile */
+        .gm-bundled-control {
+            margin: 10px !important;
+        }
+
+        .gm-svpc {
+            display: block !important;
+        }
+
+        /* Désactiver le défilement de la page quand on interagit avec la carte */
+        .map-active {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        .side-panel {
+            width: 380px;
+            background: white;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 3px solid #00A854;
+            display: none;
+            max-height: 600px;
+        }
+
+        .side-panel.active {
+            display: block;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .panel-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #00A854;
+        }
+
+        .panel-close {
+            background: #E30613;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        .navigation-panel {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .navigation-panel.active {
+            display: block;
+        }
+
+        .route-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .route-summary {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .route-summary p {
+            margin: 5px 0;
+            font-size: 1em;
+        }
+
+        .route-instructions {
+            background: white;
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .route-step {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #00A854;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .route-step strong {
+            color: #00A854;
+        }
+
+        .route-step small {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .navigation-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn-start {
+            background: white;
+            color: #00A854;
+        }
+
+        .nav-btn-clear {
+            background: #E30613;
+            color: white;
+        }
+
+        .price-calculator {
+            background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .calc-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00A854;
+        }
+
+        .calc-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .calc-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,168,84,0.3);
+        }
+
+        .price-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .price-result.show {
+            display: block;
+            animation: slideInUp 0.5s ease;
+        }
+
+        .price-amount {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00A854;
+            margin-bottom: 5px;
+        }
+
+        .price-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .vehicle-filters {
+            margin-bottom: 20px;
+        }
+
+        .filter-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-option:hover {
+            background: #e8f5e9;
+            transform: translateX(5px);
+        }
+
+        .filter-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .filter-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .zones-list {
+            margin-top: 20px;
+        }
+
+        .zone-item {
+            padding: 12px;
+            background: #f5f5f5;
+            border-left: 4px solid #00A854;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .zone-item:hover {
+            background: #e8f5e9;
+            transform: translateX(5px);
+        }
+
+        .zone-item-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .zone-item-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .panel-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .panel-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .rating-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #FFD700;
+        }
+
+        .rating-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stars {
+            font-size: 1.5em;
+            color: #FFD700;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .star {
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .star:hover {
+            transform: scale(1.3);
+        }
+
+        .star.filled {
+            color: #FFD700;
+        }
+
+        .star.empty {
+            color: #ddd;
+        }
+
+        .promo-section {
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .promo-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #E30613;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .weather-widget {
+            background: linear-gradient(135deg, #56CCF2, #2F80ED);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .lang-btn {
+            flex: 1;
+            padding: 8px;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            border-color: #00A854;
+        }
+
+        .dynamic-pricing {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .chatbot-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8em;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 9999;
+            transition: all 0.3s;
+            animation: bounce 2s infinite;
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+        }
+
+        /* CHATBOT WINDOW */
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chatbot-window.active {
+            display: flex;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .chatbot-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .chatbot-message {
+            margin-bottom: 15px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .message-bot {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .message-user {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .avatar-bot {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+        }
+
+        .avatar-user {
+            background: #667eea;
+            color: white;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.5;
+        }
+
+        .content-bot {
+            background: white;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .content-user {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.75em;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .chatbot-suggestions {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .suggestion-btn {
+            padding: 8px 15px;
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .suggestion-btn:hover {
+            background: #e8f5e9;
+            border-color: #00A854;
+            transform: translateY(-2px);
+        }
+
+        .chatbot-input-container {
+            padding: 15px 20px;
+            background: white;
+            border-top: 2px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .chatbot-input:focus {
+            border-color: #00A854;
+        }
+
+        .chatbot-send {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .chatbot-send:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,168,84,0.3);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 15px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #00A854;
+            border-radius: 50%;
+            animation: typingDot 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingDot {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 20px 30px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 10000;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .notification.success {
+            background: #4CAF50;
+        }
+
+        .notification.error {
+            background: #E30613;
+        }
+
+        .notification.info {
+            background: #2196F3;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255,255,255,0.2);
+            border-top-color: #FECB00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1.5em;
+            margin-top: 30px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2em;
+            }
+            .hero-subtitle {
+                font-size: 1em;
+            }
+            .hero-logo {
+                width: 120px;
+                height: 90px;
+            }
+            .brand-logo-img {
+                width: 50px;
+                height: 38px;
+            }
+            .map-header {
+                flex-direction: column;
+            }
+            .search-container {
+                width: 100%;
+                min-width: auto;
+            }
+            .map-wrapper {
+                flex-direction: column;
+            }
+            .side-panel {
+                width: 100%;
+                max-height: 400px;
+                border-left: none;
+                border-top: 3px solid #00A854;
+            }
+            
+            #map {
+                height: 400px;
+                min-height: 400px;
+                width: 100% !important;
+                touch-action: pan-x pan-y;
+            }
+            
+            .gm-bundled-control {
+                margin: 5px !important;
+            }
+            
+            .gm-bundled-control .gmnoprint {
+                margin: 5px !important;
+            }
+            
+            .gm-control-active {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            
+            .gm-style-iw {
+                max-width: 85vw !important;
+                max-height: 50vh !important;
+            }
+            
+            .gm-style-iw-c {
+                max-width: 85vw !important;
+            }
+            
+            .gm-style-iw-d {
+                max-height: 40vh !important;
+                overflow: auto !important;
+            }
+            
+            .map-header {
+                padding: 15px;
+            }
+            
+            .map-logo {
+                font-size: 1.2em;
+            }
+            
+            .map-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .map-btn {
+                padding: 10px 12px;
+                font-size: 0.85em;
+            }
+            
+            .panel-toggle {
+                top: auto;
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .map-wrapper {
+                position: relative;
+                touch-action: manipulation;
+            }
+            
+            .gm-style .gm-style-iw-tc {
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }
+            
+            .stat-card {
+                min-width: 140px;
+            }
+
+            .chatbot-window {
+                width: calc(100% - 20px);
+                height: calc(100% - 120px);
+                right: 10px;
+                bottom: 90px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #map {
+                height: 350px;
+                min-height: 350px;
+            }
+            
+            .map-btn {
+                padding: 8px 10px;
+                font-size: 0.8em;
+                gap: 5px;
+            }
+            
+            .map-btn i {
+                font-size: 0.9em;
+            }
+            
+            .gm-bundled-control-on-bottom {
+                bottom: 80px !important;
+            }
+            
+            .gm-fullscreen-control {
+                display: block !important;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #map {
+                height: 500px;
+            }
+            
+            .side-panel {
+                width: 320px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="hero-logo" onerror="this.style.display='none'">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🚕 Chargement d'Al Bourakh Maps GPS...</div>
+    </div>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" class="hero-logo" onerror="this.style.display='none'">
+            <h1 class="hero-title">
+                <i class="fas fa-route"></i> Al Bourakh Maps GPS
+            </h1>
+            <p class="hero-subtitle">
+                🧭 Navigation GPS en Temps Réel • 118+ Zones à Dakar • Service 24/7
+            </p>
+        </div>
+    </section>
+
+    <div class="live-stats">
+        <div class="stat-card" onclick="showStatsDetail('zones')">
+            <span class="stat-number" id="liveZones">118</span>
+            <span class="stat-label">Quartiers</span>
+            <span class="stat-trend">↑ +5 ce mois</span>
+        </div>
+        <div class="stat-card" onclick="showStatsDetail('vehicles')">
+            <span class="stat-number" id="liveVehicles">753</span>
+            <span class="stat-label">Véhicules</span>
+            <span class="stat-trend">↑ En ligne</span>
+        </div>
+        <div class="stat-card" onclick="showStatsDetail('drivers')">
+            <span class="stat-number" id="liveDrivers">421</span>
+            <span class="stat-label">Chauffeurs</span>
+            <span class="stat-trend">↑ Actifs</span>
+        </div>
+        <div class="stat-card" onclick="showStatsDetail('wait')">
+            <span class="stat-number">5min</span>
+            <span class="stat-label">Attente Moy.</span>
+            <span class="stat-trend">↓ -2min</span>
+        </div>
+        <div class="stat-card" onclick="showStatsDetail('rides')">
+            <span class="stat-number" id="liveRides">2.4K</span>
+            <span class="stat-label">Courses/Jour</span>
+            <span class="stat-trend">↑ +15%</span>
+        </div>
+        <div class="stat-card" onclick="showStatsDetail('availability')">
+            <span class="stat-number">99.9%</span>
+            <span class="stat-label">Disponibilité</span>
+            <span class="stat-trend">✓ Optimal</span>
+        </div>
+    </div>
+
+    <div class="map-container">
+        <div class="map-header">
+            <div class="map-logo">
+                <div class="brand-logo">
+                    <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="brand-logo-img" onerror="this.style.display='none'">
+                    <span>Al Bourakh GPS Navigation</span>
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="🔍 Rechercher une adresse à Dakar..."
+                    autocomplete="off"
+                >
+                <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="map-controls">
+                <button class="map-btn btn-primary" onclick="activateGPSNavigation()">
+                    <i class="fas fa-route"></i> Navigation GPS
+                </button>
+                <button class="map-btn btn-secondary" onclick="findMyLocation()">
+                    <i class="fas fa-location-arrow"></i> Ma Position
+                </button>
+                <button class="map-btn btn-outline" onclick="centerMap()">
+                    <i class="fas fa-crosshairs"></i> Centrer
+                </button>
+                <button class="map-btn btn-outline" onclick="toggleTraffic()">
+                    <i class="fas fa-traffic-light"></i> Trafic
+                </button>
+            </div>
+        </div>
+        
+        <div class="map-wrapper">
+            <div id="map"></div>
+            
+            <button class="panel-toggle" onclick="togglePanel()">
+                <i class="fas fa-tools"></i> <span id="panelToggleText">Outils</span>
+            </button>
+            
+            <div class="side-panel" id="sidePanel">
+                <div class="panel-header">
+                    <span class="panel-title">🛠️ Outils Al Bourakh</span>
+                    <button class="panel-close" onclick="togglePanel()">×</button>
+                </div>
+
+                <div class="navigation-panel" id="navigationPanel">
+                    <div class="route-header">🧭 Itinéraire de Navigation</div>
+                    <div class="route-summary" id="routeSummary"></div>
+                    <div class="route-instructions" id="routeInstructions"></div>
+                    <div class="navigation-controls">
+                        <button class="nav-btn nav-btn-start" onclick="startNavigation()">
+                            <i class="fas fa-play"></i> Démarrer
+                        </button>
+                        <button class="nav-btn nav-btn-clear" onclick="clearRoute()">
+                            <i class="fas fa-times"></i> Effacer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="language-selector">
+                    <button class="lang-btn active" onclick="changeLanguage('fr')" id="lang-fr">
+                        🇫🇷 Français
+                    </button>
+                    <button class="lang-btn" onclick="changeLanguage('wo')" id="lang-wo">
+                        🇸🇳 Wolof
+                    </button>
+                    <button class="lang-btn" onclick="changeLanguage('en')" id="lang-en">
+                        🇬🇧 English
+                    </button>
+                </div>
+
+                <div class="weather-widget" id="weatherWidget">
+                    <div class="weather-icon" style="font-size: 3em; margin-bottom: 10px;">☀️</div>
+                    <div class="weather-temp" style="font-size: 2em; font-weight: bold;">32°C</div>
+                    <div class="weather-condition" style="font-size: 1.1em; margin-top: 5px;">Ensoleillé</div>
+                    <div class="weather-details" style="display: flex; justify-content: space-around; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
+                        <div class="weather-detail" style="font-size: 0.9em;">💧 60%</div>
+                        <div class="weather-detail" style="font-size: 0.9em;">💨 15 km/h</div>
+                    </div>
+                </div>
+
+                <div class="promo-section">
+                    <div class="promo-badge">-20%</div>
+                    <div class="promo-title" style="font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">🎉 Promotion du Jour</div>
+                    <div class="promo-description" style="font-size: 0.9em; margin-top: 8px; opacity: 0.95;">
+                        Première course gratuite pour les nouveaux utilisateurs !
+                    </div>
+                    <div class="promo-code" onclick="copyPromoCode('BIENVENUE20')" style="background: rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 8px; cursor: pointer;">
+                        Code: BIENVENUE20 📋
+                    </div>
+                </div>
+
+                <div class="dynamic-pricing" id="dynamicPricing" style="display: none;">
+                    <div class="surge-indicator" style="display: flex; align-items: center; gap: 10px; font-weight: bold;">
+                        <span>⚡ Tarif dynamique</span>
+                        <span class="surge-multiplier" id="surgeMultiplier" style="font-size: 1.5em; background: rgba(255,255,255,0.3); padding: 5px 15px; border-radius: 20px;">1.5x</span>
+                    </div>
+                    <div class="surge-reason" id="surgeReason" style="font-size: 0.9em; margin-top: 8px; opacity: 0.95;">
+                        Forte demande dans cette zone
+                    </div>
+                </div>
+                
+                <div class="price-calculator">
+                    <div class="calc-title">
+                        💰 Calculateur de Prix
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Point de départ</label>
+                        <input type="text" id="calcFrom" class="input-field" placeholder="Ex: Plateau, Dakar">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Destination</label>
+                        <input type="text" id="calcTo" class="input-field" placeholder="Ex: Almadies">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Type de véhicule</label>
+                        <select id="calcVehicle" class="input-field">
+                            <option value="standard">🚗 Standard (1-4 pers.)</option>
+                            <option value="confort">✨ Confort (1-4 pers.)</option>
+                            <option value="van">🚐 Van (5-7 pers.)</option>
+                            <option value="premium">👑 Premium (1-3 pers.)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="calc-button" onclick="calculatePrice()">
+                        <i class="fas fa-calculator"></i> Calculer le Prix
+                    </button>
+
+                    <button class="calc-button" onclick="calculateRouteWithGPS()" style="background: linear-gradient(135deg, #2196F3, #00BCD4);">
+                        <i class="fas fa-route"></i> Calculer & Naviguer
+                    </button>
+                    
+                    <div class="price-result" id="priceResult">
+                        <div class="price-amount" id="priceAmount">0 FCFA</div>
+                        <div class="price-details" id="priceDetails"></div>
+                    </div>
+                </div>
+
+                <div class="rating-section">
+                    <div class="rating-title">
+                        ⭐ Notez votre expérience
+                    </div>
+                    <div class="stars" id="ratingStars">
+                        <span class="star empty" onclick="rateStar(1)">★</span>
+                        <span class="star empty" onclick="rateStar(2)">★</span>
+                        <span class="star empty" onclick="rateStar(3)">★</span>
+                        <span class="star empty" onclick="rateStar(4)">★</span>
+                        <span class="star empty" onclick="rateStar(5)">★</span>
+                    </div>
+                    <div class="rating-stats" style="display: flex; justify-content: space-around; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                        <div class="rating-stat" style="text-align: center;">
+                            <div class="rating-value" style="font-size: 1.3em; font-weight: bold; color: #FFD700;">4.8</div>
+                            <div class="rating-label" style="font-size: 0.85em; color: #666;">Note Moy.</div>
+                        </div>
+                        <div class="rating-stat" style="text-align: center;">
+                            <div class="rating-value" style="font-size: 1.3em; font-weight: bold; color: #FFD700;">12.5K</div>
+                            <div class="rating-label" style="font-size: 0.85em; color: #666;">Avis</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vehicle-filters">
+                    <div class="filter-title">🚗 Filtrer les véhicules</div>
+                    
+                    <label class="filter-option">
+                        <input type="checkbox" checked onchange="filterVehicles('standard')">
+                        <span class="filter-icon">🚗</span>
+                        <span>Standard (753 véhicules)</span>
+                    </label>
+                    
+                    <label class="filter-option">
+                        <input type="checkbox" checked onchange="filterVehicles('confort')">
+                        <span class="filter-icon">✨</span>
+                        <span>Confort (312 véhicules)</span>
+                    </label>
+                    
+                    <label class="filter-option">
+                        <input type="checkbox" checked onchange="filterVehicles('van')">
+                        <span class="filter-icon">🚐</span>
+                        <span>Van (128 véhicules)</span>
+                    </label>
+                    
+                    <label class="filter-option">
+                        <input type="checkbox" checked onchange="filterVehicles('premium')">
+                        <span class="filter-icon">👑</span>
+                        <span>Premium (89 véhicules)</span>
+                    </label>
+                </div>
+                
+                <div class="zones-list">
+                    <div class="filter-title">⭐ Zones Populaires</div>
+                    
+                    <div class="zone-item" onclick="quickZoom(14.6937, -17.4441, 'Plateau')">
+                        <div class="zone-item-name">🏢 Plateau</div>
+                        <div class="zone-item-info">Centre-ville • 45 véhicules</div>
+                    </div>
+                    
+                    <div class="zone-item" onclick="quickZoom(14.7286, -17.5295, 'Almadies')">
+                        <div class="zone-item-name">🌊 Almadies</div>
+                        <div class="zone-item-info">Zone résidentielle • 67 véhicules</div>
+                    </div>
+                    
+                    <div class="zone-item" onclick="quickZoom(14.6708, -17.0726, 'Aéroport AIBD')">
+                        <div class="zone-item-name">✈️ Aéroport AIBD</div>
+                        <div class="zone-item-info">Zone spéciale • 85 véhicules</div>
+                    </div>
+                    
+                    <div class="zone-item" onclick="quickZoom(14.7450, -17.4950, 'Yoff')">
+                        <div class="zone-item-name">🏘️ Yoff</div>
+                        <div class="zone-item-info">Zone résidentielle • 83 véhicules</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chatbot-button" onclick="toggleChatbot()">
+        💬
+    </div>
+
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <div class="chatbot-header-title">
+                🤖 Assistant Al Bourakh
+            </div>
+            <button class="chatbot-close" onclick="toggleChatbot()">×</button>
+        </div>
+
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chatbot-message message-bot">
+                <div class="message-avatar avatar-bot">🚕</div>
+                <div class="message-content content-bot">
+                    Bonjour et bienvenue chez <strong>Al Bourakh</strong> - La Foudre ! ⚡<br><br>
+                    Je suis votre assistant virtuel. Comment puis-je vous aider aujourd'hui ?
+                    <div class="message-time">Maintenant</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chatbot-suggestions" id="chatbotSuggestions">
+            <button class="suggestion-btn" onclick="sendSuggestion('Réserver une course')">🚗 Réserver</button>
+            <button class="suggestion-btn" onclick="sendSuggestion('Voir les tarifs')">💰 Tarifs</button>
+            <button class="suggestion-btn" onclick="sendSuggestion('Devenir chauffeur')">👨‍✈️ Chauffeur</button>
+            <button class="suggestion-btn" onclick="sendSuggestion('Zones desservies')">📍 Zones</button>
+        </div>
+
+        <div class="chatbot-input-container">
+            <input 
+                type="text" 
+                class="chatbot-input" 
+                id="chatbotInput" 
+                placeholder="Posez votre question..."
+                onkeypress="handleChatbotKeypress(event)"
+            >
+            <button class="chatbot-send" onclick="sendChatbotMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let map, markers = [], trafficLayer, userMarker, searchMarker, autocomplete;
+        let directionsService, directionsRenderer;
+        let currentRoute = null;
+        let navigationInterval = null;
+
+        const zones = {
+            centre: [
+                {name: 'Plateau', lat: 14.6937, lng: -17.4441, vehicles: 45},
+                {name: 'Médina', lat: 14.6830, lng: -17.4505, vehicles: 38},
+                {name: 'Grand Dakar', lat: 14.7085, lng: -17.4553, vehicles: 52},
+                {name: 'HLM', lat: 14.7020, lng: -17.4470, vehicles: 31}
+            ],
+            residential: [
+                {name: 'Almadies', lat: 14.7286, lng: -17.5295, vehicles: 67},
+                {name: 'Mermoz', lat: 14.7055, lng: -17.4775, vehicles: 58},
+                {name: 'Yoff', lat: 14.7450, lng: -17.4950, vehicles: 83}
+            ],
+            pikine: [
+                {name: 'Pikine Est', lat: 14.7644, lng: -17.3907, vehicles: 42},
+                {name: 'Guédiawaye', lat: 14.7865, lng: -17.3985, vehicles: 52}
+            ],
+            special: [
+                {name: 'Aéroport AIBD', lat: 14.6708, lng: -17.0726, vehicles: 85},
+                {name: 'Port Autonome', lat: 14.6833, lng: -17.4333, vehicles: 45}
+            ]
+        };
+
+        function initMap() {
+            const dakarCenter = {lat: 14.7167, lng: -17.4677};
+            const isMobile = window.innerWidth <= 768;
+            
+            const mapOptions = {
+                center: dakarCenter,
+                zoom: isMobile ? 11 : 11,
+                mapTypeControl: !isMobile,
+                fullscreenControl: true,
+                streetViewControl: !isMobile,
+                zoomControl: true,
+                gestureHandling: isMobile ? 'greedy' : 'auto',
+                disableDefaultUI: false,
+                clickableIcons: true
+            };
+            
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            if (isMobile) {
+                const mapElement = document.getElementById('map');
+                mapElement.addEventListener('touchstart', function(e) {
+                    document.body.classList.add('map-active');
+                }, { passive: false });
+                
+                mapElement.addEventListener('touchend', function(e) {
+                    setTimeout(() => {
+                        document.body.classList.remove('map-active');
+                    }, 300);
+                }, { passive: false });
+            }
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: false,
+                polylineOptions: {
+                    strokeColor: '#00A854',
+                    strokeWeight: isMobile ? 4 : 5,
+                    strokeOpacity: 0.8
+                }
+            });
+
+            trafficLayer = new google.maps.TrafficLayer();
+            initSearchAutocomplete();
+
+            Object.keys(zones).forEach(category => {
+                zones[category].forEach(location => {
+                    addMarker(location, category);
+                });
+            });
+
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                showNotification('✅ Carte GPS chargée avec succès!', 'success');
+            }, 2000);
+
+            startLiveUpdates();
+        }
+
+        function initSearchAutocomplete() {
+            const input = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            
+            autocomplete = new google.maps.places.Autocomplete(input, {
+                bounds: new google.maps.LatLngBounds(
+                    new google.maps.LatLng(14.6, -17.6),
+                    new google.maps.LatLng(14.9, -17.0)
+                ),
+                strictBounds: true,
+                componentRestrictions: { country: 'sn' },
+                fields: ['formatted_address', 'geometry', 'name', 'place_id']
+            });
+
+            autocomplete.addListener('place_changed', onPlaceSelected);
+
+            input.addEventListener('input', function() {
+                if (this.value.length > 0) {
+                    searchClear.style.display = 'flex';
+                } else {
+                    searchClear.style.display = 'none';
+                }
+            });
+        }
+
+        function onPlaceSelected() {
+            const place = autocomplete.getPlace();
+
+            if (!place.geometry || !place.geometry.location) {
+                showNotification('❌ Aucune information géographique disponible', 'error');
+                return;
+            }
+
+            if (searchMarker) {
+                searchMarker.setMap(null);
+            }
+
+            const isMobile = window.innerWidth <= 768;
+
+            searchMarker = new google.maps.Marker({
+                position: place.geometry.location,
+                map: map,
+                title: place.name || place.formatted_address,
+                animation: google.maps.Animation.DROP,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: isMobile ? 14 : 12,
+                    fillColor: '#FF6B00',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: isMobile ? 5 : 4
+                },
+                optimized: true
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div style="padding: 15px;"><h3>${place.name || 'Adresse trouvée'}</h3><p>${place.formatted_address}</p></div>`,
+                maxWidth: isMobile ? 280 : 350
+            });
+
+            infoWindow.open(map, searchMarker);
+            map.setCenter(place.geometry.location);
+            map.setZoom(isMobile ? 15 : 16);
+
+            showNotification(`✅ Adresse trouvée: ${place.name || place.formatted_address}`, 'success');
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            
+            input.value = '';
+            searchClear.style.display = 'none';
+            
+            if (searchMarker) {
+                searchMarker.setMap(null);
+                searchMarker = null;
+            }
+            
+            showNotification('🗑️ Recherche effacée', 'info');
+        }
+
+        function addMarker(location, category) {
+            const colors = {
+                centre: '#00A854',
+                residential: '#FECB00', 
+                pikine: '#2196F3',
+                special: '#E30613'
+            };
+
+            const isMobile = window.innerWidth <= 768;
+            
+            const marker = new google.maps.Marker({
+                position: {lat: location.lat, lng: location.lng},
+                map: map,
+                title: location.name,
+                animation: google.maps.Animation.DROP,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: isMobile ? 10 : 8,
+                    fillColor: colors[category],
+                    fillOpacity: 0.9,
+                    strokeColor: 'white',
+                    strokeWeight: isMobile ? 3 : 2
+                },
+                optimized: true
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div style="padding: 15px;"><h3>${location.name}</h3><p><strong>🚕 ${location.vehicles}</strong> véhicules disponibles</p></div>`,
+                maxWidth: isMobile ? 280 : 350
+            });
+
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+
+            markers.push({marker, category, location, infoWindow});
+        }
+
+        function activateGPSNavigation() {
+            showNotification('🧭 Mode Navigation GPS activé!', 'success');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userPos = {lat: position.coords.latitude, lng: position.coords.longitude};
+                        if (userMarker) userMarker.setMap(null);
+                        userMarker = new google.maps.Marker({
+                            position: userPos, map: map, title: "Votre position",
+                            icon: {path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 4},
+                            animation: google.maps.Animation.DROP
+                        });
+                        map.setCenter(userPos); 
+                        map.setZoom(15);
+                        showNotification('✅ Position trouvée!', 'success');
+                    },
+                    () => {
+                        showNotification('❌ Géolocalisation refusée', 'error');
+                    }
+                );
+            } else {
+                showNotification('❌ Géolocalisation non supportée', 'error');
+            }
+        }
+
+        function findMyLocation() {
+            activateGPSNavigation();
+        }
+
+        function centerMap() { 
+            map.setCenter({lat: 14.7167, lng: -17.4677}); 
+            map.setZoom(11); 
+            showNotification('🎯 Carte centrée sur Dakar', 'info'); 
+        }
+
+        function toggleTraffic() { 
+            if (trafficLayer.getMap()) { 
+                trafficLayer.setMap(null); 
+                showNotification('🚦 Trafic désactivé', 'info'); 
+            } else { 
+                trafficLayer.setMap(map); 
+                showNotification('🚦 Trafic en temps réel activé', 'success'); 
+            }
+        }
+
+        function togglePanel() {
+            const panel = document.getElementById('sidePanel');
+            const toggleBtn = document.getElementById('panelToggleText');
+            if (panel.classList.contains('active')) { 
+                panel.classList.remove('active'); 
+                toggleBtn.textContent = 'Outils'; 
+            } else { 
+                panel.classList.add('active'); 
+                toggleBtn.textContent = 'Fermer'; 
+            }
+        }
+
+        function calculatePrice() {
+            const from = document.getElementById('calcFrom').value.trim();
+            const to = document.getElementById('calcTo').value.trim();
+            const vehicleType = document.getElementById('calcVehicle').value;
+            if (!from || !to) { 
+                showNotification('⚠️ Veuillez remplir le départ et la destination', 'error'); 
+                return; 
+            }
+            const basePrice = {standard: 1500, confort: 2000, van: 2500, premium: 3500};
+            const distance = (Math.random() * 22 + 3).toFixed(1);
+            const pricePerKm = {standard: 200, confort: 250, van: 300, premium: 400};
+            const totalPrice = Math.round(basePrice[vehicleType] + (distance * pricePerKm[vehicleType]));
+            
+            const priceResult = document.getElementById('priceResult');
+            const priceAmount = document.getElementById('priceAmount');
+            const priceDetails = document.getElementById('priceDetails');
+            
+            priceAmount.textContent = totalPrice.toLocaleString() + ' FCFA';
+            priceDetails.innerHTML = `<p>📍 Distance estimée: ${distance} km</p><p>De: <strong>${from}</strong></p><p>Vers: <strong>${to}</strong></p>`;
+            priceResult.classList.add('show');
+            showNotification(`💰 Prix calculé: ${totalPrice.toLocaleString()} FCFA`, 'success');
+        }
+
+        function calculateRouteWithGPS() {
+            showNotification('🧭 Fonction de navigation disponible avec votre clé API complète', 'info');
+        }
+
+        function quickZoom(lat, lng, name) {
+            map.setCenter({lat: lat, lng: lng}); 
+            map.setZoom(15);
+            showNotification(`📍 Zoom sur ${name}`, 'success');
+        }
+
+        function filterVehicles(type) { 
+            showNotification(`🔄 Filtre ${type} appliqué`, 'info'); 
+        }
+
+        function showStatsDetail(type) {
+            const details = {
+                zones: '🗺️ 118 quartiers couverts à Dakar', 
+                vehicles: '🚕 753 véhicules en ligne', 
+                drivers: '👨‍✈️ 421 chauffeurs actifs', 
+                wait: '⏱️ Temps d\'attente moyen: 5 minutes', 
+                rides: '🚗 2,400 courses par jour', 
+                availability: '✅ 99.9% de disponibilité'
+            };
+            if (details[type]) showNotification(details[type], 'info');
+        }
+
+        function changeLanguage(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`lang-${lang}`).classList.add('active');
+            showNotification(`🌐 Langue: ${lang === 'fr' ? 'Français' : lang === 'wo' ? 'Wolof' : 'English'}`, 'success');
+        }
+
+        function copyPromoCode(code) { 
+            navigator.clipboard.writeText(code).then(() => { 
+                showNotification(`📋 Code ${code} copié!`, 'success'); 
+            }); 
+        }
+
+        function rateStar(rating) {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) { 
+                    star.classList.remove('empty'); 
+                    star.classList.add('filled'); 
+                } else { 
+                    star.classList.remove('filled'); 
+                    star.classList.add('empty'); 
+                }
+            });
+            showNotification(`⭐ Merci pour votre note: ${rating}/5`, 'success');
+        }
+
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbotWindow');
+            chatbot.classList.toggle('active');
+            
+            if (chatbot.classList.contains('active')) {
+                document.getElementById('chatbotInput').focus();
+            }
+        }
+
+        function handleChatbotKeypress(event) {
+            if (event.key === 'Enter') {
+                sendChatbotMessage();
+            }
+        }
+
+        function sendSuggestion(text) {
+            document.getElementById('chatbotInput').value = text;
+            sendChatbotMessage();
+        }
+
+        function sendChatbotMessage() {
+            const input = document.getElementById('chatbotInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                hideTypingIndicator();
+                const response = getChatbotResponse(message);
+                addChatMessage(response, 'bot');
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function addChatMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const messageDiv = document.createElement('div');
+            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.className = `chatbot-message message-${sender}`;
+            messageDiv.innerHTML = `
+                <div class="message-avatar avatar-${sender}">
+                    ${sender === 'bot' ? '🚕' : '👤'}
+                </div>
+                <div class="message-content content-${sender}">
+                    ${text.replace(/\n/g, '<br>')}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'chatbot-message message-bot';
+            typingDiv.innerHTML = `
+                <div class="message-avatar avatar-bot">🚕</div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        function getChatbotResponse(userMessage) {
+            const messageLower = userMessage.toLowerCase();
+            
+            if (messageLower.match(/^(bonjour|salut|hello|hi|hey)/)) {
+                return `Bonjour! 👋 Ravi de vous aider!\n\nJe peux vous renseigner sur:\n• 🚗 Réservation de courses\n• 💰 Tarifs et paiements\n• 📍 Zones desservies\n\nQue puis-je faire pour vous?`;
+            }
+            
+            if (messageLower.match(/(merci|thank|au revoir|bye)/)) {
+                return `De rien! 😊 Al Bourakh vous remercie! ⚡`;
+            }
+            
+            if (messageLower.includes('tarif') || messageLower.includes('prix')) {
+                return `💰 **Tarifs Al Bourakh:**\n\n🚗 Standard: 1,500 FCFA min\n✨ Confort: 2,000 FCFA min\n🚐 Van: 2,500 FCFA min\n👑 Premium: 3,500 FCFA min\n\nUtilisez notre calculateur pour un devis précis!`;
+            }
+            
+            if (messageLower.includes('zone') || messageLower.includes('où')) {
+                return `📍 **Zones Al Bourakh:**\n\nDakar Centre, Almadies, Yoff, Pikine, AIBD et 118+ quartiers!\n\nService 24/7 partout à Dakar! ⚡`;
+            }
+            
+            return `Je suis désolé, je n'ai pas bien compris. 🤔\n\nPosez-moi une question sur:\n• Les tarifs\n• Les zones\n• La réservation\n\nTel: +221 77 123 45 67`;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = message.replace(/\n/g, '<br>');
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        function startLiveUpdates() {
+            setInterval(() => {
+                const vehiclesEl = document.getElementById('liveVehicles');
+                const vehicles = parseInt(vehiclesEl.textContent);
+                const newVehicles = Math.max(700, vehicles + Math.floor(Math.random() * 20) - 10);
+                vehiclesEl.textContent = newVehicles;
+                
+                const driversEl = document.getElementById('liveDrivers');
+                const drivers = parseInt(driversEl.textContent);
+                const newDrivers = Math.max(400, drivers + Math.floor(Math.random() * 20) - 10);
+                driversEl.textContent = newDrivers;
+                
+                const ridesEl = document.getElementById('liveRides');
+                const rides = parseFloat(ridesEl.textContent);
+                const newRides = (rides + 0.1).toFixed(1);
+                ridesEl.textContent = newRides + 'K';
+            }, 5000);
+        }
+
+        window.initMap = initMap;
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0S4bvgw9zQgqRiyW0vwxDi1lp9m35MI8&callback=initMap&libraries=places,geometry"></script>
+</body>
+</html>
