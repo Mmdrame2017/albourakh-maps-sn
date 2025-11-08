@@ -4364,5 +4364,354 @@ Profitez-en maintenant! 🚀`
     </script>
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0S4bvgw9zQgqRiyW0vwxDi1lp9m35MI8&callback=initMap&libraries=places,geometry"></script>
+<!-- 1. SDKs Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<!-- 2. Configuration Firebase -->
+<script>
+// ⚠️ REMPLACEZ avec vos vraies clés Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyXxXxXxXxXxXxXxXxXxXxXxXxXxXxX",
+    authDomain: "albourakh.firebaseapp.com",
+    projectId: "albourakh",
+    storageBucket: "albourakh.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abcdef123456"
+};
+
+// Initialiser Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+console.log('✅ Firebase initialisé!');
+</script>
+
+<!-- 3. Fonctions de collecte de données -->
+<script>
+// ==========================================
+// NOUVELLE VERSION DE confirmBooking() AVEC FIREBASE
+// ==========================================
+async function confirmBooking() {
+    const name = document.getElementById('bookingName').value.trim();
+    const phone = document.getElementById('bookingPhone').value.trim();
+    
+    if (!name || !phone) {
+        showNotification('⚠️ Veuillez remplir votre nom et téléphone', 'error');
+        return;
+    }
+    
+    const summary = document.getElementById('bookingSummary');
+    if (summary.style.display === 'none') {
+        showNotification('⚠️ Veuillez d\'abord prévisualiser votre réservation', 'error');
+        return;
+    }
+    
+    // Récupérer toutes les données de la réservation
+    const bookingData = {
+        // Informations personnelles
+        nom: name,
+        telephone: phone,
+        email: document.getElementById('bookingEmail').value.trim() || null,
+        
+        // Détails du trajet
+        depart: document.getElementById('bookingFrom').value.trim(),
+        destination: document.getElementById('bookingTo').value.trim(),
+        date: document.getElementById('bookingDate').value,
+        heure: document.getElementById('bookingTime').value,
+        passagers: parseInt(document.getElementById('bookingPassengers').value),
+        
+        // Véhicule et paiement
+        typeVehicule: selectedVehicleType,
+        prixBase: selectedVehiclePrice,
+        modePaiement: selectedPaymentMethod,
+        
+        // Informations du résumé
+        prixEstime: parseInt(document.getElementById('summaryTotal').textContent.replace(/\D/g, '')),
+        distanceEstimee: document.getElementById('summaryDistance').textContent,
+        
+        // Instructions spéciales
+        instructions: document.getElementById('bookingNotes').value.trim() || null,
+        
+        // Métadonnées
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        statut: 'en_attente',
+        source: 'web',
+        userAgent: navigator.userAgent,
+        screenSize: `${window.innerWidth}x${window.innerHeight}`
+    };
+    
+    try {
+        showNotification('💾 Enregistrement en cours...', 'info');
+        
+        // SAUVEGARDER DANS FIREBASE
+        const docRef = await db.collection('reservations').add(bookingData);
+        
+        console.log('✅ Réservation enregistrée avec ID:', docRef.id);
+        
+        showNotification('🎉 Réservation confirmée! SMS envoyé.', 'success');
+        
+        // Afficher la confirmation
+        setTimeout(() => {
+            const confirmationMsg = `✅ RÉSERVATION CONFIRMÉE\n\n📱 Numéro: ${phone}\n🚗 Véhicule: ${document.getElementById('summaryVehicle').textContent}\n📍 Trajet: ${document.getElementById('summaryRoute').textContent}\n📅 ${document.getElementById('summaryDateTime').textContent}\n💰 Total: ${document.getElementById('summaryTotal').textContent}\n\nUn chauffeur vous contactera 15 min avant.\nCode de réservation: AB${docRef.id.substring(0, 8).toUpperCase()}`;
+            alert(confirmationMsg);
+            
+            // Réinitialiser le formulaire
+            document.getElementById('bookingForm').reset();
+            document.querySelectorAll('.vehicle-option, .payment-method').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            summary.style.display = 'none';
+            selectedVehicleType = null;
+            selectedPaymentMethod = null;
+            
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la réservation:', error);
+        showNotification('❌ Erreur: ' + error.message + '. Veuillez réessayer.', 'error');
+    }
+}
+
+// ==========================================
+// NOUVELLE VERSION DE submitDriverApplication() AVEC FIREBASE
+// ==========================================
+async function submitDriverApplication() {
+    const form = document.getElementById('driverForm');
+    
+    // Validation basique
+    const inputs = form.querySelectorAll('input[required], select[required]');
+    let valid = true;
+    
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            input.style.border = '2px solid red';
+            valid = false;
+        } else {
+            input.style.border = '';
+        }
+    });
+    
+    if (!valid) {
+        showNotification('⚠️ Veuillez remplir tous les champs obligatoires', 'error');
+        return;
+    }
+    
+    // Récupérer toutes les données du formulaire
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    const driverData = {
+        // Informations personnelles
+        nomComplet: form.querySelector('input[placeholder*="Prénom et nom"]').value.trim(),
+        telephone: form.querySelector('input[placeholder*="+221"]').value.trim(),
+        email: form.querySelector('input[type="email"]').value.trim(),
+        villeResidence: form.querySelectorAll('select')[0].value,
+        numeroCNI: form.querySelector('input[placeholder*="1234567890123"]').value.trim(),
+        
+        // Informations véhicule
+        typeVehicule: form.querySelectorAll('select')[1].value,
+        marqueModele: form.querySelector('input[placeholder*="Toyota"]').value.trim(),
+        anneeVehicule: parseInt(form.querySelector('input[type="number"]').value),
+        immatriculation: form.querySelector('input[placeholder*="DK-"]').value.trim(),
+        couleur: form.querySelector('input[placeholder*="Blanche"]').value.trim(),
+        
+        // Permis de conduire
+        numeroPermis: form.querySelector('input[placeholder*="B123456789"]').value.trim(),
+        dateObtentionPermis: form.querySelector('input[type="date"]').value,
+        
+        // Disponibilité
+        disponibilite: form.querySelectorAll('select')[2].value,
+        
+        // Expérience
+        experience: form.querySelector('textarea').value.trim() || null,
+        
+        // Métadonnées
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        statut: 'nouvelle',
+        source: 'web',
+        userAgent: navigator.userAgent,
+        screenSize: `${window.innerWidth}x${window.innerHeight}`
+    };
+    
+    try {
+        showNotification('📤 Envoi de votre candidature...', 'info');
+        
+        // SAUVEGARDER DANS FIREBASE
+        const docRef = await db.collection('candidatures_chauffeurs').add(driverData);
+        
+        console.log('✅ Candidature enregistrée avec ID:', docRef.id);
+        
+        showNotification('🎉 Candidature envoyée! Nous vous contacterons sous 48h.', 'success');
+        
+        setTimeout(() => {
+            const confirmationMsg = `✅ CANDIDATURE REÇUE\n\nMerci pour votre intérêt pour Al Bourakh!\n\nNotre équipe de recrutement va étudier votre dossier et vous contactera dans les 48 heures.\n\nEn attendant:\n• Préparez vos documents (permis, CNI, carte grise)\n• Assurez-vous que votre véhicule respecte nos critères\n• Consultez notre FAQ chauffeurs sur le site\n\nCode candidature: DR${docRef.id.substring(0, 8).toUpperCase()}\n\nÀ très bientôt dans l'équipe Al Bourakh! 🚗`;
+            alert(confirmationMsg);
+            
+            // Réinitialiser le formulaire
+            document.getElementById('driverForm').reset();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Erreur candidature:', error);
+        showNotification('❌ Erreur: ' + error.message, 'error');
+    }
+}
+
+// ==========================================
+// SAUVEGARDER LES CALCULS DE PRIX
+// ==========================================
+async function calculatePrice() {
+    const from = document.getElementById('calcFrom').value.trim();
+    const to = document.getElementById('calcTo').value.trim();
+    const vehicleType = document.getElementById('calcVehicle').value;
+    
+    if (!from || !to) {
+        showNotification('⚠️ Veuillez remplir le départ et la destination', 'error');
+        return;
+    }
+    
+    const basePrice = {standard: 1500, confort: 2000, van: 2500, premium: 3500};
+    const distance = (Math.random() * 22 + 3).toFixed(1);
+    const duration = Math.ceil(distance / 0.5);
+    const pricePerKm = {standard: 200, confort: 250, van: 300, premium: 400};
+    const totalPrice = Math.round(basePrice[vehicleType] + (distance * pricePerKm[vehicleType]));
+    
+    // SAUVEGARDER LE CALCUL DANS FIREBASE
+    try {
+        await db.collection('calculs_prix').add({
+            depart: from,
+            destination: to,
+            typeVehicule: vehicleType,
+            prixCalcule: totalPrice,
+            distanceEstimee: parseFloat(distance),
+            dureeEstimee: duration,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            converti: false,
+            sessionId: getSessionId()
+        });
+        
+        console.log('✅ Calcul sauvegardé');
+    } catch (error) {
+        console.error('Erreur sauvegarde calcul:', error);
+    }
+    
+    // Afficher le résultat
+    const priceResult = document.getElementById('priceResult');
+    const priceAmount = document.getElementById('priceAmount');
+    const priceDetails = document.getElementById('priceDetails');
+    
+    priceAmount.textContent = totalPrice.toLocaleString() + ' FCFA';
+    priceDetails.innerHTML = `<p>📍 Distance estimée: ${distance} km</p><p>⏱️ Durée estimée: ${duration} min</p><p>De: <strong>${from}</strong></p><p>Vers: <strong>${to}</strong></p>`;
+    
+    priceResult.classList.add('show');
+    
+    showNotification(`💰 Prix calculé: ${totalPrice.toLocaleString()} FCFA`, 'success');
+}
+
+// ==========================================
+// SAUVEGARDER LES INTERACTIONS CHATBOT
+// ==========================================
+// Modifier la fonction sendChatbotMessage existante:
+const originalSendChatbotMessage = sendChatbotMessage;
+
+sendChatbotMessage = async function() {
+    const input = document.getElementById('chatbotInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Ajouter message utilisateur
+    addChatMessage(message, 'user');
+    input.value = '';
+    
+    // Afficher indicateur de frappe
+    showTypingIndicator();
+    
+    // Réponse du bot après délai
+    setTimeout(async () => {
+        hideTypingIndicator();
+        const response = getChatbotResponse(message);
+        addChatMessage(response, 'bot');
+        
+        // SAUVEGARDER L'INTERACTION
+        try {
+            await db.collection('chatbot_interactions').add({
+                messageUtilisateur: message,
+                reponseBot: response,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                sessionId: getSessionId(),
+                resolu: null
+            });
+            console.log('✅ Interaction chatbot sauvegardée');
+        } catch (error) {
+            console.error('Erreur sauvegarde chat:', error);
+        }
+        
+        updateSuggestions(message);
+    }, 1000 + Math.random() * 1000);
+};
+
+// ==========================================
+// TRACKING DES ÉVÉNEMENTS
+// ==========================================
+async function trackEvent(eventName, eventData = {}) {
+    try {
+        await db.collection('analytics_events').add({
+            eventName: eventName,
+            eventData: eventData,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            sessionId: getSessionId(),
+            userAgent: navigator.userAgent,
+            screenSize: `${window.innerWidth}x${window.innerHeight}`,
+            page: window.location.pathname
+        });
+        console.log(`📊 Événement tracké: ${eventName}`);
+    } catch (error) {
+        console.error('Erreur tracking:', error);
+    }
+}
+
+// Tracker les événements importants
+document.addEventListener('DOMContentLoaded', () => {
+    // Page vue
+    trackEvent('page_view', { page: 'home' });
+    
+    // Clics sur les boutons importants
+    document.querySelectorAll('.map-btn, .btn-cta').forEach(btn => {
+        btn.addEventListener('click', () => {
+            trackEvent('button_click', { 
+                buttonText: btn.textContent.trim() 
+            });
+        });
+    });
+    
+    // Scroll vers sections
+    const sections = ['booking', 'driver', 'features'];
+    sections.forEach(section => {
+        const element = document.querySelector(`.${section}-section`);
+        if (element) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        trackEvent('section_view', { section: section });
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            observer.observe(element);
+        }
+    });
+});
+
+// ==========================================
+// FONCTION AUXILIAIRE
+// ==========================================
+function getSessionId() {
+    let sessionId = localStorage.getItem('albourakh_session_id');
+    if (!sessionId) {
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('albourakh_session_id', sessionId);
+    }
+    return sessionId;
+}
 </body>
 </html>
