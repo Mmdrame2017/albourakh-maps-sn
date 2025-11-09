@@ -4731,5 +4731,117 @@ function getSessionId() {
   appId: "1:901444203447:web:5e4126f7e873d81b736e32",
   measurementId: "G-FVHTZ2NRYB"
 };
+<!-- ==========================================
+     FIREBASE - COLLECTE DE DONNÉES
+     ========================================== -->
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<!-- Configuration Firebase -->
+<script>
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
+
+  authDomain: "albourakh-maps-sn.firebaseapp.com",
+
+  projectId: "albourakh-maps-sn",
+
+  storageBucket: "albourakh-maps-sn.firebasestorage.app",
+
+  messagingSenderId: "901444203447",
+
+  appId: "1:901444203447:web:5e4126f7e873d81b736e32",
+
+  measurementId: "G-FVHTZ2NRYB"
+
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+console.log('✅ Firebase initialisé pour Al Bourakh!');
+</script>
+
+<!-- Fonction de réservation -->
+<script>
+async function submitBooking(event) {
+    event.preventDefault(); // Empêche le rechargement de la page
+    
+    // Récupération des données du formulaire
+    const name = document.getElementById('bookingName').value.trim();
+    const phone = document.getElementById('bookingPhone').value.trim();
+    const email = document.getElementById('bookingEmail').value.trim() || null;
+    const from = document.getElementById('bookingFrom').value.trim();
+    const to = document.getElementById('bookingTo').value.trim();
+    const date = document.getElementById('bookingDate').value;
+    const time = document.getElementById('bookingTime').value;
+    const passengers = parseInt(document.getElementById('bookingPassengers').value);
+    const notes = document.getElementById('bookingNotes').value.trim() || null;
+    
+    // Validation
+    if (!name || !phone || !from || !to || !date || !time) {
+        alert('⚠️ Veuillez remplir tous les champs obligatoires');
+        return;
+    }
+    
+    // Préparation des données pour Firebase
+    const bookingData = {
+        nom: name,
+        telephone: phone,
+        email: email,
+        depart: from,
+        destination: to,
+        date: date,
+        heure: time,
+        passagers: passengers,
+        instructions: notes,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        statut: 'en_attente',
+        source: 'web'
+    };
+    
+    try {
+        // Afficher un message de chargement
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = '⏳ Envoi en cours...';
+        submitButton.disabled = true;
+        
+        // Enregistrer dans Firebase
+        const docRef = await db.collection('reservations').add(bookingData);
+        
+        console.log('✅ Réservation enregistrée avec ID:', docRef.id);
+        
+        // Message de succès
+        alert(`🎉 Réservation confirmée!
+
+📱 Numéro: ${phone}
+🚗 Trajet: ${from} → ${to}
+📅 Date: ${date} à ${time}
+👥 Passagers: ${passengers}
+
+Vous recevrez un SMS de confirmation.
+
+Code de réservation: AB${docRef.id.substring(0, 8).toUpperCase()}`);
+        
+        // Réinitialiser le formulaire
+        document.getElementById('bookingForm').reset();
+        
+        // Restaurer le bouton
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la réservation:', error);
+        alert('❌ Erreur lors de la réservation. Veuillez réessayer ou nous contacter.');
+        
+        // Restaurer le bouton en cas d'erreur
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.textContent = 'Réserver maintenant';
+        submitButton.disabled = false;
+    }
+}
+</script>
 </body>
 </html>
