@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Al Bourakh - Dashboard Admin</title>
+    <title>Al Bourakh - Dashboard Admin avec Attribution</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -21,7 +21,7 @@
         }
         
         .container {
-            max-width: 1600px;
+            max-width: 1800px;
             margin: 0 auto;
         }
         
@@ -38,10 +38,6 @@
             gap: 20px;
         }
         
-        .header-left {
-            flex: 1;
-        }
-        
         .header-left h1 {
             color: #00A854;
             margin-bottom: 10px;
@@ -54,11 +50,6 @@
             width: 60px;
             height: 45px;
             object-fit: contain;
-        }
-        
-        .header-left p {
-            color: #666;
-            font-size: 15px;
         }
         
         .header-right {
@@ -74,12 +65,6 @@
             background: #f5f5f5;
             padding: 12px 20px;
             border-radius: 12px;
-        }
-        
-        .admin-email {
-            font-size: 14px;
-            color: #333;
-            font-weight: 600;
         }
         
         .logout-btn, .refresh-btn {
@@ -103,16 +88,6 @@
         .refresh-btn {
             background: #00A854;
             color: white;
-        }
-        
-        .logout-btn:hover {
-            background: #c00511;
-            transform: translateY(-2px);
-        }
-        
-        .refresh-btn:hover {
-            background: #008844;
-            transform: translateY(-2px);
         }
         
         .stats-grid {
@@ -153,232 +128,193 @@
             font-size: 1.1em;
         }
         
-        .stat-trend {
-            margin-top: 8px;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-        
-        .stat-trend.up { color: #4CAF50; }
-        .stat-trend.down { color: #E30613; }
-        
-        .tabs {
+        .reservations-container {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
+            border-radius: 20px;
+            padding: 30px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         
-        .tab-buttons {
-            display: flex;
-            gap: 10px;
+        .reservation-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .tab-btn {
-            padding: 12px 25px;
-            border: none;
-            background: #f0f0f0;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         
-        .tab-btn:hover {
-            background: #e0e0e0;
-        }
-        
-        .tab-btn.active {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .filters {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .filter-input, .filter-select {
-            padding: 10px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            min-width: 200px;
-            transition: border-color 0.3s;
-        }
-        
-        .filter-input:focus, .filter-select:focus {
-            outline: none;
+        .reservation-card:hover {
             border-color: #00A854;
+            box-shadow: 0 5px 20px rgba(0,168,84,0.2);
         }
         
-        .export-btn {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-left: auto;
+        .reservation-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-        
-        .export-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,168,84,0.3);
-        }
-        
-        .data-table-wrapper {
-            overflow-x: auto;
-            border-radius: 10px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        
-        thead {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        th {
-            background: linear-gradient(135deg, #00A854, #008844);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        tr:hover {
-            background: #f9f9f9;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .status-badge {
-            padding: 5px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85em;
+            font-size: 0.9em;
             font-weight: 600;
             color: white;
-            display: inline-block;
         }
         
         .status-en_attente { background: #FFA500; }
-        .status-confirmee { background: #4CAF50; }
-        .status-en_cours { background: #2196F3; }
-        .status-terminee { background: #00A854; }
+        .status-assignee { background: #2196F3; }
+        .status-en_cours { background: #9C27B0; }
+        .status-terminee { background: #4CAF50; }
         .status-annulee { background: #E30613; }
-        .status-nouvelle { background: #FFA500; }
-        .status-en_revision { background: #2196F3; }
-        .status-acceptee { background: #4CAF50; }
-        .status-refusee { background: #E30613; }
         
-        .action-btn {
-            padding: 6px 12px;
+        .reservation-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .info-block {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            font-size: 1em;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .chauffeur-assigned {
+            background: linear-gradient(135deg, #2196F3, #00A854);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-assign {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
             border: none;
-            border-radius: 5px;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: bold;
             cursor: pointer;
-            margin: 2px;
-            font-size: 0.9em;
-            transition: all 0.2s;
+            font-size: 1em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .action-btn:hover {
+        .btn-assign:hover {
             transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,168,84,0.3);
         }
         
-        .btn-view { background: #2196F3; color: white; }
-        .btn-accept { background: #4CAF50; color: white; }
-        .btn-reject { background: #E30613; color: white; }
-        .btn-edit { background: #FF9800; color: white; }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2em;
-            color: #666;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-        
-        .empty-state i {
-            font-size: 4em;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-
-        .auth-loading {
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: rgba(0,0,0,0.7);
             z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-
-        .auth-loading-content {
-            text-align: center;
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 1200px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
             color: white;
         }
-
-        .auth-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        
+        .modal-body {
+            padding: 30px;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .driver-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
+        
+        .driver-card:hover {
+            border-color: #00A854;
+            background: #f9f9f9;
+        }
+        
+        .driver-card.unavailable {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .driver-info {
+            flex: 1;
+        }
+        
+        .driver-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .driver-stat {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .driver-stat-value {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #00A854;
+        }
+        
+        .driver-stat-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 3px;
+        }
+        
         .toast {
             position: fixed;
             bottom: 30px;
@@ -395,243 +331,144 @@
             gap: 12px;
             max-width: 400px;
         }
-
+        
         .toast.success { background: #4CAF50; }
         .toast.error { background: #E30613; }
         .toast.info { background: #2196F3; }
-        .toast.warning { background: #FF9800; }
-
+        
         @keyframes slideInUp {
             from { transform: translateY(100px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-            padding: 20px;
-        }
-
-        .pagination button {
-            padding: 8px 16px;
-            border: 2px solid #00A854;
-            background: white;
-            color: #00A854;
-            border-radius: 8px;
+        
+        .close-modal {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             cursor: pointer;
-            font-weight: 600;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s;
         }
-
-        .pagination button:hover:not(:disabled) {
-            background: #00A854;
-            color: white;
+        
+        .close-modal:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
         }
-
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
         }
-
-        .pagination span {
-            color: #666;
-            font-weight: 600;
+        
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
         }
         
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .header-right {
-                width: 100%;
-                flex-direction: column;
-            }
-
-            .stats-grid {
+            .reservation-info {
                 grid-template-columns: 1fr;
             }
             
-            table {
-                font-size: 0.9em;
-            }
-            
-            th, td {
-                padding: 8px;
-            }
-
-            .filter-input, .filter-select {
-                width: 100%;
-                min-width: auto;
-            }
-
-            .export-btn {
-                width: 100%;
-                margin-left: 0;
-                justify-content: center;
+            .driver-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 <body>
-    <div id="authLoading" class="auth-loading">
-        <div class="auth-loading-content">
-            <div class="auth-spinner"></div>
-            <h2>🔐 Vérification de l'authentification...</h2>
-        </div>
-    </div>
-
-    <div class="container" id="mainContent" style="display: none;">
+    <div class="container">
         <div class="header">
             <div class="header-left">
                 <h1>
                     <img src="https://i.imgur.com/VtgG6pR.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
-                    <i class="fas fa-chart-line"></i> Al Bourakh Dashboard
+                    <i class="fas fa-route"></i> Al Bourakh - Attribution Chauffeurs
                 </h1>
-                <p>📊 Gestion en temps réel • Sénégal</p>
+                <p>📊 Gestion intelligente des courses en temps réel</p>
             </div>
             <div class="header-right">
                 <div class="admin-info">
                     <i class="fas fa-user-shield"></i>
-                    <span class="admin-email" id="adminEmail">Chargement...</span>
+                    <span id="adminEmail">Chargement...</span>
                 </div>
                 <button class="refresh-btn" onclick="refreshData()">
                     <i class="fas fa-sync-alt"></i> Actualiser
                 </button>
                 <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
         </div>
         
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card" onclick="filterByStatus('all')">
-                <div class="stat-icon">📋</div>
-                <div class="stat-number" id="totalReservations">0</div>
-                <div class="stat-label">Réservations Totales</div>
-                <div class="stat-trend up" id="resTrend"></div>
-            </div>
-            
-            <div class="stat-card" onclick="filterByStatus('en_attente')">
+        <div class="stats-grid">
+            <div class="stat-card">
                 <div class="stat-icon">⏳</div>
-                <div class="stat-number" id="pendingReservations">0</div>
-                <div class="stat-label">En Attente</div>
+                <div class="stat-number" id="statEnAttente">0</div>
+                <div class="stat-label">En attente d'attribution</div>
             </div>
             
-            <div class="stat-card" onclick="switchTab('chauffeurs')">
+            <div class="stat-card">
                 <div class="stat-icon">👨‍✈️</div>
-                <div class="stat-number" id="totalDrivers">0</div>
-                <div class="stat-label">Candidatures Chauffeurs</div>
-                <div class="stat-trend up" id="driverTrend"></div>
+                <div class="stat-number" id="statDisponibles">0</div>
+                <div class="stat-label">Chauffeurs disponibles</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-icon">💰</div>
-                <div class="stat-number" id="totalRevenue">0</div>
-                <div class="stat-label">Revenu Estimé</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">📊</div>
-                <div class="stat-number" id="todayReservations">0</div>
-                <div class="stat-label">Aujourd'hui</div>
+                <div class="stat-icon">🚗</div>
+                <div class="stat-number" id="statEnCours">0</div>
+                <div class="stat-label">Courses en cours</div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-icon">✅</div>
-                <div class="stat-number" id="completedReservations">0</div>
-                <div class="stat-label">Terminées</div>
+                <div class="stat-number" id="statTerminees">0</div>
+                <div class="stat-label">Terminées aujourd'hui</div>
             </div>
         </div>
         
-        <div class="tabs">
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('reservations')">
-                    <i class="fas fa-car"></i> Réservations (<span id="resCount">0</span>)
-                </button>
-                <button class="tab-btn" onclick="switchTab('chauffeurs')">
-                    <i class="fas fa-users"></i> Candidatures (<span id="driverCount">0</span>)
-                </button>
-            </div>
+        <div class="reservations-container">
+            <h2 style="margin-bottom: 25px; color: #333; font-size: 1.8em;">
+                <i class="fas fa-clipboard-list"></i> Réservations à traiter
+            </h2>
             
-            <div id="reservations" class="tab-content active">
-                <div class="filters">
-                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchReservations" oninput="filterTable('reservationsBody', this.value)">
-                    <select class="filter-select" id="filterStatus" onchange="loadReservations()">
-                        <option value="">Tous les statuts</option>
-                        <option value="en_attente">En attente</option>
-                        <option value="confirmee">Confirmée</option>
-                        <option value="en_cours">En cours</option>
-                        <option value="terminee">Terminée</option>
-                        <option value="annulee">Annulée</option>
-                    </select>
-                    <input type="date" class="filter-input" id="filterDate" onchange="loadReservations()">
-                    <button class="export-btn" onclick="exportReservations()">
-                        <i class="fas fa-download"></i> Exporter CSV
-                    </button>
+            <div id="reservationsList">
+                <div style="text-align: center; padding: 50px; color: #999;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 3em; margin-bottom: 20px;"></i>
+                    <p>Chargement des réservations...</p>
                 </div>
-                
-                <div class="data-table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date/Heure</th>
-                                <th>Client</th>
-                                <th>Téléphone</th>
-                                <th>Trajet</th>
-                                <th>Véhicule</th>
-                                <th>Prix</th>
-                                <th>Paiement</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reservationsBody">
-                            <tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
-                        </tbody>
-                    </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Attribution -->
+    <div id="modalAttribution" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="font-size: 1.8em; margin-bottom: 10px;">
+                            <i class="fas fa-user-plus"></i> Sélectionner un chauffeur
+                        </h2>
+                        <p id="modalReservationInfo" style="font-size: 0.95em; opacity: 0.9;"></p>
+                    </div>
+                    <button class="close-modal" onclick="closeModal()">×</button>
                 </div>
             </div>
             
-            <div id="chauffeurs" class="tab-content">
-                <div class="filters">
-                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchChauffeurs" oninput="filterTable('chauffeursBody', this.value)">
-                    <select class="filter-select" id="filterDriverStatus" onchange="loadDrivers()">
-                        <option value="">Tous les statuts</option>
-                        <option value="nouvelle">Nouvelle</option>
-                        <option value="en_revision">En révision</option>
-                        <option value="acceptee">Acceptée</option>
-                        <option value="refusee">Refusée</option>
-                    </select>
-                    <button class="export-btn" onclick="exportDrivers()">
-                        <i class="fas fa-download"></i> Exporter CSV
-                    </button>
+            <div class="modal-body">
+                <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+                    <strong>💡 Conseil :</strong> Les chauffeurs sont triés par proximité. Le plus proche apparaît en premier.
                 </div>
                 
-                <div class="data-table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Nom</th>
-                                <th>Contact</th>
-                                <th>Ville</th>
-                                <th>Permis</th>
-                                <th>Véhicule</th>
-                                <th>Disponibilité</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="chauffeursBody">
-                            <tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div id="driversList"></div>
             </div>
         </div>
     </div>
@@ -647,8 +484,7 @@
             projectId: "albourakh-maps-sn",
             storageBucket: "albourakh-maps-sn.firebasestorage.app",
             messagingSenderId: "901444203447",
-            appId: "1:901444203447:web:5e4126f7e873d81b736e32",
-            measurementId: "G-FVHTZ2NRYB"
+            appId: "1:901444203447:web:5e4126f7e873d81b736e32"
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -656,25 +492,14 @@
         const db = firebase.firestore();
         
         let currentUser = null;
-        let allReservations = [];
-        let allDrivers = [];
+        let selectedReservation = null;
         
         auth.onAuthStateChanged((user) => {
-            const authLoading = document.getElementById('authLoading');
-            const mainContent = document.getElementById('mainContent');
-            
             if (!user) {
-                console.log('❌ Non authentifié, redirection...');
                 window.location.href = 'login.html';
             } else {
                 currentUser = user;
-                console.log('✅ Authentifié:', user.email);
-                
                 document.getElementById('adminEmail').textContent = user.email;
-                
-                authLoading.style.display = 'none';
-                mainContent.style.display = 'block';
-                
                 loadAllData();
             }
         });
@@ -682,39 +507,16 @@
         function logout() {
             if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
                 auth.signOut().then(() => {
-                    console.log('✅ Déconnexion réussie');
                     window.location.href = 'login.html';
-                }).catch((error) => {
-                    console.error('❌ Erreur:', error);
-                    showToast('Erreur de déconnexion: ' + error.message, 'error');
                 });
             }
         }
         
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            document.getElementById(tabName).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-        
         async function loadAllData() {
-            try {
-                await Promise.all([
-                    loadReservations(),
-                    loadDrivers(),
-                    loadStats()
-                ]);
-                showToast('✅ Données chargées', 'success');
-            } catch (error) {
-                console.error('❌ Erreur chargement:', error);
-                showToast('Erreur de chargement des données', 'error');
-            }
+            await Promise.all([
+                loadReservations(),
+                loadStats()
+            ]);
         }
         
         function refreshData() {
@@ -723,351 +525,415 @@
         }
         
         async function loadReservations() {
-    const tbody = document.getElementById('reservationsBody');
-    tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
-    
-    try {
-        // Base query - récupère toutes les réservations
-        let query = db.collection('reservations').orderBy('timestamp', 'desc').limit(100);
-        
-        const snapshot = await query.get();
-        
-        // Filtrer APRÈS avoir récupéré les données (évite le besoin d'index Firestore)
-        let filteredData = [];
-        snapshot.forEach(doc => {
-            filteredData.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Appliquer le filtre par statut en JavaScript
-        const filterStatus = document.getElementById('filterStatus').value;
-        if (filterStatus) {
-            filteredData = filteredData.filter(data => data.statut === filterStatus);
+            const container = document.getElementById('reservationsList');
+            
+            try {
+                const snapshot = await db.collection('reservations')
+                    .where('statut', 'in', ['en_attente', 'assignee', 'en_cours'])
+                    .orderBy('timestamp', 'desc')
+                    .limit(20)
+                    .get();
+                
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Aucune réservation à traiter</h3>
+                            <p>Toutes les réservations sont terminées ou annulées</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const card = createReservationCard(doc.id, data);
+                    container.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Erreur chargement:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erreur de chargement</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
         }
         
-        // Appliquer le filtre par date en JavaScript
-        const filterDate = document.getElementById('filterDate').value;
-        if (filterDate) {
-            const selectedDate = new Date(filterDate);
-            filteredData = filteredData.filter(data => {
-                if (!data.timestamp) return false;
-                const docDate = new Date(data.timestamp.seconds * 1000);
-                return docDate.toLocaleDateString() === selectedDate.toLocaleDateString();
-            });
-        }
-        
-        allReservations = filteredData;
-        document.getElementById('resCount').textContent = filteredData.length;
-        
-        if (filteredData.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune réservation trouvée avec ces filtres</td></tr>';
-            return;
-        }
-        
-        tbody.innerHTML = '';
-        
-        filteredData.forEach(data => {
-            const row = tbody.insertRow();
+        function createReservationCard(id, data) {
+            const card = document.createElement('div');
+            card.className = 'reservation-card';
+            
             const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
             
-            row.innerHTML = `
-                <td>${date.toLocaleDateString()} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</td>
-                <td><strong>${data.nom || 'N/A'}</strong><br><small>${data.email || ''}</small></td>
-                <td>${data.telephone || 'N/A'}</td>
-                <td><strong>${data.depart || 'N/A'}</strong><br>↓<br><strong>${data.destination || 'N/A'}</strong></td>
-                <td>${data.typeVehicule || 'N/A'}</td>
-                <td><strong>${(data.prixEstime || 0).toLocaleString()} FCFA</strong></td>
-                <td>${data.modePaiement || 'N/A'}</td>
-                <td><span class="status-badge status-${data.statut || 'en_attente'}">${data.statut || 'en_attente'}</span></td>
-                <td>
-                    <button class="action-btn btn-view" onclick="viewReservationDetails('${data.id}')" title="Voir détails">
-                        <i class="fas fa-eye"></i>
-                    </button>
+            card.innerHTML = `
+                <div class="reservation-header">
+                    <div>
+                        <span class="status-badge status-${data.statut}">${getStatusLabel(data.statut)}</span>
+                        <span style="margin-left: 15px; color: #999; font-size: 0.9em;">
+                            <i class="fas fa-clock"></i> ${date.toLocaleString('fr-FR')}
+                        </span>
+                    </div>
                     ${data.statut === 'en_attente' ? `
-                        <button class="action-btn btn-accept" onclick="updateReservationStatus('${data.id}', 'confirmee')" title="Confirmer">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button class="action-btn btn-reject" onclick="updateReservationStatus('${data.id}', 'annulee')" title="Annuler">
-                            <i class="fas fa-times"></i>
+                        <button class="btn-assign" onclick="openAttribution('${id}')">
+                            <i class="fas fa-user-plus"></i> Assigner un chauffeur
                         </button>
                     ` : ''}
-                </td>
+                </div>
+                
+                <div class="reservation-info">
+                    <div class="info-block">
+                        <div class="info-label"><i class="fas fa-user"></i> Client</div>
+                        <div class="info-value">${data.nom || 'N/A'}</div>
+                        <div style="margin-top: 5px; color: #666; font-size: 0.9em;">
+                            <i class="fas fa-phone"></i> ${data.telephone || 'N/A'}
+                        </div>
+                    </div>
+                    
+                    <div class="info-block">
+                        <div class="info-label"><i class="fas fa-map-marker-alt"></i> Trajet</div>
+                        <div class="info-value">${data.depart || 'N/A'}</div>
+                        <div style="margin-top: 5px; color: #666;">↓</div>
+                        <div class="info-value">${data.destination || 'N/A'}</div>
+                    </div>
+                    
+                    <div class="info-block">
+                        <div class="info-label"><i class="fas fa-car"></i> Véhicule & Prix</div>
+                        <div class="info-value">${data.typeVehicule || 'Standard'}</div>
+                        <div style="margin-top: 5px; color: #00A854; font-size: 1.2em; font-weight: bold;">
+                            ${(data.prixEstime || 0).toLocaleString()} FCFA
+                        </div>
+                    </div>
+                    
+                    <div class="info-block">
+                        <div class="info-label"><i class="fas fa-calendar-check"></i> Date & Heure souhaitée</div>
+                        <div class="info-value">${data.date || 'N/A'}</div>
+                        <div style="margin-top: 5px; color: #666; font-size: 1.1em;">
+                            <i class="fas fa-clock"></i> ${data.heure || 'N/A'}
+                        </div>
+                    </div>
+                </div>
+                
+                ${data.chauffeurAssigne ? `
+                    <div class="chauffeur-assigned">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 5px;">
+                                    <i class="fas fa-user-check"></i> Chauffeur assigné
+                                </div>
+                                <div style="font-size: 1.3em; font-weight: bold;">
+                                    ${data.nomChauffeur || 'N/A'}
+                                </div>
+                                <div style="margin-top: 5px; opacity: 0.95;">
+                                    <i class="fas fa-phone"></i> ${data.telephoneChauffeur || 'N/A'}
+                                </div>
+                            </div>
+                            ${data.statut === 'assignee' ? `
+                                <button class="btn-assign" style="background: #9C27B0;" onclick="demarrerCourse('${id}')">
+                                    <i class="fas fa-play"></i> Démarrer
+                                </button>
+                            ` : ''}
+                            ${data.statut === 'en_cours' ? `
+                                <button class="btn-assign" style="background: #4CAF50;" onclick="terminerCourse('${id}')">
+                                    <i class="fas fa-check"></i> Terminer
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : ''}
             `;
-        });
-    } catch (error) {
-        console.error('❌ Erreur:', error);
-        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">❌ Erreur: ${error.message}</td></tr>`;
-        showToast('Erreur de chargement des réservations', 'error');
-    }
-}
-        
-       async function loadDrivers() {
-    const tbody = document.getElementById('chauffeursBody');
-    tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
-    
-    try {
-        // Base query - récupère toutes les candidatures
-        let query = db.collection('candidatures_chauffeurs').orderBy('timestamp', 'desc').limit(100);
-        
-        const snapshot = await query.get();
-        
-        // Filtrer APRÈS avoir récupéré les données (évite le besoin d'index Firestore)
-        let filteredData = [];
-        snapshot.forEach(doc => {
-            filteredData.push({ id: doc.id, ...doc.data() });
-        });
-        
-        // Appliquer le filtre par statut en JavaScript
-        const filterStatus = document.getElementById('filterDriverStatus').value;
-        if (filterStatus) {
-            filteredData = filteredData.filter(data => data.statut === filterStatus);
-        }
-        
-        allDrivers = filteredData;
-        document.getElementById('driverCount').textContent = filteredData.length;
-        
-        if (filteredData.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune candidature trouvée avec ces filtres</td></tr>';
-            return;
-        }
-        
-        tbody.innerHTML = '';
-        
-        filteredData.forEach(data => {
-            const row = tbody.insertRow();
-            const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
             
-            row.innerHTML = `
-                <td>${date.toLocaleDateString()}</td>
-                <td><strong>${data.nomComplet || 'N/A'}</strong></td>
-                <td>${data.telephone || 'N/A'}<br><small>${data.email || ''}</small></td>
-                <td>${data.villeResidence || 'N/A'}</td>
-                <td>${data.permis?.categorie || 'N/A'}<br><small>${data.permis?.anneesExperience || 0} ans exp.</small></td>
-                <td>${data.vehicule?.type || 'N/A'}<br><small>${data.vehicule?.marqueModele || ''} (${data.vehicule?.annee || ''})</small></td>
-                <td>${data.disponibilite || 'N/A'}</td>
-                <td><span class="status-badge status-${data.statut || 'nouvelle'}">${data.statut || 'nouvelle'}</span></td>
-                <td>
-                    <button class="action-btn btn-view" onclick="viewDriverDetails('${data.id}')" title="Voir détails">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    ${data.statut === 'nouvelle' ? `
-                        <button class="action-btn btn-accept" onclick="updateDriverStatus('${data.id}', 'acceptee')" title="Accepter">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button class="action-btn btn-reject" onclick="updateDriverStatus('${data.id}', 'refusee')" title="Refuser">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    ` : ''}
-                </td>
-            `;
-        });
-    } catch (error) {
-        console.error('❌ Erreur:', error);
-        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">❌ Erreur: ${error.message}</td></tr>`;
-        showToast('Erreur de chargement des candidatures', 'error');
-    }
-}
+            return card;
+        }
+        
+        function getStatusLabel(statut) {
+            const labels = {
+                en_attente: 'En attente',
+                assignee: 'Assignée',
+                en_cours: 'En cours',
+                terminee: 'Terminée',
+                annulee: 'Annulée'
+            };
+            return labels[statut] || statut;
+        }
         
         async function loadStats() {
             try {
-                const resSnapshot = await db.collection('reservations').get();
-                const totalRes = resSnapshot.size;
-                document.getElementById('totalReservations').textContent = totalRes;
+                const reservationsSnap = await db.collection('reservations').get();
+                const chauffeursSnap = await db.collection('candidatures_chauffeurs')
+                    .where('statut', '==', 'acceptee')
+                    .get();
                 
-                const pending = resSnapshot.docs.filter(doc => doc.data().statut === 'en_attente').length;
-                document.getElementById('pendingReservations').textContent = pending;
+                let enAttente = 0, enCours = 0, terminees = 0, disponibles = 0;
                 
-                const completed = resSnapshot.docs.filter(doc => doc.data().statut === 'terminee').length;
-                document.getElementById('completedReservations').textContent = completed;
-                
-                const revenue = resSnapshot.docs
-                    .filter(doc => doc.data().statut === 'terminee')
-                    .reduce((sum, doc) => sum + (doc.data().prixEstime || 0), 0);
-                document.getElementById('totalRevenue').textContent = revenue.toLocaleString() + ' FCFA';
-                
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                const todayCount = resSnapshot.docs.filter(doc => {
-                    const docDate = doc.data().timestamp ? new Date(doc.data().timestamp.seconds * 1000) : new Date();
-                    docDate.setHours(0,0,0,0);
-                    return docDate.getTime() === today.getTime();
-                }).length;
-                document.getElementById('todayReservations').textContent = todayCount;
-                
-                const driverSnapshot = await db.collection('candidatures_chauffeurs').get();
-                document.getElementById('totalDrivers').textContent = driverSnapshot.size;
-                
-                document.getElementById('resTrend').textContent = `↑ ${totalRes} total`;
-                document.getElementById('driverTrend').textContent = `↑ ${driverSnapshot.size} total`;
-                
-            } catch (error) {
-                console.error('❌ Erreur stats:', error);
-                showToast('Erreur de chargement des statistiques', 'error');
-            }
-        }
-        
-        async function viewReservationDetails(id) {
-            try {
-                const doc = await db.collection('reservations').doc(id).get();
-                const data = doc.data();
-                
-                const details = `📋 DÉTAILS RÉSERVATION
-
-Nom: ${data.nom}
-Téléphone: ${data.telephone}
-Email: ${data.email || 'N/A'}
-
-Trajet:
-${data.depart} → ${data.destination}
-
-Date: ${data.date}
-Heure: ${data.heure}
-Passagers: ${data.passagers}
-
-Véhicule: ${data.typeVehicule}
-Prix: ${(data.prixEstime || 0).toLocaleString()} FCFA
-Paiement: ${data.modePaiement}
-
-Instructions: ${data.instructions || 'Aucune'}
-
-Statut: ${data.statut}`;
-                
-                alert(details);
-            } catch (error) {
-                console.error('❌ Erreur:', error);
-                showToast('Erreur de chargement des détails', 'error');
-            }
-        }
-        
-        async function viewDriverDetails(id) {
-            try {
-                const doc = await db.collection('candidatures_chauffeurs').doc(id).get();
-                const data = doc.data();
-                
-                const details = `👨‍✈️ DÉTAILS CHAUFFEUR
-
-Nom: ${data.nomComplet}
-Téléphone: ${data.telephone}
-Email: ${data.email}
-Ville: ${data.villeResidence}
-CNI: ${data.numeroCNI}
-Date naissance: ${data.dateNaissance}
-
-Permis:
-Numéro: ${data.permis?.numero}
-Catégorie: ${data.permis?.categorie}
-Date obtention: ${data.permis?.dateObtention}
-Expérience: ${data.permis?.anneesExperience} ans
-
-Véhicule:
-Type: ${data.vehicule?.type}
-Modèle: ${data.vehicule?.marqueModele}
-Année: ${data.vehicule?.annee}
-Immatriculation: ${data.vehicule?.immatriculation}
-Couleur: ${data.vehicule?.couleur}
-Places: ${data.vehicule?.nombrePlaces}
-
-Disponibilité: ${data.disponibilite}
-Expérience: ${data.experience || 'N/A'}
-
-Statut: ${data.statut}`;
-                
-                alert(details);
-            } catch (error) {
-                console.error('❌ Erreur:', error);
-                showToast('Erreur de chargement des détails', 'error');
-            }
-        }
-        
-        async function updateReservationStatus(id, newStatus) {
-            if (confirm(`Confirmer le changement de statut vers "${newStatus}" ?`)) {
-                try {
-                    await db.collection('reservations').doc(id).update({
-                        statut: newStatus,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    showToast('✅ Statut mis à jour!', 'success');
-                    loadReservations();
-                    loadStats();
-                } catch (error) {
-                    console.error('❌ Erreur:', error);
-                    showToast('Erreur: ' + error.message, 'error');
-                }
-            }
-        }
-        
-        async function updateDriverStatus(id, newStatus) {
-            if (confirm(`Confirmer le changement de statut vers "${newStatus}" ?`)) {
-                try {
-                    await db.collection('candidatures_chauffeurs').doc(id).update({
-                        statut: newStatus,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    showToast('✅ Statut mis à jour!', 'success');
-                    loadDrivers();
-                    loadStats();
-                } catch (error) {
-                    console.error('❌ Erreur:', error);
-                    showToast('Erreur: ' + error.message, 'error');
-                }
-            }
-        }
-        
-        function filterTable(tbodyId, searchTerm) {
-            const tbody = document.getElementById(tbodyId);
-            const rows = tbody.getElementsByTagName('tr');
-            const search = searchTerm.toLowerCase();
-            
-            for (let row of rows) {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(search) ? '' : 'none';
-            }
-        }
-        
-        function filterByStatus(status) {
-            document.getElementById('filterStatus').value = status === 'all' ? '' : status;
-            loadReservations();
-        }
-        
-        function exportReservations() {
-            exportToCSV(allReservations, 'reservations_albourakh.csv');
-        }
-        
-        function exportDrivers() {
-            exportToCSV(allDrivers, 'chauffeurs_albourakh.csv');
-        }
-        
-        function exportToCSV(data, filename) {
-            if (!data || data.length === 0) {
-                showToast('Aucune donnée à exporter', 'warning');
-                return;
-            }
-            
-            try {
-                const headers = Object.keys(data[0]).filter(key => key !== 'id');
-                let csv = headers.join(',') + '\n';
-                
-                data.forEach(row => {
-                    csv += headers.map(h => {
-                        const value = row[h];
-                        if (value && typeof value === 'object' && value.seconds) {
-                            return `"${new Date(value.seconds * 1000).toLocaleString()}"`;
+                reservationsSnap.forEach(doc => {
+                    const statut = doc.data().statut;
+                    if (statut === 'en_attente') enAttente++;
+                    if (statut === 'en_cours') enCours++;
+                    if (statut === 'terminee') {
+                        const date = doc.data().timestamp ? new Date(doc.data().timestamp.seconds * 1000) : null;
+                        if (date && date.toDateString() === new Date().toDateString()) {
+                            terminees++;
                         }
-                        return `"${JSON.stringify(value || '').replace(/"/g, '""')}"`;
-                    }).join(',') + '\n';
+                    }
                 });
                 
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                a.click();
+                chauffeursSnap.forEach(doc => {
+                    if (doc.data().disponible) disponibles++;
+                });
                 
-                showToast('✅ Exporté avec succès!', 'success');
+                document.getElementById('statEnAttente').textContent = enAttente;
+                document.getElementById('statDisponibles').textContent = disponibles;
+                document.getElementById('statEnCours').textContent = enCours;
+                document.getElementById('statTerminees').textContent = terminees;
+                
             } catch (error) {
-                console.error('❌ Erreur export:', error);
-                showToast('Erreur d\'exportation: ' + error.message, 'error');
+                console.error('Erreur stats:', error);
             }
+        }
+        
+        async function openAttribution(reservationId) {
+            try {
+                const resDoc = await db.collection('reservations').doc(reservationId).get();
+                const resData = resDoc.data();
+                
+                selectedReservation = { id: reservationId, ...resData };
+                
+                document.getElementById('modalReservationInfo').textContent = 
+                    `${resData.nom} • ${resData.depart} → ${resData.destination}`;
+                
+                await loadDriversList();
+                
+                document.getElementById('modalAttribution').classList.add('active');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadDriversList() {
+            const container = document.getElementById('driversList');
+            container.innerHTML = '<div style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin" style="font-size: 2em;"></i></div>';
+            
+            try {
+                const snapshot = await db.collection('candidatures_chauffeurs')
+                    .where('statut', '==', 'acceptee')
+                    .get();
+                
+                const drivers = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    
+                    // Calculer la distance si coordonnées disponibles
+                    let distance = null;
+                    if (selectedReservation.coordonneesDepart && data.positionActuelle) {
+                        distance = calculateDistance(
+                            selectedReservation.coordonneesDepart.lat,
+                            selectedReservation.coordonneesDepart.lng,
+                            data.positionActuelle.lat,
+                            data.positionActuelle.lng
+                        );
+                    }
+                    
+                    drivers.push({
+                        id: doc.id,
+                        ...data,
+                        distance: distance,
+                        tempsArrivee: distance ? Math.round(distance * 3) : null
+                    });
+                });
+                
+                // Trier par disponibilité puis distance
+                drivers.sort((a, b) => {
+                    if (a.disponible && !b.disponible) return -1;
+                    if (!a.disponible && b.disponible) return 1;
+                    if (a.distance && b.distance) return a.distance - b.distance;
+                    return 0;
+                });
+                
+                container.innerHTML = '';
+                
+                if (drivers.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-slash"></i>
+                            <h3>Aucun chauffeur actif</h3>
+                            <p>Veuillez d'abord accepter des candidatures chauffeurs</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                drivers.forEach(driver => {
+                    const card = createDriverCard(driver);
+                    container.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                container.innerHTML = `<div class="empty-state">Erreur: ${error.message}</div>`;
+            }
+        }
+        
+        function createDriverCard(driver) {
+            const card = document.createElement('div');
+            card.className = 'driver-card' + (driver.disponible ? '' : ' unavailable');
+            
+            card.innerHTML = `
+                <div class="driver-info">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em; font-weight: bold;">
+                            ${driver.nomComplet.charAt(0)}
+                        </div>
+                        <div>
+                            <div style="font-size: 1.3em; font-weight: bold; color: #333;">
+                                ${driver.nomComplet}
+                                ${!driver.disponible ? '<span style="color: #E30613; font-size: 0.7em; margin-left: 10px;">● OCCUPÉ</span>' : '<span style="color: #4CAF50; font-size: 0.7em; margin-left: 10px;">● DISPONIBLE</span>'}
+                            </div>
+                            <div style="color: #666; margin-top: 3px;">
+                                <i class="fas fa-phone"></i> ${driver.telephone}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="driver-stats">
+                        ${driver.distance ? `
+                            <div class="driver-stat">
+                                <div class="driver-stat-value">${driver.distance.toFixed(1)} km</div>
+                                <div class="driver-stat-label">Distance</div>
+                            </div>
+                            <div class="driver-stat">
+                                <div class="driver-stat-value">${driver.tempsArrivee} min</div>
+                                <div class="driver-stat-label">Arrivée</div>
+                            </div>
+                        ` : ''}
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">${driver.vehicule?.type || 'Standard'}</div>
+                            <div class="driver-stat-label">Véhicule</div>
+                        </div>
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">⭐ ${driver.evaluationMoyenne || '4.5'}</div>
+                            <div class="driver-stat-label">Note</div>
+                        </div>
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">${driver.totalCourses || 0}</div>
+                            <div class="driver-stat-label">Courses</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${driver.disponible ? `
+                    <button class="btn-assign" onclick="assignerChauffeur('${driver.id}')">
+                        <i class="fas fa-check"></i> Assigner
+                    </button>
+                ` : `
+                    <div style="padding: 12px 30px; background: #f0f0f0; border-radius: 10px; color: #999; font-weight: bold;">
+                        <i class="fas fa-ban"></i> Non disponible
+                    </div>
+                `}
+            `;
+            
+            return card;
+        }
+        
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        async function assignerChauffeur(chauffeurId) {
+            if (!confirm('Confirmer l\'attribution de ce chauffeur ?')) return;
+            
+            try {
+                const chauffeurDoc = await db.collection('candidatures_chauffeurs').doc(chauffeurId).get();
+                const chauffeur = chauffeurDoc.data();
+                
+                await db.collection('reservations').doc(selectedReservation.id).update({
+                    chauffeurAssigne: chauffeurId,
+                    nomChauffeur: chauffeur.nomComplet,
+                    telephoneChauffeur: chauffeur.telephone,
+                    statut: 'assignee',
+                    dateAssignation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await db.collection('candidatures_chauffeurs').doc(chauffeurId).update({
+                    disponible: false,
+                    coursesEnCours: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                showToast(`✅ Chauffeur ${chauffeur.nomComplet} assigné avec succès!`, 'success');
+                closeModal();
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur: ' + error.message, 'error');
+            }
+        }
+        
+        async function demarrerCourse(reservationId) {
+            if (!confirm('Confirmer le démarrage de la course ?')) return;
+            
+            try {
+                await db.collection('reservations').doc(reservationId).update({
+                    statut: 'en_cours',
+                    heureDepart: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('🚗 Course démarrée!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur: ' + error.message, 'error');
+            }
+        }
+        
+        async function terminerCourse(reservationId) {
+            if (!confirm('Confirmer la fin de la course ?')) return;
+            
+            try {
+                const resDoc = await db.collection('reservations').doc(reservationId).get();
+                const resData = resDoc.data();
+                
+                await db.collection('reservations').doc(reservationId).update({
+                    statut: 'terminee',
+                    heureArrivee: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                if (resData.chauffeurAssigne) {
+                    await db.collection('candidatures_chauffeurs').doc(resData.chauffeurAssigne).update({
+                        disponible: true,
+                        coursesEnCours: firebase.firestore.FieldValue.increment(-1),
+                        totalCourses: firebase.firestore.FieldValue.increment(1)
+                    });
+                }
+                
+                showToast('✅ Course terminée!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur: ' + error.message, 'error');
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('modalAttribution').classList.remove('active');
+            selectedReservation = null;
         }
         
         function showToast(message, type = 'info') {
@@ -1077,8 +943,7 @@ Statut: ${data.statut}`;
             const icons = {
                 success: 'fa-check-circle',
                 error: 'fa-exclamation-circle',
-                info: 'fa-info-circle',
-                warning: 'fa-exclamation-triangle'
+                info: 'fa-info-circle'
             };
             
             toast.innerHTML = `
@@ -1095,12 +960,10 @@ Statut: ${data.statut}`;
         }
         
         setInterval(() => {
-            if (currentUser) {
-                loadStats();
-            }
+            if (currentUser) loadStats();
         }, 60000);
         
-        console.log('🚀 Dashboard Al Bourakh chargé');
+        console.log('🚀 Dashboard Attribution Al Bourakh chargé');
     </script>
 </body>
 </html>
