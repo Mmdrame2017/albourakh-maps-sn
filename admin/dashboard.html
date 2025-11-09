@@ -561,7 +561,7 @@
             if (!user) {
                 // Pas connecte -> redirection vers login
                 console.log('Utilisateur non authentifie, redirection...');
-                window.location.href = 'admin-login.html';
+                window.location.href = '/admin/Login.html';
             } else {
                 // Connecte -> afficher le dashboard
                 currentUser = user;
@@ -585,7 +585,7 @@
             if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
                 auth.signOut().then(() => {
                     console.log('Deconnexion reussie');
-                    window.location.href = 'admin-login.html';
+                    window.location.href = '/admin/Login.html';
                 }).catch((error) => {
                     console.error('Erreur de deconnexion:', error);
                     alert('Erreur lors de la deconnexion: ' + error.message);
@@ -596,7 +596,6 @@
         // ===== RESTE DU CODE IDENTIQUE =====
         
         function switchTab(tabName) {
-            // Cacher tous les onglets
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -604,7 +603,6 @@
                 btn.classList.remove('active');
             });
             
-            // Afficher l'onglet selectionne
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
         }
@@ -806,7 +804,6 @@
         
         async function loadStats() {
             try {
-                // Reservations
                 const resSnapshot = await db.collection('reservations').get();
                 document.getElementById('totalReservations').textContent = resSnapshot.size;
                 
@@ -827,11 +824,9 @@
                 }).length;
                 document.getElementById('todayReservations').textContent = todayCount;
                 
-                // Chauffeurs
                 const driverSnapshot = await db.collection('candidatures_chauffeurs').get();
                 document.getElementById('totalDrivers').textContent = driverSnapshot.size;
                 
-                // Chatbot
                 const chatSnapshot = await db.collection('chatbot_interactions').get();
                 document.getElementById('chatInteractions').textContent = chatSnapshot.size;
                 
@@ -946,7 +941,6 @@
                     data.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // Convertir en CSV
                 const headers = Object.keys(data[0]);
                 let csv = headers.join(',') + '\n';
                 
@@ -960,7 +954,6 @@
                     }).join(',') + '\n';
                 });
                 
-                // Telecharger
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -974,7 +967,6 @@
             }
         }
         
-        // Recherche en temps reel
         document.getElementById('searchReservations')?.addEventListener('input', (e) => {
             const search = e.target.value.toLowerCase();
             document.querySelectorAll('#reservationsBody tr').forEach(row => {
@@ -991,7 +983,6 @@
             });
         });
         
-        // Auto-refresh toutes les 30 secondes
         setInterval(() => {
             if (currentUser) {
                 loadStats();
