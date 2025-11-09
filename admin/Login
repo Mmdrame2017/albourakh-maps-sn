@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al Bourakh - Connexion Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-login:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border-left: 4px solid #c33;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer p {
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>Al Bourakh</h1>
+            <p>Espace Administrateur</p>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Adresse e-mail</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    required 
+                    autocomplete="email"
+                    placeholder="admin@albourakh.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    required 
+                    autocomplete="current-password"
+                    placeholder="••••••••">
+            </div>
+
+            <button type="submit" id="btn-login" class="btn-login">
+                Se connecter
+            </button>
+        </form>
+
+        <div class="footer">
+            <p>&copy; 2024 Al Bourakh - Transport Premium</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
+            authDomain: "albourakh-maps-sn.firebaseapp.com",
+            projectId: "albourakh-maps-sn",
+            storageBucket: "albourakh-maps-sn.firebasestorage.app",
+            messagingSenderId: "901444203447",
+            appId: "1:901444203447:web:5e4126f7e873d81b736e32",
+            measurementId: "G-FVHTZ2NRYB"
+        };
+
+        // Initialisation Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Elements DOM
+        const form = document.getElementById('login-form');
+        const errorDiv = document.getElementById('error-message');
+        const btnLogin = document.getElementById('btn-login');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        // Gestion de la soumission du formulaire
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            // Validation basique
+            if (!email || !password) {
+                showError('Veuillez remplir tous les champs.');
+                return;
+            }
+
+            // Masquer les erreurs precedentes
+            errorDiv.classList.remove('show');
+            
+            // Desactiver le bouton et afficher le chargement
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="loading-spinner"></span>Connexion en cours...';
+
+            try {
+                // Tentative de connexion
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log('Connexion reussie:', userCredential.user.email);
+                
+                // Redirection vers le dashboard
+                window.location.href = 'admin-dashboard.html';
+                
+            } catch (error) {
+                console.error('Erreur de connexion:', error);
+                
+                // Messages d'erreur personnalises
+                let message = 'Erreur de connexion. Veuillez verifier vos identifiants.';
+                
+                switch(error.code) {
+                    case 'auth/wrong-password':
+                        message = 'Mot de passe incorrect.';
+                        break;
+                    case 'auth/user-not-found':
+                        message = 'Aucun compte trouve avec cet email.';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'Format d\'email invalide.';
+                        break;
+                    case 'auth/invalid-credential':
+                        message = 'Email ou mot de passe incorrect.';
+                        break;
+                    case 'auth/too-many-requests':
+                        message = 'Trop de tentatives. Veuillez reessayer plus tard.';
+                        break;
+                    case 'auth/network-request-failed':
+                        message = 'Erreur de connexion. Verifiez votre internet.';
+                        break;
+                }
+                
+                showError(message);
+                
+            } finally {
+                // Reactiver le bouton
+                btnLogin.disabled = false;
+                btnLogin.textContent = 'Se connecter';
+            }
+        });
+
+        // Fonction pour afficher les erreurs
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // Faire vibrer les champs en cas d'erreur
+            form.style.animation = 'none';
+            setTimeout(() => {
+                form.style.animation = '';
+            }, 10);
+        }
+
+        // Verifier si deja connecte
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Deja connecte, rediriger vers le dashboard
+                window.location.href = 'admin-dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>
