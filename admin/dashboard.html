@@ -582,16 +582,16 @@
         
         // Fonction de deconnexion
         function logout() {
-            if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
-                auth.signOut().then(() => {
-                    console.log('Deconnexion reussie');
-                    window.location.href = '/admin/Login.html';
-                }).catch((error) => {
-                    console.error('Erreur de deconnexion:', error);
-                    alert('Erreur lors de la deconnexion: ' + error.message);
-                });
-            }
-        }
+    if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
+        firebase.auth().signOut().then(() => {
+            console.log('Deconnexion reussie');
+            window.location.href = '/admin/Login.html';
+        }).catch((error) => {
+            console.error('Erreur de deconnexion:', error);
+            alert('Erreur lors de la deconnexion: ' + error.message);
+        });
+    }
+}
         
         // ===== RESTE DU CODE IDENTIQUE =====
         
