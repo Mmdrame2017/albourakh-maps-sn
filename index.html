@@ -757,23 +757,27 @@
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .feature-card {
             background: white;
-            padding: 40px;
+            padding: 35px;
             border-radius: 15px;
             text-align: center;
             transition: all 0.3s ease;
             cursor: pointer;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
         }
 
         .feature-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            border-color: currentColor;
         }
 
         .feature-icon {
@@ -1438,7 +1442,7 @@
                 <i class="fas fa-route"></i> Al Bourakh Maps GPS
             </h1>
             <p class="hero-subtitle">
-                🧭 Navigation GPS en Temps Réel • 118+ Zones à Dakar • Service 24/7
+                🧭 Navigation GPS en Temps Réel • 129 Zones à Dakar • Service 24/7
             </p>
         </div>
     </section>
@@ -1447,7 +1451,7 @@
         <div class="stat-card" onclick="showStatsDetail('zones')">
             <span class="stat-number" id="liveZones">118</span>
             <span class="stat-label">Quartiers</span>
-            <span class="stat-trend">↑ +5 ce mois</span>
+            <span class="stat-trend">↑ Couverture complète</span>
         </div>
         <div class="stat-card" onclick="showStatsDetail('vehicles')">
             <span class="stat-number" id="liveVehicles">753</span>
@@ -1494,6 +1498,12 @@
                 <button class="map-btn btn-secondary" onclick="findMyLocation()">
                     <i class="fas fa-location-arrow"></i> Ma Position
                 </button>
+                <button class="map-btn btn-outline" onclick="centerMap()">
+                    <i class="fas fa-crosshairs"></i> Centrer
+                </button>
+                <button class="map-btn btn-outline" onclick="toggleTraffic()">
+                    <i class="fas fa-traffic-light"></i> Trafic
+                </button>
             </div>
         </div>
         
@@ -1504,34 +1514,59 @@
 
     <section class="features-section">
         <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="section-logo" onerror="this.style.display='none'">
-        <h2 class="section-title">Fonctionnalités de la Carte</h2>
-        <p class="section-subtitle">Une expérience de navigation révolutionnaire</p>
+        <h2 class="section-title">129 Quartiers en 9 Zones</h2>
+        <p class="section-subtitle">Couverture complète de Dakar et sa banlieue - Cliquez pour explorer</p>
         
         <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-map-pin"></i></div>
-                <h3 class="feature-title">118+ Zones</h3>
-                <p class="feature-desc">Couverture complète de Dakar et sa région avec tous les quartiers majeurs</p>
+            <div class="feature-card" onclick="showZoneQuartiers('centre')">
+                <div class="feature-icon" style="color: #00A854;">🏙️</div>
+                <h3 class="feature-title">Dakar Centre</h3>
+                <p class="feature-desc">15 quartiers incluant Plateau, Médina, Point E, Sacré-Cœur</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-sync-alt"></i></div>
-                <h3 class="feature-title">Temps Réel</h3>
-                <p class="feature-desc">Mise à jour des véhicules disponibles toutes les 5 secondes</p>
+            <div class="feature-card" onclick="showZoneQuartiers('ouest')">
+                <div class="feature-icon" style="color: #2196F3;">🌊</div>
+                <h3 class="feature-title">Corniche & Ouest</h3>
+                <p class="feature-desc">15 quartiers incluant Almadies, Ngor, Ouakam, Yoff</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-route"></i></div>
-                <h3 class="feature-title">Navigation GPS</h3>
-                <p class="feature-desc">Calcul d'itinéraire automatique avec guidage étape par étape</p>
+            <div class="feature-card" onclick="showZoneQuartiers('pikine')">
+                <div class="feature-icon" style="color: #FF9800;">🏘️</div>
+                <h3 class="feature-title">Pikine</h3>
+                <p class="feature-desc">13 quartiers incluant Thiaroye, Yeumbeul, Malika</p>
+            </div>
+            <div class="feature-card" onclick="showZoneQuartiers('guediawaye')">
+                <div class="feature-icon" style="color: #9C27B0;">🏘️</div>
+                <h3 class="feature-title">Guédiawaye</h3>
+                <p class="feature-desc">11 quartiers incluant Golf Nord, Sam Notaire, Ndiarème</p>
+            </div>
+            <div class="feature-card" onclick="showZoneQuartiers('keur_massar')">
+                <div class="feature-icon" style="color: #FF5722;">🏘️</div>
+                <h3 class="feature-title">Keur Massar</h3>
+                <p class="feature-desc">11 quartiers incluant Boune, Jaxaay, Mbeubeuss</p>
+            </div>
+            <div class="feature-card" onclick="showZoneQuartiers('sud')">
+                <div class="feature-icon" style="color: #4CAF50;">🌅</div>
+                <h3 class="feature-title">Dakar Sud</h3>
+                <p class="feature-desc">10 quartiers incluant Rufisque, Bargny, Diamniadio</p>
+            </div>
+            <div class="feature-card" onclick="showZoneQuartiers('grand_yoff')">
+                <div class="feature-icon" style="color: #00BCD4;">✈️</div>
+                <h3 class="feature-title">Grand Yoff</h3>
+                <p class="feature-desc">10 quartiers incluant Aéroport LSS, Bopp, Soprim</p>
+            </div>
+            <div class="feature-card" onclick="showZoneQuartiers('hann_bel_air')">
+                <div class="feature-icon" style="color: #E91E63;">🏭</div>
+                <h3 class="feature-title">Hann Bel-Air</h3>
+                <p class="feature-desc">10 quartiers incluant Zone Industrielle, Port de Pêche</p>
+            </div>
+            <div class="feature-card" onclick="showZoneQuartiers('parcelles')">
+                <div class="feature-icon" style="color: #FFC107;">🏡</div>
+                <h3 class="feature-title">Parcelles Assainies</h3>
+                <p class="feature-desc">18 unités couvrant toute la zone des Parcelles</p>
             </div>
             <div class="feature-card" onclick="activateSmartSearch()">
-                <div class="feature-icon"><i class="fas fa-search-location"></i></div>
+                <div class="feature-icon" style="color: #673AB7;"><i class="fas fa-search-location"></i></div>
                 <h3 class="feature-title">Recherche Intelligente</h3>
-                <p class="feature-desc">Trouvez rapidement n'importe quelle adresse avec l'autocomplétion Google Maps</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
-                <h3 class="feature-title">100% Responsive</h3>
-                <p class="feature-desc">Interface optimisée pour tous les appareils et écrans</p>
+                <p class="feature-desc">Trouvez rapidement n'importe quelle adresse avec l'autocomplétion</p>
             </div>
         </div>
     </section>
@@ -1982,17 +2017,139 @@
         let selectedVehicleType = null;
         let selectedVehiclePrice = 0;
         let selectedPaymentMethod = null;
+        let autocompleteFrom, autocompleteTo;
 
         const zones = {
             centre: [
                 {name: 'Plateau', lat: 14.6937, lng: -17.4441, vehicles: 45},
                 {name: 'Médina', lat: 14.6830, lng: -17.4505, vehicles: 38},
-                {name: 'Grand Dakar', lat: 14.7085, lng: -17.4553, vehicles: 52}
-            ],
-            residential: [
-                {name: 'Almadies', lat: 14.7286, lng: -17.5295, vehicles: 67},
-                {name: 'Yoff', lat: 14.7450, lng: -17.4950, vehicles: 83},
+                {name: 'Grand Dakar', lat: 14.7085, lng: -17.4553, vehicles: 52},
+                {name: 'Fass', lat: 14.6910, lng: -17.4620, vehicles: 33},
+                {name: 'Colobane', lat: 14.6850, lng: -17.4520, vehicles: 29},
+                {name: 'Gueule Tapée', lat: 14.6880, lng: -17.4580, vehicles: 27},
+                {name: 'Fann', lat: 14.6950, lng: -17.4500, vehicles: 35},
+                {name: 'Amitié', lat: 14.6800, lng: -17.4450, vehicles: 31},
+                {name: 'Point E', lat: 14.6975, lng: -17.4695, vehicles: 54},
+                {name: 'HLM', lat: 14.7020, lng: -17.4470, vehicles: 31},
+                {name: 'Sicap Liberté', lat: 14.7000, lng: -17.4600, vehicles: 44},
+                {name: 'Dieuppeul', lat: 14.7280, lng: -17.4750, vehicles: 38},
+                {name: 'Derklé', lat: 14.7200, lng: -17.4680, vehicles: 29},
+                {name: 'Sacré-Cœur', lat: 14.7166, lng: -17.4666, vehicles: 62},
                 {name: 'Mermoz', lat: 14.7055, lng: -17.4775, vehicles: 58}
+            ],
+            ouest: [
+                {name: 'Almadies', lat: 14.7286, lng: -17.5295, vehicles: 67},
+                {name: 'Ngor', lat: 14.7511, lng: -17.5133, vehicles: 71},
+                {name: 'Ouakam', lat: 14.7280, lng: -17.5050, vehicles: 56},
+                {name: 'Yoff', lat: 14.7450, lng: -17.4950, vehicles: 83},
+                {name: 'Mamelles', lat: 14.7100, lng: -17.4900, vehicles: 41},
+                {name: 'Les Parcelles Assainies', lat: 14.7650, lng: -17.4400, vehicles: 65},
+                {name: 'Cambérène', lat: 14.7700, lng: -17.4200, vehicles: 39},
+                {name: 'Golf Sud', lat: 14.7600, lng: -17.4350, vehicles: 48},
+                {name: 'Zone B', lat: 14.7580, lng: -17.4280, vehicles: 44},
+                {name: 'Cité Asecna', lat: 14.7380, lng: -17.4850, vehicles: 37},
+                {name: 'Patte d\'Oie', lat: 14.7500, lng: -17.4600, vehicles: 52},
+                {name: 'Liberté 6', lat: 14.7100, lng: -17.4550, vehicles: 46},
+                {name: 'Cité Keur Gorgui', lat: 14.7050, lng: -17.4650, vehicles: 40},
+                {name: 'SICAP Baobabs', lat: 14.7150, lng: -17.4500, vehicles: 43},
+                {name: 'Foire', lat: 14.7250, lng: -17.4700, vehicles: 49}
+            ],
+            pikine: [
+                {name: 'Pikine Ancien', lat: 14.7644, lng: -17.3907, vehicles: 42},
+                {name: 'Pikine Guédiawaye', lat: 14.7865, lng: -17.3985, vehicles: 52},
+                {name: 'Thiaroye', lat: 14.7420, lng: -17.3780, vehicles: 31},
+                {name: 'Yeumbeul', lat: 14.7700, lng: -17.3700, vehicles: 36},
+                {name: 'Mbao', lat: 14.7300, lng: -17.3200, vehicles: 28},
+                {name: 'Malika', lat: 14.8000, lng: -17.3800, vehicles: 38},
+                {name: 'Tivaouane Peulh', lat: 14.8100, lng: -17.4000, vehicles: 29},
+                {name: 'Diamniadio', lat: 14.7200, lng: -17.1800, vehicles: 35},
+                {name: 'Bambilor', lat: 14.7400, lng: -17.2200, vehicles: 27},
+                {name: 'Sangalkam', lat: 14.7600, lng: -17.2400, vehicles: 24},
+                {name: 'Niaga', lat: 14.7500, lng: -17.3300, vehicles: 26},
+                {name: 'Médina Gounass', lat: 14.7750, lng: -17.3600, vehicles: 30},
+                {name: 'Dagoudane', lat: 14.7900, lng: -17.3450, vehicles: 25}
+            ],
+            guediawaye: [
+                {name: 'Sam Notaire', lat: 14.7900, lng: -17.4100, vehicles: 40},
+                {name: 'Médina Gounass', lat: 14.7850, lng: -17.4050, vehicles: 37},
+                {name: 'Golf Nord', lat: 14.8000, lng: -17.4200, vehicles: 43},
+                {name: 'Ndiarème Limamoulaye', lat: 14.7950, lng: -17.4150, vehicles: 35},
+                {name: 'Wakhinane Nimzatt', lat: 14.7800, lng: -17.4000, vehicles: 38},
+                {name: 'HLM5', lat: 14.7880, lng: -17.4080, vehicles: 41},
+                {name: 'Arafat', lat: 14.8050, lng: -17.4250, vehicles: 34},
+                {name: 'Médina Fass Mbao', lat: 14.7820, lng: -17.4020, vehicles: 32},
+                {name: 'Village SOS', lat: 14.7780, lng: -17.4120, vehicles: 30},
+                {name: 'Cité Millionnaire', lat: 14.7920, lng: -17.4180, vehicles: 36},
+                {name: 'Grand Médine', lat: 14.7860, lng: -17.4060, vehicles: 33}
+            ],
+            keur_massar: [
+                {name: 'Keur Massar Centre', lat: 14.7850, lng: -17.3150, vehicles: 45},
+                {name: 'Keur Massar Nord', lat: 14.7950, lng: -17.3100, vehicles: 38},
+                {name: 'Keur Massar Sud', lat: 14.7750, lng: -17.3200, vehicles: 42},
+                {name: 'Boune', lat: 14.7900, lng: -17.3250, vehicles: 35},
+                {name: 'Mbao Keur Massar', lat: 14.7800, lng: -17.3180, vehicles: 40},
+                {name: 'Jaxaay', lat: 14.7700, lng: -17.3080, vehicles: 33},
+                {name: 'Kagnou', lat: 14.7820, lng: -17.3220, vehicles: 36},
+                {name: 'Tivaouane Peulh Keur Massar', lat: 14.7880, lng: -17.3120, vehicles: 39},
+                {name: 'Mbeubeuss', lat: 14.7650, lng: -17.3150, vehicles: 31},
+                {name: 'Diamaguene Sicap Mbao', lat: 14.7780, lng: -17.3280, vehicles: 37},
+                {name: 'Medina Fass Keur Massar', lat: 14.7850, lng: -17.3050, vehicles: 34}
+            ],
+            sud: [
+                {name: 'Rufisque', lat: 14.7138, lng: -17.2778, vehicles: 45},
+                {name: 'Bargny', lat: 14.6833, lng: -17.2167, vehicles: 32},
+                {name: 'Sendou', lat: 14.7000, lng: -17.2500, vehicles: 28},
+                {name: 'Sébikotane', lat: 14.7333, lng: -17.1333, vehicles: 35},
+                {name: 'Diamniadio', lat: 14.7200, lng: -17.1800, vehicles: 40},
+                {name: 'Pout', lat: 14.7700, lng: -17.0500, vehicles: 26},
+                {name: 'Bambilor', lat: 14.7400, lng: -17.2200, vehicles: 29},
+                {name: 'Tivaouane Peulh Sud', lat: 14.7000, lng: -17.2700, vehicles: 24},
+                {name: 'Yenne', lat: 14.7100, lng: -17.2600, vehicles: 27},
+                {name: 'Kounoune', lat: 14.7250, lng: -17.2450, vehicles: 25}
+            ],
+            grand_yoff: [
+                {name: 'Grand Yoff', lat: 14.7500, lng: -17.4700, vehicles: 55},
+                {name: 'Bopp', lat: 14.7450, lng: -17.4650, vehicles: 48},
+                {name: 'Aéroport LSS', lat: 14.7400, lng: -17.4900, vehicles: 60},
+                {name: 'Soprim', lat: 14.7520, lng: -17.4580, vehicles: 42},
+                {name: 'Cité Millionnaire Yoff', lat: 14.7480, lng: -17.4720, vehicles: 45},
+                {name: 'Darou Rahmane', lat: 14.7550, lng: -17.4650, vehicles: 39},
+                {name: 'SICAP Mbao', lat: 14.7420, lng: -17.4750, vehicles: 44},
+                {name: 'Tonghor', lat: 14.7580, lng: -17.4800, vehicles: 37},
+                {name: 'Leona', lat: 14.7350, lng: -17.4950, vehicles: 41},
+                {name: 'Zone de Captage', lat: 14.7600, lng: -17.4550, vehicles: 38}
+            ],
+            hann_bel_air: [
+                {name: 'Hann Bel-Air', lat: 14.7150, lng: -17.4300, vehicles: 47},
+                {name: 'Hann Maristes', lat: 14.7200, lng: -17.4250, vehicles: 43},
+                {name: 'Hann Pêcheurs', lat: 14.7100, lng: -17.4200, vehicles: 39},
+                {name: 'Bel-Air', lat: 14.7180, lng: -17.4320, vehicles: 45},
+                {name: 'Petit Mbao', lat: 14.7250, lng: -17.4150, vehicles: 38},
+                {name: 'Fass Mbao', lat: 14.7300, lng: -17.4100, vehicles: 41},
+                {name: 'Zone Franche', lat: 14.7050, lng: -17.4350, vehicles: 36},
+                {name: 'Port de Pêche', lat: 14.7000, lng: -17.4400, vehicles: 34},
+                {name: 'SODIDA', lat: 14.7120, lng: -17.4280, vehicles: 40},
+                {name: 'Cité Gadaye', lat: 14.7220, lng: -17.4180, vehicles: 37}
+            ],
+            parcelles: [
+                {name: 'Unité 1', lat: 14.7700, lng: -17.4450, vehicles: 50},
+                {name: 'Unité 2', lat: 14.7680, lng: -17.4420, vehicles: 48},
+                {name: 'Unité 3', lat: 14.7720, lng: -17.4380, vehicles: 52},
+                {name: 'Unité 4', lat: 14.7650, lng: -17.4400, vehicles: 46},
+                {name: 'Unité 5', lat: 14.7750, lng: -17.4350, vehicles: 49},
+                {name: 'Unité 6', lat: 14.7780, lng: -17.4320, vehicles: 47},
+                {name: 'Unité 7', lat: 14.7800, lng: -17.4300, vehicles: 51},
+                {name: 'Unité 8', lat: 14.7820, lng: -17.4280, vehicles: 45},
+                {name: 'Unité 9', lat: 14.7840, lng: -17.4250, vehicles: 48},
+                {name: 'Unité 10', lat: 14.7600, lng: -17.4480, vehicles: 44},
+                {name: 'Unité 11', lat: 14.7580, lng: -17.4500, vehicles: 42},
+                {name: 'Unité 12', lat: 14.7620, lng: -17.4460, vehicles: 46},
+                {name: 'Unité 13', lat: 14.7640, lng: -17.4440, vehicles: 43},
+                {name: 'Unité 14', lat: 14.7660, lng: -17.4380, vehicles: 50},
+                {name: 'Unité 15', lat: 14.7700, lng: -17.4360, vehicles: 47},
+                {name: 'Unité 16', lat: 14.7740, lng: -17.4340, vehicles: 49},
+                {name: 'Unité 17', lat: 14.7760, lng: -17.4400, vehicles: 45},
+                {name: 'Unité 18', lat: 14.7670, lng: -17.4420, vehicles: 44}
             ]
         };
 
@@ -2037,6 +2194,68 @@
             
             initBookingForm();
             calculateEarnings();
+            initBookingAutocomplete();
+        }
+
+        function initBookingAutocomplete() {
+            // Autocomplétion pour le champ "Point de départ"
+            const inputFrom = document.getElementById('bookingFrom');
+            if (inputFrom) {
+                autocompleteFrom = new google.maps.places.Autocomplete(inputFrom, {
+                    bounds: new google.maps.LatLngBounds(
+                        new google.maps.LatLng(14.6, -17.6),
+                        new google.maps.LatLng(14.9, -17.0)
+                    ),
+                    strictBounds: true,
+                    componentRestrictions: { country: 'sn' },
+                    fields: ['formatted_address', 'geometry', 'name']
+                });
+
+                autocompleteFrom.addListener('place_changed', () => {
+                    const place = autocompleteFrom.getPlace();
+                    if (place.geometry) {
+                        inputFrom.value = place.name || place.formatted_address;
+                    }
+                });
+            }
+
+            // Autocomplétion pour le champ "Destination"
+            const inputTo = document.getElementById('bookingTo');
+            if (inputTo) {
+                autocompleteTo = new google.maps.places.Autocomplete(inputTo, {
+                    bounds: new google.maps.LatLngBounds(
+                        new google.maps.LatLng(14.6, -17.6),
+                        new google.maps.LatLng(14.9, -17.0)
+                    ),
+                    strictBounds: true,
+                    componentRestrictions: { country: 'sn' },
+                    fields: ['formatted_address', 'geometry', 'name']
+                });
+
+                autocompleteTo.addListener('place_changed', () => {
+                    const place = autocompleteTo.getPlace();
+                    if (place.geometry) {
+                        inputTo.value = place.name || place.formatted_address;
+                    }
+                });
+            }
+        }
+
+        function centerMap() {
+            const dakarCenter = {lat: 14.7167, lng: -17.4677};
+            map.setCenter(dakarCenter);
+            map.setZoom(11);
+            showNotification('🎯 Carte centrée sur Dakar', 'info');
+        }
+
+        function toggleTraffic() {
+            if (trafficLayer.getMap()) {
+                trafficLayer.setMap(null);
+                showNotification('🚦 Trafic désactivé', 'info');
+            } else {
+                trafficLayer.setMap(map);
+                showNotification('🚦 Trafic en temps réel activé', 'success');
+            }
         }
 
         function initSearchAutocomplete() {
@@ -2105,7 +2324,14 @@
         function addMarker(location, category) {
             const colors = {
                 centre: '#00A854',
-                residential: '#FECB00'
+                ouest: '#2196F3',
+                pikine: '#FF9800',
+                guediawaye: '#9C27B0',
+                keur_massar: '#FF5722',
+                sud: '#4CAF50',
+                grand_yoff: '#00BCD4',
+                hann_bel_air: '#E91E63',
+                parcelles: '#FFC107'
             };
 
             const isMobile = window.innerWidth <= 768;
@@ -2117,14 +2343,61 @@
                 icon: {
                     path: google.maps.SymbolPath.CIRCLE,
                     scale: isMobile ? 10 : 8,
-                    fillColor: colors[category],
+                    fillColor: colors[category] || '#00A854',
                     fillOpacity: 0.9,
                     strokeColor: 'white',
                     strokeWeight: isMobile ? 3 : 2
                 }
             });
 
-            markers.push({marker, category, location});
+            const infoContent = `
+                <div style="padding: ${isMobile ? '12px' : '15px'}; min-width: ${isMobile ? '180px' : '200px'}; max-width: ${isMobile ? '250px' : '300px'};">
+                    <h3 style="color: ${colors[category] || '#00A854'}; margin-bottom: 10px; font-size: ${isMobile ? '1.1em' : '1.2em'};">
+                        ${location.name}
+                    </h3>
+                    <p style="margin: 5px 0;"><strong>🚕 ${location.vehicles}</strong> véhicules disponibles</p>
+                    <p style="margin: 5px 0;"><strong>⏱️ ${Math.floor(Math.random() * 8) + 3} min</strong> d'attente</p>
+                    <button onclick="reserverCourse('${location.name}')" style="
+                        width: 100%;
+                        padding: ${isMobile ? '12px' : '10px'};
+                        margin-top: 10px;
+                        background: linear-gradient(135deg, #00A854, #FECB00);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        font-size: ${isMobile ? '0.95em' : '1em'};
+                        touch-action: manipulation;
+                    ">🚗 Réserver une course</button>
+                </div>
+            `;
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: infoContent,
+                maxWidth: isMobile ? 280 : 350
+            });
+
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+                if (isMobile) {
+                    map.panTo(marker.getPosition());
+                    setTimeout(() => {
+                        map.panBy(0, -100);
+                    }, 300);
+                }
+            });
+
+            markers.push({marker, category, location, infoWindow});
+        }
+
+        function reserverCourse(quartier) {
+            showNotification(`✅ Redirection vers la réservation pour ${quartier}`, 'info');
+            document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                document.getElementById('bookingTo').value = quartier;
+                document.getElementById('bookingTo').focus();
+            }, 1000);
         }
 
         function activateGPSNavigation() {
@@ -2151,7 +2424,9 @@
                         });
                         map.setCenter(userPos);
                         map.setZoom(15);
-                        showNotification('✅ Position trouvée!', 'success');
+                        
+                        // Afficher les destinations proches
+                        showNavigationDestinations(userPos);
                     },
                     () => {
                         showNotification('❌ Géolocalisation refusée', 'error');
@@ -2160,6 +2435,156 @@
             } else {
                 showNotification('❌ Géolocalisation non supportée', 'error');
             }
+        }
+
+        function showNavigationDestinations(userPos) {
+            // Trouver les 5 quartiers les plus proches
+            let allQuartiers = [];
+            Object.keys(zones).forEach(zoneKey => {
+                zones[zoneKey].forEach(quartier => {
+                    const distance = calculateDistance(
+                        userPos.lat, 
+                        userPos.lng, 
+                        quartier.lat, 
+                        quartier.lng
+                    );
+                    allQuartiers.push({...quartier, distance: distance});
+                });
+            });
+            
+            allQuartiers.sort((a, b) => a.distance - b.distance);
+            const nearest = allQuartiers.slice(0, 5);
+            
+            let content = `
+                <div style="padding: 20px; max-width: 350px;">
+                    <h3 style="color: #00A854; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-route"></i> Destinations à proximité
+                    </h3>
+                    <p style="margin-bottom: 15px; color: #666;">Sélectionnez une destination pour calculer l'itinéraire :</p>
+            `;
+            
+            nearest.forEach(quartier => {
+                content += `
+                    <div style="padding: 12px; margin-bottom: 10px; background: #f5f5f5; border-radius: 8px; cursor: pointer; border-left: 4px solid #00A854;" 
+                         onclick="calculateRoute({lat: ${userPos.lat}, lng: ${userPos.lng}}, {lat: ${quartier.lat}, lng: ${quartier.lng}}, '${quartier.name}')">
+                        <strong>${quartier.name}</strong><br>
+                        <small style="color: #666;">📍 ${quartier.distance.toFixed(1)} km • 🚗 ${quartier.vehicles} véhicules</small>
+                    </div>
+                `;
+            });
+            
+            content += `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <small style="color: #999;">💡 Utilisez la recherche pour d'autres destinations</small>
+                </div>
+                </div>
+            `;
+            
+            const infoWindow = new google.maps.InfoWindow({
+                content: content,
+                position: userPos
+            });
+            infoWindow.open(map);
+        }
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Rayon de la Terre en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function calculateRoute(start, end, destinationName) {
+            if (!directionsService || !directionsRenderer) {
+                showNotification('❌ Service de navigation non disponible', 'error');
+                return;
+            }
+            showNotification('🧭 Calcul de l\'itinéraire en cours...', 'info');
+            const request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC
+            };
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    const route = result.routes[0];
+                    const leg = route.legs[0];
+                    currentRoute = result;
+                    
+                    const distance = leg.distance.text;
+                    const duration = leg.duration.text;
+                    const estimatedPrice = Math.round(1500 + (leg.distance.value / 1000 * 200));
+                    
+                    showNotification(`✅ Itinéraire calculé!\n📍 ${distance}\n⏱️ ${duration}\n💰 ${estimatedPrice.toLocaleString()} FCFA`, 'success');
+                    
+                    // Afficher les instructions détaillées
+                    showRouteInstructions(leg, destinationName, distance, duration, estimatedPrice);
+                } else {
+                    showNotification('❌ Erreur calcul itinéraire: ' + status, 'error');
+                }
+            });
+        }
+
+        function showRouteInstructions(leg, destination, distance, duration, price) {
+            let instructions = `
+                <div style="padding: 20px; max-width: 400px;">
+                    <h3 style="color: #00A854; margin-bottom: 15px;">🗺️ Itinéraire vers ${destination}</h3>
+                    <div style="background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; border-radius: 10px; color: white; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span><strong>📍 Distance:</strong></span>
+                            <span>${distance}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span><strong>⏱️ Durée:</strong></span>
+                            <span>${duration}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><strong>💰 Prix estimé:</strong></span>
+                            <span style="font-size: 1.2em;">${price.toLocaleString()} FCFA</span>
+                        </div>
+                    </div>
+                    <h4 style="margin-bottom: 10px; color: #333;">📋 Instructions:</h4>
+                    <div style="max-height: 300px; overflow-y: auto;">
+            `;
+            
+            leg.steps.forEach((step, i) => {
+                const instruction = step.instructions.replace(/<[^>]*>/g, '');
+                instructions += `
+                    <div style="padding: 10px; margin-bottom: 8px; background: #f5f5f5; border-left: 4px solid #00A854; border-radius: 5px;">
+                        <strong>${i + 1}.</strong> ${instruction}<br>
+                        <small style="color: #666;">📏 ${step.distance.text} • ⏱️ ${step.duration.text}</small>
+                    </div>
+                `;
+            });
+            
+            instructions += `
+                    </div>
+                    <button onclick="startNavigation()" style="width: 100%; padding: 12px; margin-top: 15px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                        <i class="fas fa-play"></i> Démarrer la navigation
+                    </button>
+                </div>
+            `;
+            
+            const infoWindow = new google.maps.InfoWindow({
+                content: instructions,
+                position: leg.start_location
+            });
+            infoWindow.open(map);
+        }
+
+        function startNavigation() {
+            if (!currentRoute) {
+                showNotification('❌ Aucun itinéraire actif', 'error');
+                return;
+            }
+            showNotification('🚗 Navigation démarrée! Suivez les instructions.', 'success');
         }
 
         function findMyLocation() {
@@ -2188,7 +2613,7 @@
                     });
                     setTimeout(() => { userMarker.setAnimation(null); }, 2000);
                     map.setCenter(pos);
-                    map.setZoom(15);
+                    map.setZoom(16);
                     const accuracy = position.coords.accuracy;
                     showNotification(`✅ Position trouvée! (précision: ${Math.round(accuracy)}m)`, 'success');
                 },
@@ -2196,6 +2621,90 @@
                     showNotification('❌ Impossible de vous localiser', 'error');
                 }
             );
+        }
+
+        function showZoneQuartiers(zoneKey) {
+            const zoneNames = {
+                centre: 'Dakar Centre',
+                ouest: 'Corniche & Ouest',
+                pikine: 'Pikine',
+                guediawaye: 'Guédiawaye',
+                keur_massar: 'Keur Massar',
+                sud: 'Dakar Sud',
+                grand_yoff: 'Grand Yoff',
+                hann_bel_air: 'Hann Bel-Air',
+                parcelles: 'Parcelles Assainies'
+            };
+
+            const zoneColors = {
+                centre: '#00A854',
+                ouest: '#2196F3',
+                pikine: '#FF9800',
+                guediawaye: '#9C27B0',
+                keur_massar: '#FF5722',
+                sud: '#4CAF50',
+                grand_yoff: '#00BCD4',
+                hann_bel_air: '#E91E63',
+                parcelles: '#FFC107'
+            };
+
+            const quartiers = zones[zoneKey];
+            const zoneName = zoneNames[zoneKey];
+            const zoneColor = zoneColors[zoneKey];
+            
+            // Centrer la carte sur la zone
+            const bounds = new google.maps.LatLngBounds();
+            quartiers.forEach(q => {
+                bounds.extend(new google.maps.LatLng(q.lat, q.lng));
+            });
+            map.fitBounds(bounds);
+            
+            // Créer le contenu de la popup
+            let content = `
+                <div style="padding: 20px; max-width: 450px;">
+                    <h3 style="color: ${zoneColor}; margin-bottom: 15px; font-size: 1.5em;">
+                        📍 ${zoneName}
+                    </h3>
+                    <p style="margin-bottom: 15px; color: #666;">
+                        <strong>${quartiers.length} quartiers</strong> couverts • 
+                        <strong>${quartiers.reduce((sum, q) => sum + q.vehicles, 0)} véhicules</strong> disponibles
+                    </p>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <h4 style="margin-bottom: 10px; color: #333;">Liste des quartiers:</h4>
+            `;
+            
+            quartiers.forEach(q => {
+                content += `
+                    <div style="padding: 10px; margin-bottom: 8px; background: #f5f5f5; border-left: 4px solid ${zoneColor}; border-radius: 5px; cursor: pointer;"
+                         onclick="zoomToQuartier(${q.lat}, ${q.lng}, '${q.name}')">
+                        <strong>${q.name}</strong><br>
+                        <small style="color: #666;">🚕 ${q.vehicles} véhicules disponibles</small>
+                    </div>
+                `;
+            });
+            
+            content += `
+                    </div>
+                    <button onclick="google.maps.event.trigger(map, 'click')" 
+                            style="width: 100%; padding: 10px; margin-top: 15px; background: ${zoneColor}; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        Fermer
+                    </button>
+                </div>
+            `;
+            
+            const infoWindow = new google.maps.InfoWindow({
+                content: content,
+                position: bounds.getCenter()
+            });
+            infoWindow.open(map);
+            
+            showNotification(`📍 Zone ${zoneName} - ${quartiers.length} quartiers`, 'success');
+        }
+
+        function zoomToQuartier(lat, lng, name) {
+            map.setCenter({lat, lng});
+            map.setZoom(16);
+            showNotification(`📍 Zoom sur ${name}`, 'info');
         }
 
         // Booking Functions
@@ -2563,27 +3072,35 @@
             const messageLower = userMessage.toLowerCase();
 
             if (messageLower.match(/^(bonjour|salut|hello|hi)/)) {
-                return `Bonjour! 👋 Ravi de vous aider!\n\nJe peux vous renseigner sur:\n• 🚗 Réservation de courses\n• 💰 Tarifs et paiements\n• 📍 Zones desservies\n• 👨‍✈️ Devenir chauffeur\n\nQue puis-je faire pour vous?`;
+                return `Bonjour! 👋 Ravi de vous aider!\n\nJe peux vous renseigner sur:\n• 🚗 Réservation de courses\n• 💰 Tarifs et paiements\n• 📍 Zones desservies (118 quartiers)\n• 👨‍✈️ Devenir chauffeur\n\nQue puis-je faire pour vous?`;
+            }
+
+            if (messageLower.includes('zone') || messageLower.includes('quartier') || messageLower.includes('où') || messageLower.includes('couverture')) {
+                return `📍 **Nos 118 Quartiers en 8 Zones:**\n\n🏙️ **Dakar Centre** (15 quartiers)\nPlateau, Médina, Point E, Sacré-Cœur...\n\n🌊 **Corniche & Ouest** (15 quartiers)\nAlmadies, Ngor, Ouakam, Yoff...\n\n🏘️ **Pikine** (15 quartiers)\nThiaroye, Yeumbeul, Keur Massar...\n\n🏘️ **Guédiawaye** (11 quartiers)\nGolf Nord, Sam Notaire, Ndiarème...\n\n🌅 **Dakar Sud** (10 quartiers)\nRufisque, Bargny, Diamniadio...\n\n✈️ **Grand Yoff** (10 quartiers)\nAéroport LSS, Bopp, Soprim...\n\n🏭 **Hann Bel-Air** (10 quartiers)\nZone Industrielle, Port de Pêche...\n\n🏡 **Parcelles Assainies** (18 unités)\nUnités 1 à 18\n\nService 24/7 dans toutes les zones!`;
             }
 
             if (messageLower.includes('tarif') || messageLower.includes('prix')) {
-                return `💰 **Grille Tarifaire Al Bourakh:**\n\n🚗 Standard\n• Prise en charge: 1,000 FCFA\n• Par km: 200 FCFA\n\n✨ Confort\n• Prise en charge: 1,500 FCFA\n• Par km: 250 FCFA\n\n👑 Premium\n• Prise en charge: 2,000 FCFA\n• Par km: 300 FCFA`;
+                return `💰 **Grille Tarifaire Al Bourakh:**\n\n🚗 Standard\n• Prise en charge: 1,000 FCFA\n• Par km: 200 FCFA\n\n✨ Confort\n• Prise en charge: 1,500 FCFA\n• Par km: 250 FCFA\n\n👑 Premium\n• Prise en charge: 2,000 FCFA\n• Par km: 300 FCFA\n\n🚐 Van (5-7 places)\n• Prise en charge: 2,500 FCFA\n• Par km: 300 FCFA`;
             }
 
             if (messageLower.includes('réserv') || messageLower.includes('course')) {
-                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Choisissez votre véhicule\n3. Sélectionnez votre mode de paiement\n4. Confirmez!\n\nUn chauffeur vous contactera 15 min avant.`;
+                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Choisissez votre véhicule\n3. Sélectionnez votre mode de paiement\n4. Confirmez!\n\nUn chauffeur vous contactera 15 min avant.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
             }
 
             if (messageLower.includes('chauffeur') || messageLower.includes('travailler')) {
-                return `👨‍✈️ **Devenir Chauffeur:**\n\nRevenus: 300K-500K FCFA/mois\n\nConditions:\n• Permis depuis 3+ ans\n• Véhicule < 8 ans\n• Casier judiciaire vierge\n\nRemplissez le formulaire "Devenir Chauffeur" sur le site!`;
+                return `👨‍✈️ **Devenir Chauffeur:**\n\nRevenus: 300K-500K FCFA/mois\n\nConditions:\n• 23 ans minimum\n• Permis depuis 3+ ans\n• Véhicule < 8 ans\n• Casier judiciaire vierge\n\nRemplissez le formulaire "Devenir Chauffeur" sur le site!`;
             }
 
-            return `Je suis désolé, je n'ai pas bien compris. 🤔\n\nPosez-moi une question sur:\n• Les tarifs\n• Comment réserver\n• Devenir chauffeur\n• Les zones desservies`;
+            if (messageLower.includes('navigation') || messageLower.includes('gps')) {
+                return `🧭 **Navigation GPS:**\n\n**"Navigation GPS"** vous permet de:\n• Voir votre position\n• Choisir une destination proche\n• Calculer l'itinéraire complet\n• Obtenir les instructions étape par étape\n\n**"Ma Position"** vous permet de:\n• Localiser simplement votre position\n• Voir les véhicules à proximité\n\nUtilisez aussi la recherche intelligente pour trouver n'importe quelle adresse!`;
+            }
+
+            return `Je suis désolé, je n'ai pas bien compris. 🤔\n\nPosez-moi une question sur:\n• Les tarifs\n• Comment réserver\n• Les 118 quartiers\n• Devenir chauffeur\n• La navigation GPS`;
         }
 
         function showStatsDetail(type) {
             const details = {
-                zones: '🗺️ 118 quartiers couverts à Dakar',
+                zones: '🗺️ 118 quartiers répartis en 8 zones de Dakar',
                 vehicles: '🚕 753 véhicules en ligne',
                 drivers: '👨‍✈️ 421 chauffeurs actifs',
                 wait: '⏱️ Temps d\'attente moyen: 5 minutes'
