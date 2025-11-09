@@ -1523,6 +1523,11 @@
                 <h3 class="feature-title">Navigation GPS</h3>
                 <p class="feature-desc">Calcul d'itinéraire automatique avec guidage étape par étape</p>
             </div>
+            <div class="feature-card" onclick="activateSmartSearch()">
+                <div class="feature-icon"><i class="fas fa-search-location"></i></div>
+                <h3 class="feature-title">Recherche Intelligente</h3>
+                <p class="feature-desc">Trouvez rapidement n'importe quelle adresse avec l'autocomplétion Google Maps</p>
+            </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
                 <h3 class="feature-title">100% Responsive</h3>
@@ -1740,19 +1745,99 @@
                 <form class="driver-form" id="driverForm">
                     <div class="form-group">
                         <label><i class="fas fa-user"></i> Nom complet</label>
-                        <input type="text" required placeholder="Prénom et nom">
+                        <input type="text" id="driverName" required placeholder="Prénom et nom">
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-phone"></i> Téléphone</label>
-                        <input type="tel" required placeholder="+221 77 XXX XX XX">
+                        <input type="tel" id="driverPhone" required placeholder="+221 77 XXX XX XX">
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" required placeholder="votre@email.com">
+                        <input type="email" id="driverEmail" required placeholder="votre@email.com">
                     </div>
                     <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Ville de résidence</label>
+                        <select id="driverCity" required>
+                            <option value="">Sélectionnez...</option>
+                            <option value="dakar">Dakar</option>
+                            <option value="pikine">Pikine</option>
+                            <option value="guediawaye">Guédiawaye</option>
+                            <option value="rufisque">Rufisque</option>
+                            <option value="thies">Thiès</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> Numéro CNI/Passeport</label>
+                        <input type="text" id="driverCNI" required placeholder="1234567890123">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-birthday-cake"></i> Date de naissance</label>
+                        <input type="date" id="driverBirthdate" required>
+                    </div>
+
+                    <!-- Section Permis de Conduire -->
+                    <div class="form-group" style="grid-column: 1 / -1; background: #e8f5e9; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                        <h3 style="color: #00A854; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-id-card-alt"></i> Informations du Permis de Conduire
+                        </h3>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-id-badge"></i> Numéro de permis</label>
+                        <input type="text" id="driverLicenseNumber" required placeholder="Ex: B123456789">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-list-alt"></i> Catégorie du permis</label>
+                        <select id="driverLicenseCategory" required>
+                            <option value="">Sélectionnez...</option>
+                            <option value="A">Catégorie A (Motos)</option>
+                            <option value="B">Catégorie B (Véhicules légers)</option>
+                            <option value="C">Catégorie C (Poids lourds)</option>
+                            <option value="D">Catégorie D (Transport de personnes)</option>
+                            <option value="E">Catégorie E (Remorques)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-check"></i> Date d'obtention du permis</label>
+                        <input type="date" id="driverLicenseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-times"></i> Date d'expiration</label>
+                        <input type="date" id="driverLicenseExpiry" placeholder="Si applicable">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-flag"></i> Pays de délivrance</label>
+                        <select id="driverLicenseCountry" required>
+                            <option value="">Sélectionnez...</option>
+                            <option value="senegal" selected>Sénégal</option>
+                            <option value="mali">Mali</option>
+                            <option value="guinee">Guinée</option>
+                            <option value="mauritanie">Mauritanie</option>
+                            <option value="gambie">Gambie</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-shield-alt"></i> Avez-vous déjà eu un retrait de permis ?</label>
+                        <select id="driverLicenseSuspension" required>
+                            <option value="">Sélectionnez...</option>
+                            <option value="non">Non, jamais</option>
+                            <option value="oui_ancien">Oui, mais restitué</option>
+                            <option value="oui_actuel">Oui, actuellement suspendu</option>
+                        </select>
+                    </div>
+
+                    <!-- Section Véhicule -->
+                    <div class="form-group" style="grid-column: 1 / -1; background: #fff3cd; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                        <h3 style="color: #FECB00; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-car"></i> Informations du Véhicule
+                        </h3>
+                    </div>
+
+                    <div class="form-group">
                         <label><i class="fas fa-car"></i> Type de véhicule</label>
-                        <select required>
+                        <select id="driverVehicleType" required>
                             <option value="">Sélectionnez...</option>
                             <option value="berline">Berline</option>
                             <option value="suv">SUV</option>
@@ -1761,11 +1846,48 @@
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-car"></i> Marque et modèle</label>
-                        <input type="text" required placeholder="Ex: Toyota Corolla">
+                        <input type="text" id="driverVehicleModel" required placeholder="Ex: Toyota Corolla">
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-calendar"></i> Année du véhicule</label>
-                        <input type="number" required min="2015" max="2025" placeholder="2020">
+                        <input type="number" id="driverVehicleYear" required min="2015" max="2025" placeholder="2020">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag"></i> Immatriculation</label>
+                        <input type="text" id="driverPlate" required placeholder="DK-1234-XX">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-palette"></i> Couleur du véhicule</label>
+                        <input type="text" id="driverColor" required placeholder="Ex: Blanche">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-users"></i> Nombre de places</label>
+                        <input type="number" id="driverSeats" required min="4" max="8" placeholder="4">
+                    </div>
+
+                    <!-- Disponibilité -->
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label><i class="fas fa-clock"></i> Disponibilité souhaitée</label>
+                        <select id="driverAvailability" required>
+                            <option value="">Sélectionnez...</option>
+                            <option value="fulltime">Temps plein (40h+/semaine)</option>
+                            <option value="parttime">Temps partiel (20-40h/semaine)</option>
+                            <option value="flexible">Flexible (selon disponibilité)</option>
+                            <option value="weekend">Week-ends uniquement</option>
+                            <option value="evening">Soirées uniquement</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label><i class="fas fa-comment"></i> Expérience en transport (optionnel)</label>
+                        <textarea id="driverExperience" placeholder="Décrivez votre expérience en tant que chauffeur professionnel ou VTC..."></textarea>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="driverTerms" required style="margin-right: 10px; width: auto;">
+                            <span>J'accepte les <a href="#" style="color: #00A854;">conditions générales</a> et confirme l'exactitude des informations fournies</span>
+                        </label>
                     </div>
                 </form>
                 <div class="booking-actions" style="margin-top: 30px;">
@@ -2252,25 +2374,129 @@
         }
 
         async function submitDriverApplication() {
-            showNotification('📤 Envoi de votre candidature...', 'info');
-            setTimeout(async () => {
-                try {
-                    const driverData = {
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        statut: 'nouvelle',
-                        source: 'web'
-                    };
-                    const docRef = await db.collection('candidatures_chauffeurs').add(driverData);
-                    showNotification('🎉 Candidature envoyée! Nous vous contacterons sous 48h.', 'success');
-                    setTimeout(() => {
-                        alert(`✅ CANDIDATURE REÇUE\n\nCode candidature: DR${docRef.id.substring(0, 8).toUpperCase()}\n\nÀ très bientôt dans l'équipe Al Bourakh! 🚗`);
-                        document.getElementById('driverForm').reset();
-                    }, 1500);
-                } catch (error) {
-                    console.error('❌ Erreur candidature:', error);
-                    showNotification('❌ Erreur: ' + error.message, 'error');
+            const form = document.getElementById('driverForm');
+            
+            // Validation basique
+            const requiredInputs = form.querySelectorAll('input[required], select[required]');
+            let valid = true;
+            
+            requiredInputs.forEach(input => {
+                if (!input.value.trim() && input.type !== 'checkbox') {
+                    input.style.border = '2px solid red';
+                    valid = false;
+                } else if (input.type === 'checkbox' && !input.checked) {
+                    valid = false;
+                } else {
+                    input.style.border = '';
                 }
-            }, 2000);
+            });
+            
+            if (!valid) {
+                showNotification('⚠️ Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+
+            // Vérifier l'âge minimum (23 ans)
+            const birthdate = new Date(document.getElementById('driverBirthdate').value);
+            const today = new Date();
+            const age = today.getFullYear() - birthdate.getFullYear();
+            if (age < 23) {
+                showNotification('⚠️ Vous devez avoir au moins 23 ans pour postuler', 'error');
+                return;
+            }
+
+            // Vérifier ancienneté du permis (3 ans minimum)
+            const licenseDate = new Date(document.getElementById('driverLicenseDate').value);
+            const yearsWithLicense = (today - licenseDate) / (1000 * 60 * 60 * 24 * 365);
+            if (yearsWithLicense < 3) {
+                showNotification('⚠️ Vous devez avoir votre permis depuis au moins 3 ans', 'error');
+                return;
+            }
+
+            // Vérifier suspension de permis
+            if (document.getElementById('driverLicenseSuspension').value === 'oui_actuel') {
+                showNotification('⚠️ Nous ne pouvons pas accepter les candidatures avec un permis suspendu', 'error');
+                return;
+            }
+
+            showNotification('📤 Envoi de votre candidature...', 'info');
+            
+            try {
+                const driverData = {
+                    // Informations personnelles
+                    nomComplet: document.getElementById('driverName').value.trim(),
+                    telephone: document.getElementById('driverPhone').value.trim(),
+                    email: document.getElementById('driverEmail').value.trim(),
+                    villeResidence: document.getElementById('driverCity').value,
+                    numeroCNI: document.getElementById('driverCNI').value.trim(),
+                    dateNaissance: document.getElementById('driverBirthdate').value,
+                    age: age,
+                    
+                    // Informations permis de conduire
+                    permis: {
+                        numero: document.getElementById('driverLicenseNumber').value.trim(),
+                        categorie: document.getElementById('driverLicenseCategory').value,
+                        dateObtention: document.getElementById('driverLicenseDate').value,
+                        dateExpiration: document.getElementById('driverLicenseExpiry').value || null,
+                        paysDelivrance: document.getElementById('driverLicenseCountry').value,
+                        anneesExperience: Math.floor(yearsWithLicense),
+                        suspension: document.getElementById('driverLicenseSuspension').value
+                    },
+                    
+                    // Informations véhicule
+                    vehicule: {
+                        type: document.getElementById('driverVehicleType').value,
+                        marqueModele: document.getElementById('driverVehicleModel').value.trim(),
+                        annee: parseInt(document.getElementById('driverVehicleYear').value),
+                        immatriculation: document.getElementById('driverPlate').value.trim(),
+                        couleur: document.getElementById('driverColor').value.trim(),
+                        nombrePlaces: parseInt(document.getElementById('driverSeats').value)
+                    },
+                    
+                    // Disponibilité et expérience
+                    disponibilite: document.getElementById('driverAvailability').value,
+                    experience: document.getElementById('driverExperience').value.trim() || null,
+                    
+                    // Métadonnées
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    statut: 'nouvelle',
+                    source: 'web',
+                    userAgent: navigator.userAgent,
+                    screenSize: `${window.innerWidth}x${window.innerHeight}`
+                };
+
+                const docRef = await db.collection('candidatures_chauffeurs').add(driverData);
+                console.log('✅ Candidature enregistrée avec ID:', docRef.id);
+                
+                showNotification('🎉 Candidature envoyée! Nous vous contacterons sous 48h.', 'success');
+                
+                setTimeout(() => {
+                    const confirmationMsg = `✅ CANDIDATURE REÇUE\n\nMerci ${driverData.nomComplet} pour votre intérêt!\n\nNotre équipe va étudier votre dossier et vous contactera dans les 48 heures.\n\nPréparez vos documents:\n• Permis de conduire (${driverData.permis.categorie})\n• CNI/Passeport\n• Carte grise du véhicule\n• Assurance tous risques\n• Visite technique à jour\n\nCode candidature: DR${docRef.id.substring(0, 8).toUpperCase()}\n\nÀ très bientôt dans l'équipe Al Bourakh! 🚗`;
+                    alert(confirmationMsg);
+                    document.getElementById('driverForm').reset();
+                }, 1500);
+            } catch (error) {
+                console.error('❌ Erreur candidature:', error);
+                showNotification('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        function activateSmartSearch() {
+            showNotification('🔍 Recherche intelligente activée!', 'success');
+            document.querySelector('.map-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const searchInput = document.getElementById('searchInput');
+                searchInput.focus();
+                searchInput.style.border = '3px solid #00A854';
+                searchInput.style.boxShadow = '0 0 20px rgba(0, 168, 84, 0.5)';
+                searchInput.placeholder = '🔍 Tapez une adresse à Dakar (ex: Plateau, Almadies...)';
+                
+                setTimeout(() => {
+                    searchInput.style.border = '';
+                    searchInput.style.boxShadow = '';
+                    searchInput.placeholder = '🔍 Rechercher une adresse à Dakar...';
+                }, 3000);
+            }, 800);
         }
 
         function scrollToBooking() {
