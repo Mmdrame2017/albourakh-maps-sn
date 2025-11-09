@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Al Bourakh - Dashboard Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -20,56 +21,97 @@
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
         
         .header {
             background: white;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 20px;
             margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
         
-        .header h1 {
+        .header-left {
+            flex: 1;
+        }
+        
+        .header-left h1 {
             color: #00A854;
             margin-bottom: 10px;
-        }
-        
-        .header p {
-            color: #666;
-        }
-        
-        .admin-info {
-            float: right;
             display: flex;
             align-items: center;
             gap: 15px;
         }
         
-        .admin-email {
-            background: #f0f0f0;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            color: #333;
-            font-weight: 500;
+        .brand-logo-img {
+            width: 60px;
+            height: 45px;
+            object-fit: contain;
         }
         
-        .logout-btn {
-            padding: 10px 20px;
-            background: #E30613;
-            color: white;
+        .header-left p {
+            color: #666;
+            font-size: 15px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f5f5f5;
+            padding: 12px 20px;
+            border-radius: 12px;
+        }
+        
+        .admin-email {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .logout-btn, .refresh-btn {
+            padding: 12px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            background: #E30613;
+            color: white;
+        }
+        
+        .refresh-btn {
+            background: #00A854;
+            color: white;
         }
         
         .logout-btn:hover {
             background: #c00511;
+            transform: translateY(-2px);
+        }
+        
+        .refresh-btn:hover {
+            background: #008844;
             transform: translateY(-2px);
         }
         
@@ -86,6 +128,7 @@
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s;
+            cursor: pointer;
         }
         
         .stat-card:hover {
@@ -110,6 +153,15 @@
             font-size: 1.1em;
         }
         
+        .stat-trend {
+            margin-top: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .stat-trend.up { color: #4CAF50; }
+        .stat-trend.down { color: #E30613; }
+        
         .tabs {
             background: white;
             border-radius: 15px;
@@ -133,6 +185,13 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-btn:hover {
+            background: #e0e0e0;
         }
         
         .tab-btn.active {
@@ -146,26 +205,80 @@
         
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
         }
         
-        .data-table {
-            width: 100%;
-            background: white;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-input, .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            min-width: 200px;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: #00A854;
+        }
+        
+        .export-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            border: none;
             border-radius: 10px;
-            overflow: hidden;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,168,84,0.3);
+        }
+        
+        .data-table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
+            background: white;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         th {
-            background: #00A854;
+            background: linear-gradient(135deg, #00A854, #008844);
             color: white;
             padding: 15px;
             text-align: left;
             font-weight: 600;
+            white-space: nowrap;
         }
         
         td {
@@ -183,6 +296,7 @@
             font-size: 0.85em;
             font-weight: 600;
             color: white;
+            display: inline-block;
         }
         
         .status-en_attente { background: #FFA500; }
@@ -191,6 +305,7 @@
         .status-terminee { background: #00A854; }
         .status-annulee { background: #E30613; }
         .status-nouvelle { background: #FFA500; }
+        .status-en_revision { background: #2196F3; }
         .status-acceptee { background: #4CAF50; }
         .status-refusee { background: #E30613; }
         
@@ -213,37 +328,6 @@
         .btn-reject { background: #E30613; color: white; }
         .btn-edit { background: #FF9800; color: white; }
         
-        .filters {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-input {
-            padding: 10px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            min-width: 200px;
-        }
-        
-        .filter-input:focus {
-            outline: none;
-            border-color: #00A854;
-        }
-        
-        .export-btn {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-left: auto;
-        }
-        
         .loading {
             text-align: center;
             padding: 50px;
@@ -263,7 +347,6 @@
             opacity: 0.3;
         }
 
-        /* Loading screen */
         .auth-loading {
             position: fixed;
             top: 0;
@@ -295,15 +378,82 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 10000;
+            animation: slideInUp 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast.success { background: #4CAF50; }
+        .toast.error { background: #E30613; }
+        .toast.info { background: #2196F3; }
+        .toast.warning { background: #FF9800; }
+
+        @keyframes slideInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 2px solid #00A854;
+            background: white;
+            color: #00A854;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #00A854;
+            color: white;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            color: #666;
+            font-weight: 600;
+        }
         
         @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-right {
+                width: 100%;
+                flex-direction: column;
+            }
+
             .stats-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .admin-info {
-                float: none;
-                margin-bottom: 15px;
             }
             
             table {
@@ -313,56 +463,76 @@
             th, td {
                 padding: 8px;
             }
+
+            .filter-input, .filter-select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .export-btn {
+                width: 100%;
+                margin-left: 0;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Loading screen -->
     <div id="authLoading" class="auth-loading">
         <div class="auth-loading-content">
             <div class="auth-spinner"></div>
-            <h2>Verification de l'authentification...</h2>
+            <h2>🔐 Vérification de l'authentification...</h2>
         </div>
     </div>
 
     <div class="container" id="mainContent" style="display: none;">
         <div class="header">
-            <div class="admin-info">
-                <span class="admin-email" id="adminEmail">
-                    <i class="fas fa-user"></i> Chargement...
-                </span>
+            <div class="header-left">
+                <h1>
+                    <img src="https://i.imgur.com/VtgG6pR.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
+                    <i class="fas fa-chart-line"></i> Al Bourakh Dashboard
+                </h1>
+                <p>📊 Gestion en temps réel • Sénégal</p>
+            </div>
+            <div class="header-right">
+                <div class="admin-info">
+                    <i class="fas fa-user-shield"></i>
+                    <span class="admin-email" id="adminEmail">Chargement...</span>
+                </div>
+                <button class="refresh-btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
                 <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Deconnexion
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
                 </button>
             </div>
-            <h1><i class="fas fa-chart-line"></i> Al Bourakh - Dashboard Admin</h1>
-            <p>Gerez vos reservations et candidatures en temps reel</p>
         </div>
         
-        <!-- Statistiques -->
         <div class="stats-grid" id="statsGrid">
-            <div class="stat-card">
+            <div class="stat-card" onclick="filterByStatus('all')">
                 <div class="stat-icon">📋</div>
                 <div class="stat-number" id="totalReservations">0</div>
-                <div class="stat-label">Reservations Totales</div>
+                <div class="stat-label">Réservations Totales</div>
+                <div class="stat-trend up" id="resTrend"></div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" onclick="filterByStatus('en_attente')">
                 <div class="stat-icon">⏳</div>
                 <div class="stat-number" id="pendingReservations">0</div>
                 <div class="stat-label">En Attente</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" onclick="switchTab('chauffeurs')">
                 <div class="stat-icon">👨‍✈️</div>
                 <div class="stat-number" id="totalDrivers">0</div>
                 <div class="stat-label">Candidatures Chauffeurs</div>
+                <div class="stat-trend up" id="driverTrend"></div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-icon">💰</div>
-                <div class="stat-number" id="totalRevenue">0 FCFA</div>
-                <div class="stat-label">Revenu Estime</div>
+                <div class="stat-number" id="totalRevenue">0</div>
+                <div class="stat-label">Revenu Estimé</div>
             </div>
             
             <div class="stat-card">
@@ -372,40 +542,32 @@
             </div>
             
             <div class="stat-card">
-                <div class="stat-icon">💬</div>
-                <div class="stat-number" id="chatInteractions">0</div>
-                <div class="stat-label">Interactions Chatbot</div>
+                <div class="stat-icon">✅</div>
+                <div class="stat-number" id="completedReservations">0</div>
+                <div class="stat-label">Terminées</div>
             </div>
         </div>
         
-        <!-- Onglets -->
         <div class="tabs">
             <div class="tab-buttons">
                 <button class="tab-btn active" onclick="switchTab('reservations')">
-                    <i class="fas fa-car"></i> Reservations
+                    <i class="fas fa-car"></i> Réservations (<span id="resCount">0</span>)
                 </button>
                 <button class="tab-btn" onclick="switchTab('chauffeurs')">
-                    <i class="fas fa-users"></i> Candidatures Chauffeurs
-                </button>
-                <button class="tab-btn" onclick="switchTab('chatbot')">
-                    <i class="fas fa-comments"></i> Chatbot
-                </button>
-                <button class="tab-btn" onclick="switchTab('calculs')">
-                    <i class="fas fa-calculator"></i> Calculs Prix
+                    <i class="fas fa-users"></i> Candidatures (<span id="driverCount">0</span>)
                 </button>
             </div>
             
-            <!-- Reservations -->
             <div id="reservations" class="tab-content active">
                 <div class="filters">
-                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchReservations">
-                    <select class="filter-input" id="filterStatus" onchange="loadReservations()">
+                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchReservations" oninput="filterTable('reservationsBody', this.value)">
+                    <select class="filter-select" id="filterStatus" onchange="loadReservations()">
                         <option value="">Tous les statuts</option>
                         <option value="en_attente">En attente</option>
-                        <option value="confirmee">Confirmee</option>
+                        <option value="confirmee">Confirmée</option>
                         <option value="en_cours">En cours</option>
-                        <option value="terminee">Terminee</option>
-                        <option value="annulee">Annulee</option>
+                        <option value="terminee">Terminée</option>
+                        <option value="annulee">Annulée</option>
                     </select>
                     <input type="date" class="filter-input" id="filterDate" onchange="loadReservations()">
                     <button class="export-btn" onclick="exportReservations()">
@@ -413,114 +575,60 @@
                     </button>
                 </div>
                 
-                <div class="data-table">
+                <div class="data-table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>Date/Heure</th>
                                 <th>Client</th>
-                                <th>Telephone</th>
+                                <th>Téléphone</th>
                                 <th>Trajet</th>
-                                <th>Vehicule</th>
+                                <th>Véhicule</th>
                                 <th>Prix</th>
+                                <th>Paiement</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="reservationsBody">
-                            <tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
+                            <tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             
-            <!-- Chauffeurs -->
             <div id="chauffeurs" class="tab-content">
                 <div class="filters">
-                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchChauffeurs">
-                    <select class="filter-input" id="filterDriverStatus" onchange="loadDrivers()">
+                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchChauffeurs" oninput="filterTable('chauffeursBody', this.value)">
+                    <select class="filter-select" id="filterDriverStatus" onchange="loadDrivers()">
                         <option value="">Tous les statuts</option>
                         <option value="nouvelle">Nouvelle</option>
-                        <option value="en_revision">En revision</option>
-                        <option value="acceptee">Acceptee</option>
-                        <option value="refusee">Refusee</option>
+                        <option value="en_revision">En révision</option>
+                        <option value="acceptee">Acceptée</option>
+                        <option value="refusee">Refusée</option>
                     </select>
                     <button class="export-btn" onclick="exportDrivers()">
                         <i class="fas fa-download"></i> Exporter CSV
                     </button>
                 </div>
                 
-                <div class="data-table">
+                <div class="data-table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Nom</th>
-                                <th>Telephone</th>
+                                <th>Contact</th>
                                 <th>Ville</th>
-                                <th>Vehicule</th>
-                                <th>Disponibilite</th>
+                                <th>Permis</th>
+                                <th>Véhicule</th>
+                                <th>Disponibilité</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="chauffeursBody">
-                            <tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Chatbot -->
-            <div id="chatbot" class="tab-content">
-                <div class="filters">
-                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchChatbot">
-                    <button class="export-btn" onclick="exportChatbot()">
-                        <i class="fas fa-download"></i> Exporter CSV
-                    </button>
-                </div>
-                
-                <div class="data-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date/Heure</th>
-                                <th>Message Utilisateur</th>
-                                <th>Reponse Bot</th>
-                                <th>Session ID</th>
-                            </tr>
-                        </thead>
-                        <tbody id="chatbotBody">
-                            <tr><td colspan="4" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Calculs -->
-            <div id="calculs" class="tab-content">
-                <div class="filters">
-                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchCalculs">
-                    <button class="export-btn" onclick="exportCalculs()">
-                        <i class="fas fa-download"></i> Exporter CSV
-                    </button>
-                </div>
-                
-                <div class="data-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date/Heure</th>
-                                <th>Depart</th>
-                                <th>Destination</th>
-                                <th>Vehicule</th>
-                                <th>Distance</th>
-                                <th>Prix</th>
-                                <th>Converti</th>
-                            </tr>
-                        </thead>
-                        <tbody id="calculsBody">
-                            <tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
+                            <tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -528,13 +636,11 @@
         </div>
     </div>
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <script>
-        // Configuration Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
             authDomain: "albourakh-maps-sn.firebaseapp.com",
@@ -545,55 +651,45 @@
             measurementId: "G-FVHTZ2NRYB"
         };
         
-        // Initialisation Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
         
-        // Variable globale pour l'utilisateur
         let currentUser = null;
+        let allReservations = [];
+        let allDrivers = [];
         
-        // Verification de l'authentification
         auth.onAuthStateChanged((user) => {
             const authLoading = document.getElementById('authLoading');
             const mainContent = document.getElementById('mainContent');
             
             if (!user) {
-                // Pas connecte -> redirection vers login
-                console.log('Utilisateur non authentifie, redirection...');
-                window.location.href = '/admin/Login.html';
+                console.log('❌ Non authentifié, redirection...');
+                window.location.href = 'login.html';
             } else {
-                // Connecte -> afficher le dashboard
                 currentUser = user;
-                console.log('Utilisateur connecte:', user.email);
+                console.log('✅ Authentifié:', user.email);
                 
-                // Afficher l'email de l'admin
-                document.getElementById('adminEmail').innerHTML = 
-                    `<i class="fas fa-user"></i> ${user.email}`;
+                document.getElementById('adminEmail').textContent = user.email;
                 
-                // Masquer le loading, afficher le contenu
                 authLoading.style.display = 'none';
                 mainContent.style.display = 'block';
                 
-                // Charger les donnees
                 loadAllData();
             }
         });
         
-        // Fonction de deconnexion
         function logout() {
-    if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
-        firebase.auth().signOut().then(() => {
-            console.log('Deconnexion reussie');
-            window.location.href = '/admin/Login.html';
-        }).catch((error) => {
-            console.error('Erreur de deconnexion:', error);
-            alert('Erreur lors de la deconnexion: ' + error.message);
-        });
-    }
-}
-        
-        // ===== RESTE DU CODE IDENTIQUE =====
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                auth.signOut().then(() => {
+                    console.log('✅ Déconnexion réussie');
+                    window.location.href = 'login.html';
+                }).catch((error) => {
+                    console.error('❌ Erreur:', error);
+                    showToast('Erreur de déconnexion: ' + error.message, 'error');
+                });
+            }
+        }
         
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -604,61 +700,87 @@
             });
             
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
         }
         
         async function loadAllData() {
-            await loadReservations();
-            await loadDrivers();
-            await loadChatbot();
-            await loadCalculs();
-            await loadStats();
+            try {
+                await Promise.all([
+                    loadReservations(),
+                    loadDrivers(),
+                    loadStats()
+                ]);
+                showToast('✅ Données chargées', 'success');
+            } catch (error) {
+                console.error('❌ Erreur chargement:', error);
+                showToast('Erreur de chargement des données', 'error');
+            }
+        }
+        
+        function refreshData() {
+            showToast('🔄 Actualisation...', 'info');
+            loadAllData();
         }
         
         async function loadReservations() {
             const tbody = document.getElementById('reservationsBody');
-            tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
             
             try {
-                let query = db.collection('reservations').orderBy('timestamp', 'desc').limit(100);
+                let query = db.collection('reservations').orderBy('timestamp', 'desc');
                 
                 const filterStatus = document.getElementById('filterStatus').value;
                 if (filterStatus) {
                     query = query.where('statut', '==', filterStatus);
                 }
                 
+                const filterDate = document.getElementById('filterDate').value;
+                if (filterDate) {
+                    const startOfDay = new Date(filterDate);
+                    startOfDay.setHours(0, 0, 0, 0);
+                    const endOfDay = new Date(filterDate);
+                    endOfDay.setHours(23, 59, 59, 999);
+                    query = query.where('timestamp', '>=', startOfDay).where('timestamp', '<=', endOfDay);
+                }
+                
                 const snapshot = await query.get();
                 
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune reservation</td></tr>';
+                allReservations = [];
+                snapshot.forEach(doc => {
+                    allReservations.push({ id: doc.id, ...doc.data() });
+                });
+                
+                document.getElementById('resCount').textContent = allReservations.length;
+                
+                if (allReservations.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune réservation</td></tr>';
                     return;
                 }
                 
                 tbody.innerHTML = '';
                 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
+                allReservations.forEach(data => {
                     const row = tbody.insertRow();
-                    
                     const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
                     
                     row.innerHTML = `
                         <td>${date.toLocaleDateString()} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</td>
-                        <td><strong>${data.nom}</strong><br><small>${data.email || ''}</small></td>
-                        <td>${data.telephone}</td>
-                        <td><strong>${data.depart}</strong><br>↓<br><strong>${data.destination}</strong></td>
+                        <td><strong>${data.nom || 'N/A'}</strong><br><small>${data.email || ''}</small></td>
+                        <td>${data.telephone || 'N/A'}</td>
+                        <td><strong>${data.depart || 'N/A'}</strong><br>↓<br><strong>${data.destination || 'N/A'}</strong></td>
                         <td>${data.typeVehicule || 'N/A'}</td>
                         <td><strong>${(data.prixEstime || 0).toLocaleString()} FCFA</strong></td>
-                        <td><span class="status-badge status-${data.statut}">${data.statut}</span></td>
+                        <td>${data.modePaiement || 'N/A'}</td>
+                        <td><span class="status-badge status-${data.statut || 'en_attente'}">${data.statut || 'en_attente'}</span></td>
                         <td>
-                            <button class="action-btn btn-view" onclick="viewReservationDetails('${doc.id}')">
+                            <button class="action-btn btn-view" onclick="viewReservationDetails('${data.id}')" title="Voir détails">
                                 <i class="fas fa-eye"></i>
                             </button>
                             ${data.statut === 'en_attente' ? `
-                                <button class="action-btn btn-accept" onclick="updateReservationStatus('${doc.id}', 'confirmee')">
+                                <button class="action-btn btn-accept" onclick="updateReservationStatus('${data.id}', 'confirmee')" title="Confirmer">
                                     <i class="fas fa-check"></i>
                                 </button>
-                                <button class="action-btn btn-reject" onclick="updateReservationStatus('${doc.id}', 'annulee')">
+                                <button class="action-btn btn-reject" onclick="updateReservationStatus('${data.id}', 'annulee')" title="Annuler">
                                     <i class="fas fa-times"></i>
                                 </button>
                             ` : ''}
@@ -666,17 +788,18 @@
                     `;
                 });
             } catch (error) {
-                console.error('Erreur:', error);
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">❌ Erreur de chargement</td></tr>';
+                console.error('❌ Erreur:', error);
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">❌ Erreur de chargement</td></tr>';
+                showToast('Erreur de chargement des réservations', 'error');
             }
         }
         
         async function loadDrivers() {
             const tbody = document.getElementById('chauffeursBody');
-            tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
             
             try {
-                let query = db.collection('candidatures_chauffeurs').orderBy('timestamp', 'desc').limit(100);
+                let query = db.collection('candidatures_chauffeurs').orderBy('timestamp', 'desc');
                 
                 const filterStatus = document.getElementById('filterDriverStatus').value;
                 if (filterStatus) {
@@ -685,36 +808,42 @@
                 
                 const snapshot = await query.get();
                 
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune candidature</td></tr>';
+                allDrivers = [];
+                snapshot.forEach(doc => {
+                    allDrivers.push({ id: doc.id, ...doc.data() });
+                });
+                
+                document.getElementById('driverCount').textContent = allDrivers.length;
+                
+                if (allDrivers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune candidature</td></tr>';
                     return;
                 }
                 
                 tbody.innerHTML = '';
                 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
+                allDrivers.forEach(data => {
                     const row = tbody.insertRow();
-                    
                     const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
                     
                     row.innerHTML = `
                         <td>${date.toLocaleDateString()}</td>
-                        <td><strong>${data.nomComplet}</strong><br><small>${data.email}</small></td>
-                        <td>${data.telephone}</td>
-                        <td>${data.villeResidence}</td>
-                        <td>${data.typeVehicule}<br><small>${data.marqueModele} (${data.anneeVehicule})</small></td>
-                        <td>${data.disponibilite}</td>
-                        <td><span class="status-badge status-${data.statut}">${data.statut}</span></td>
+                        <td><strong>${data.nomComplet || 'N/A'}</strong></td>
+                        <td>${data.telephone || 'N/A'}<br><small>${data.email || ''}</small></td>
+                        <td>${data.villeResidence || 'N/A'}</td>
+                        <td>${data.permis?.categorie || 'N/A'}<br><small>${data.permis?.anneesExperience || 0} ans exp.</small></td>
+                        <td>${data.vehicule?.type || 'N/A'}<br><small>${data.vehicule?.marqueModele || ''} (${data.vehicule?.annee || ''})</small></td>
+                        <td>${data.disponibilite || 'N/A'}</td>
+                        <td><span class="status-badge status-${data.statut || 'nouvelle'}">${data.statut || 'nouvelle'}</span></td>
                         <td>
-                            <button class="action-btn btn-view" onclick="viewDriverDetails('${doc.id}')">
+                            <button class="action-btn btn-view" onclick="viewDriverDetails('${data.id}')" title="Voir détails">
                                 <i class="fas fa-eye"></i>
                             </button>
                             ${data.statut === 'nouvelle' ? `
-                                <button class="action-btn btn-accept" onclick="updateDriverStatus('${doc.id}', 'acceptee')">
+                                <button class="action-btn btn-accept" onclick="updateDriverStatus('${data.id}', 'acceptee')" title="Accepter">
                                     <i class="fas fa-check"></i>
                                 </button>
-                                <button class="action-btn btn-reject" onclick="updateDriverStatus('${doc.id}', 'refusee')">
+                                <button class="action-btn btn-reject" onclick="updateDriverStatus('${data.id}', 'refusee')" title="Refuser">
                                     <i class="fas fa-times"></i>
                                 </button>
                             ` : ''}
@@ -722,93 +851,23 @@
                     `;
                 });
             } catch (error) {
-                console.error('Erreur:', error);
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">❌ Erreur de chargement</td></tr>';
-            }
-        }
-        
-        async function loadChatbot() {
-            const tbody = document.getElementById('chatbotBody');
-            tbody.innerHTML = '<tr><td colspan="4" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
-            
-            try {
-                const snapshot = await db.collection('chatbot_interactions')
-                    .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune interaction</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = '';
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const row = tbody.insertRow();
-                    
-                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
-                    
-                    row.innerHTML = `
-                        <td>${date.toLocaleString()}</td>
-                        <td>${data.messageUtilisateur}</td>
-                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${data.reponseBot.substring(0, 100)}...</td>
-                        <td><small>${data.sessionId?.substring(0, 15)}...</small></td>
-                    `;
-                });
-            } catch (error) {
-                console.error('Erreur:', error);
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">❌ Erreur de chargement</td></tr>';
-            }
-        }
-        
-        async function loadCalculs() {
-            const tbody = document.getElementById('calculsBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
-            
-            try {
-                const snapshot = await db.collection('calculs_prix')
-                    .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><br>Aucun calcul</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = '';
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const row = tbody.insertRow();
-                    
-                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
-                    
-                    row.innerHTML = `
-                        <td>${date.toLocaleString()}</td>
-                        <td>${data.depart}</td>
-                        <td>${data.destination}</td>
-                        <td>${data.typeVehicule}</td>
-                        <td>${data.distanceEstimee} km</td>
-                        <td><strong>${(data.prixCalcule || 0).toLocaleString()} FCFA</strong></td>
-                        <td>${data.converti ? '✅ Oui' : '❌ Non'}</td>
-                    `;
-                });
-            } catch (error) {
-                console.error('Erreur:', error);
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">❌ Erreur de chargement</td></tr>';
+                console.error('❌ Erreur:', error);
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">❌ Erreur de chargement</td></tr>';
+                showToast('Erreur de chargement des candidatures', 'error');
             }
         }
         
         async function loadStats() {
             try {
                 const resSnapshot = await db.collection('reservations').get();
-                document.getElementById('totalReservations').textContent = resSnapshot.size;
+                const totalRes = resSnapshot.size;
+                document.getElementById('totalReservations').textContent = totalRes;
                 
                 const pending = resSnapshot.docs.filter(doc => doc.data().statut === 'en_attente').length;
                 document.getElementById('pendingReservations').textContent = pending;
+                
+                const completed = resSnapshot.docs.filter(doc => doc.data().statut === 'terminee').length;
+                document.getElementById('completedReservations').textContent = completed;
                 
                 const revenue = resSnapshot.docs
                     .filter(doc => doc.data().statut === 'terminee')
@@ -827,167 +886,211 @@
                 const driverSnapshot = await db.collection('candidatures_chauffeurs').get();
                 document.getElementById('totalDrivers').textContent = driverSnapshot.size;
                 
-                const chatSnapshot = await db.collection('chatbot_interactions').get();
-                document.getElementById('chatInteractions').textContent = chatSnapshot.size;
+                document.getElementById('resTrend').textContent = `↑ ${totalRes} total`;
+                document.getElementById('driverTrend').textContent = `↑ ${driverSnapshot.size} total`;
                 
             } catch (error) {
-                console.error('Erreur stats:', error);
+                console.error('❌ Erreur stats:', error);
+                showToast('Erreur de chargement des statistiques', 'error');
             }
         }
         
         async function viewReservationDetails(id) {
-            const doc = await db.collection('reservations').doc(id).get();
-            const data = doc.data();
-            
-            alert(`📋 DETAILS RESERVATION\n\n` +
-                `Nom: ${data.nom}\n` +
-                `Telephone: ${data.telephone}\n` +
-                `Email: ${data.email || 'N/A'}\n\n` +
-                `Trajet:\n${data.depart} → ${data.destination}\n\n` +
-                `Date: ${data.date}\n` +
-                `Heure: ${data.heure}\n` +
-                `Passagers: ${data.passagers}\n\n` +
-                `Vehicule: ${data.typeVehicule}\n` +
-                `Prix: ${(data.prixEstime || 0).toLocaleString()} FCFA\n` +
-                `Paiement: ${data.modePaiement}\n\n` +
-                `Instructions: ${data.instructions || 'Aucune'}\n\n` +
-                `Statut: ${data.statut}`
-            );
+            try {
+                const doc = await db.collection('reservations').doc(id).get();
+                const data = doc.data();
+                
+                const details = `📋 DÉTAILS RÉSERVATION
+
+Nom: ${data.nom}
+Téléphone: ${data.telephone}
+Email: ${data.email || 'N/A'}
+
+Trajet:
+${data.depart} → ${data.destination}
+
+Date: ${data.date}
+Heure: ${data.heure}
+Passagers: ${data.passagers}
+
+Véhicule: ${data.typeVehicule}
+Prix: ${(data.prixEstime || 0).toLocaleString()} FCFA
+Paiement: ${data.modePaiement}
+
+Instructions: ${data.instructions || 'Aucune'}
+
+Statut: ${data.statut}`;
+                
+                alert(details);
+            } catch (error) {
+                console.error('❌ Erreur:', error);
+                showToast('Erreur de chargement des détails', 'error');
+            }
         }
         
         async function viewDriverDetails(id) {
-            const doc = await db.collection('candidatures_chauffeurs').doc(id).get();
-            const data = doc.data();
-            
-            alert(`👨‍✈️ DETAILS CHAUFFEUR\n\n` +
-                `Nom: ${data.nomComplet}\n` +
-                `Telephone: ${data.telephone}\n` +
-                `Email: ${data.email}\n` +
-                `Ville: ${data.villeResidence}\n` +
-                `CNI: ${data.numeroCNI}\n\n` +
-                `Vehicule:\n` +
-                `Type: ${data.typeVehicule}\n` +
-                `Modele: ${data.marqueModele}\n` +
-                `Annee: ${data.anneeVehicule}\n` +
-                `Immat: ${data.immatriculation}\n` +
-                `Couleur: ${data.couleur}\n\n` +
-                `Permis: ${data.numeroPermis}\n` +
-                `Date obtention: ${data.dateObtentionPermis}\n\n` +
-                `Disponibilite: ${data.disponibilite}\n` +
-                `Experience: ${data.experience || 'N/A'}\n\n` +
-                `Statut: ${data.statut}`
-            );
+            try {
+                const doc = await db.collection('candidatures_chauffeurs').doc(id).get();
+                const data = doc.data();
+                
+                const details = `👨‍✈️ DÉTAILS CHAUFFEUR
+
+Nom: ${data.nomComplet}
+Téléphone: ${data.telephone}
+Email: ${data.email}
+Ville: ${data.villeResidence}
+CNI: ${data.numeroCNI}
+Date naissance: ${data.dateNaissance}
+
+Permis:
+Numéro: ${data.permis?.numero}
+Catégorie: ${data.permis?.categorie}
+Date obtention: ${data.permis?.dateObtention}
+Expérience: ${data.permis?.anneesExperience} ans
+
+Véhicule:
+Type: ${data.vehicule?.type}
+Modèle: ${data.vehicule?.marqueModele}
+Année: ${data.vehicule?.annee}
+Immatriculation: ${data.vehicule?.immatriculation}
+Couleur: ${data.vehicule?.couleur}
+Places: ${data.vehicule?.nombrePlaces}
+
+Disponibilité: ${data.disponibilite}
+Expérience: ${data.experience || 'N/A'}
+
+Statut: ${data.statut}`;
+                
+                alert(details);
+            } catch (error) {
+                console.error('❌ Erreur:', error);
+                showToast('Erreur de chargement des détails', 'error');
+            }
         }
         
         async function updateReservationStatus(id, newStatus) {
-            if (confirm('Confirmer le changement de statut ?')) {
+            if (confirm(`Confirmer le changement de statut vers "${newStatus}" ?`)) {
                 try {
                     await db.collection('reservations').doc(id).update({
                         statut: newStatus,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    alert('✅ Statut mis a jour!');
+                    showToast('✅ Statut mis à jour!', 'success');
                     loadReservations();
                     loadStats();
                 } catch (error) {
-                    alert('❌ Erreur: ' + error.message);
+                    console.error('❌ Erreur:', error);
+                    showToast('Erreur: ' + error.message, 'error');
                 }
             }
         }
         
         async function updateDriverStatus(id, newStatus) {
-            if (confirm('Confirmer le changement de statut ?')) {
+            if (confirm(`Confirmer le changement de statut vers "${newStatus}" ?`)) {
                 try {
                     await db.collection('candidatures_chauffeurs').doc(id).update({
                         statut: newStatus,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    alert('✅ Statut mis a jour!');
+                    showToast('✅ Statut mis à jour!', 'success');
                     loadDrivers();
                     loadStats();
                 } catch (error) {
-                    alert('❌ Erreur: ' + error.message);
+                    console.error('❌ Erreur:', error);
+                    showToast('Erreur: ' + error.message, 'error');
                 }
             }
         }
         
+        function filterTable(tbodyId, searchTerm) {
+            const tbody = document.getElementById(tbodyId);
+            const rows = tbody.getElementsByTagName('tr');
+            const search = searchTerm.toLowerCase();
+            
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            }
+        }
+        
+        function filterByStatus(status) {
+            document.getElementById('filterStatus').value = status === 'all' ? '' : status;
+            loadReservations();
+        }
+        
         function exportReservations() {
-            exportToCSV('reservations', 'reservations_albourakh.csv');
+            exportToCSV(allReservations, 'reservations_albourakh.csv');
         }
         
         function exportDrivers() {
-            exportToCSV('candidatures_chauffeurs', 'chauffeurs_albourakh.csv');
+            exportToCSV(allDrivers, 'chauffeurs_albourakh.csv');
         }
         
-        function exportChatbot() {
-            exportToCSV('chatbot_interactions', 'chatbot_albourakh.csv');
-        }
-        
-        function exportCalculs() {
-            exportToCSV('calculs_prix', 'calculs_albourakh.csv');
-        }
-        
-        async function exportToCSV(collection, filename) {
+        function exportToCSV(data, filename) {
+            if (!data || data.length === 0) {
+                showToast('Aucune donnée à exporter', 'warning');
+                return;
+            }
+            
             try {
-                const snapshot = await db.collection(collection).get();
-                
-                if (snapshot.empty) {
-                    alert('Aucune donnee a exporter');
-                    return;
-                }
-                
-                const data = [];
-                snapshot.forEach(doc => {
-                    data.push({ id: doc.id, ...doc.data() });
-                });
-                
-                const headers = Object.keys(data[0]);
+                const headers = Object.keys(data[0]).filter(key => key !== 'id');
                 let csv = headers.join(',') + '\n';
                 
                 data.forEach(row => {
                     csv += headers.map(h => {
                         const value = row[h];
                         if (value && typeof value === 'object' && value.seconds) {
-                            return new Date(value.seconds * 1000).toLocaleString();
+                            return `"${new Date(value.seconds * 1000).toLocaleString()}"`;
                         }
-                        return JSON.stringify(value || '');
+                        return `"${JSON.stringify(value || '').replace(/"/g, '""')}"`;
                     }).join(',') + '\n';
                 });
                 
-                const blob = new Blob([csv], { type: 'text/csv' });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = filename;
                 a.click();
                 
-                alert('✅ Exporte avec succes!');
+                showToast('✅ Exporté avec succès!', 'success');
             } catch (error) {
-                alert('❌ Erreur: ' + error.message);
+                console.error('❌ Erreur export:', error);
+                showToast('Erreur d\'exportation: ' + error.message, 'error');
             }
         }
         
-        document.getElementById('searchReservations')?.addEventListener('input', (e) => {
-            const search = e.target.value.toLowerCase();
-            document.querySelectorAll('#reservationsBody tr').forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(search) ? '' : 'none';
-            });
-        });
-        
-        document.getElementById('searchChauffeurs')?.addEventListener('input', (e) => {
-            const search = e.target.value.toLowerCase();
-            document.querySelectorAll('#chauffeursBody tr').forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(search) ? '' : 'none';
-            });
-        });
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle',
+                warning: 'fa-exclamation-triangle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideInUp 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
         
         setInterval(() => {
             if (currentUser) {
                 loadStats();
             }
-        }, 30000);
+        }, 60000);
+        
+        console.log('🚀 Dashboard Al Bourakh chargé');
     </script>
 </body>
 </html>
