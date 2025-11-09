@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Données de Test - Al Bourakh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #00A854;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .section {
+            margin: 30px 0;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,168,84,0.3);
+        }
+        
+        .btn-danger {
+            background: #E30613;
+            color: white;
+        }
+        
+        .log {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        
+        .log-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .log-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .log-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>🧪</span> Générateur de Données de Test
+        </h1>
+        <p style="color: #666; margin-bottom: 30px;">
+            Créez des données de test pour votre plateforme Al Bourakh
+        </p>
+        
+        <div class="warning">
+            <strong>⚠️ Attention :</strong> Utilisez cette page uniquement en développement/test. 
+            Ne l'utilisez jamais en production avec de vraies données clients !
+        </div>
+        
+        <!-- Section Chauffeurs -->
+        <div class="section">
+            <h2>👨‍✈️ Chauffeurs de Test</h2>
+            <p style="color: #666; margin-bottom: 15px;">
+                Créer des profils de chauffeurs avec positions GPS aléatoires à Dakar
+            </p>
+            
+            <button class="btn btn-primary" onclick="creerChauffeurs(5)">
+                Créer 5 chauffeurs
+            </button>
+            <button class="btn btn-primary" onclick="creerChauffeurs(10)">
+                Créer 10 chauffeurs
+            </button>
+            <button class="btn btn-danger" onclick="supprimerTousChauffeurs()">
+                Supprimer tous les chauffeurs de test
+            </button>
+        </div>
+        
+        <!-- Section Réservations -->
+        <div class="section">
+            <h2>🚗 Réservations de Test</h2>
+            <p style="color: #666; margin-bottom: 15px;">
+                Créer des réservations avec différents statuts
+            </p>
+            
+            <button class="btn btn-primary" onclick="creerReservations(5, 'en_attente')">
+                5 réservations "En attente"
+            </button>
+            <button class="btn btn-primary" onclick="creerReservations(3, 'assignee')">
+                3 réservations "Assignées"
+            </button>
+            <button class="btn btn-primary" onclick="creerReservations(2, 'en_cours')">
+                2 réservations "En cours"
+            </button>
+            <button class="btn btn-danger" onclick="supprimerToutesReservations()">
+                Supprimer toutes les réservations de test
+            </button>
+        </div>
+        
+        <!-- Section Scénario Complet -->
+        <div class="section">
+            <h2>🎬 Scénario Complet</h2>
+            <p style="color: #666; margin-bottom: 15px;">
+                Créer un scénario complet avec chauffeurs et réservations
+            </p>
+            
+            <button class="btn btn-primary" style="width: 100%;" onclick="creerScenarioComplet()">
+                🚀 Créer un scénario complet de test
+            </button>
+        </div>
+        
+        <!-- Log -->
+        <div class="section">
+            <h2>📋 Journal d'activité</h2>
+            <div id="logContainer" class="log">
+                <div class="log-item log-info">Prêt à générer des données de test...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
+            authDomain: "albourakh-maps-sn.firebaseapp.com",
+            projectId: "albourakh-maps-sn",
+            storageBucket: "albourakh-maps-sn.firebasestorage.app",
+            messagingSenderId: "901444203447",
+            appId: "1:901444203447:web:5e4126f7e873d81b736e32"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Données de test
+        const prenoms = ['Mamadou', 'Aminata', 'Ibrahima', 'Fatou', 'Moussa', 'Aïssatou', 'Cheikh', 'Ndèye', 'Ousmane', 'Mariama'];
+        const noms = ['Fall', 'Diop', 'Ndiaye', 'Sarr', 'Sow', 'Diagne', 'Mbaye', 'Sy', 'Cissé', 'Thiam'];
+        const quartiersDakar = [
+            {nom: 'Plateau', lat: 14.6937, lng: -17.4441},
+            {nom: 'Médina', lat: 14.6830, lng: -17.4505},
+            {nom: 'Almadies', lat: 14.7286, lng: -17.5295},
+            {nom: 'Yoff', lat: 14.7450, lng: -17.4950},
+            {nom: 'Ouakam', lat: 14.7280, lng: -17.5050},
+            {nom: 'Fann', lat: 14.6950, lng: -17.4500},
+            {nom: 'Point E', lat: 14.6975, lng: -17.4695},
+            {nom: 'Sacré-Cœur', lat: 14.7166, lng: -17.4666},
+            {nom: 'HLM', lat: 14.7020, lng: -17.4470},
+            {nom: 'Grand Dakar', lat: 14.7085, lng: -17.4553}
+        ];
+        
+        const typesVehicules = ['Standard', 'Confort', 'Premium', 'Van'];
+        
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const logItem = document.createElement('div');
+            logItem.className = `log-item log-${type}`;
+            logItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.insertBefore(logItem, logContainer.firstChild);
+        }
+        
+        function random(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        function randomElement(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        function genererPosition() {
+            // Générer une position aléatoire autour de Dakar
+            const baseLat = 14.7167;
+            const baseLng = -17.4677;
+            const variation = 0.05;
+            
+            return {
+                lat: baseLat + (Math.random() - 0.5) * variation,
+                lng: baseLng + (Math.random() - 0.5) * variation
+            };
+        }
+        
+        async function creerChauffeurs(nombre) {
+            log(`🔄 Création de ${nombre} chauffeurs de test...`, 'info');
+            
+            try {
+                for (let i = 0; i < nombre; i++) {
+                    const prenom = randomElement(prenoms);
+                    const nom = randomElement(noms);
+                    const position = genererPosition();
+                    
+                    const chauffeur = {
+                        nomComplet: `${prenom} ${nom}`,
+                        telephone: `+221 77 ${random(100, 999)} ${random(10, 99)} ${random(10, 99)}`,
+                        email: `${prenom.toLowerCase()}.${nom.toLowerCase()}@test.albourakh.com`,
+                        disponible: Math.random() > 0.3, // 70% disponibles
+                        positionActuelle: position,
+                        vehicule: {
+                            type: randomElement(typesVehicules),
+                            marqueModele: randomElement(['Toyota Corolla', 'Hyundai Accent', 'Mercedes Class E', 'Renault Kangoo']),
+                            annee: random(2018, 2024),
+                            immatriculation: `DK-${random(1000, 9999)}-SN`,
+                            couleur: randomElement(['Blanc', 'Noir', 'Gris', 'Bleu']),
+                            nombrePlaces: random(4, 7)
+                        },
+                        permis: {
+                            categorie: 'B',
+                            anneesExperience: random(3, 15)
+                        },
+                        evaluationMoyenne: (random(40, 50) / 10).toFixed(1),
+                        totalCourses: random(50, 300),
+                        coursesEnCours: 0,
+                        statut: 'acceptee',
+                        villeResidence: 'Dakar',
+                        disponibilite: 'fulltime',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        isTest: true // Marqueur pour identifier les données de test
+                    };
+                    
+                    await db.collection('candidatures_chauffeurs').add(chauffeur);
+                    log(`✅ Chauffeur créé: ${chauffeur.nomComplet}`, 'success');
+                }
+                
+                log(`🎉 ${nombre} chauffeurs créés avec succès!`, 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        async function creerReservations(nombre, statut) {
+            log(`🔄 Création de ${nombre} réservations "${statut}"...`, 'info');
+            
+            try {
+                // Si statut assigné ou en cours, récupérer des chauffeurs disponibles
+                let chauffeurs = [];
+                if (statut !== 'en_attente') {
+                    const snapshot = await db.collection('candidatures_chauffeurs')
+                        .where('statut', '==', 'acceptee')
+                        .limit(nombre)
+                        .get();
+                    
+                    snapshot.forEach(doc => {
+                        chauffeurs.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    if (chauffeurs.length === 0) {
+                        log('⚠️ Aucun chauffeur disponible. Créez d\'abord des chauffeurs.', 'error');
+                        return;
+                    }
+                }
+                
+                for (let i = 0; i < nombre; i++) {
+                    const prenom = randomElement(prenoms);
+                    const nom = randomElement(noms);
+                    const depart = randomElement(quartiersDakar);
+                    const destination = randomElement(quartiersDakar.filter(q => q.nom !== depart.nom));
+                    const typeVehicule = randomElement(typesVehicules);
+                    
+                    // Prix basé sur le type de véhicule
+                    const prixBase = {
+                        'Standard': 1500,
+                        'Confort': 2000,
+                        'Premium': 3500,
+                        'Van': 2500
+                    };
+                    
+                    const reservation = {
+                        nom: `${prenom} ${nom}`,
+                        telephone: `+221 77 ${random(100, 999)} ${random(10, 99)} ${random(10, 99)}`,
+                        email: `${prenom.toLowerCase()}${random(1, 99)}@test.com`,
+                        depart: depart.nom,
+                        destination: destination.nom,
+                        coordonneesDepart: {
+                            lat: depart.lat,
+                            lng: depart.lng
+                        },
+                        coordonneesDestination: {
+                            lat: destination.lat,
+                            lng: destination.lng
+                        },
+                        date: new Date().toISOString().split('T')[0],
+                        heure: `${random(8, 20).toString().padStart(2, '0')}:${random(0, 59).toString().padStart(2, '0')}`,
+                        passagers: random(1, 4),
+                        typeVehicule: typeVehicule,
+                        prixEstime: prixBase[typeVehicule] + random(0, 2000),
+                        modePaiement: randomElement(['cash', 'orange', 'wave', 'card']),
+                        instructions: random(1, 10) > 7 ? 'Avec bagages' : null,
+                        statut: statut,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        source: 'web',
+                        isTest: true
+                    };
+                    
+                    // Si assigné, ajouter le chauffeur
+                    if (statut !== 'en_attente' && chauffeurs.length > 0) {
+                        const chauffeur = chauffeurs[i % chauffeurs.length];
+                        reservation.chauffeurAssigne = chauffeur.id;
+                        reservation.nomChauffeur = chauffeur.nomComplet;
+                        reservation.telephoneChauffeur = chauffeur.telephone;
+                        reservation.dateAssignation = firebase.firestore.FieldValue.serverTimestamp();
+                        
+                        if (statut === 'en_cours') {
+                            reservation.heureDepart = firebase.firestore.FieldValue.serverTimestamp();
+                        }
+                    }
+                    
+                    await db.collection('reservations').add(reservation);
+                    log(`✅ Réservation créée: ${reservation.nom} (${depart.nom} → ${destination.nom})`, 'success');
+                }
+                
+                log(`🎉 ${nombre} réservations créées avec succès!`, 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        async function supprimerTousChauffeurs() {
+            if (!confirm('⚠️ Supprimer TOUS les chauffeurs de test ? Cette action est irréversible.')) {
+                return;
+            }
+            
+            log('🔄 Suppression des chauffeurs de test...', 'info');
+            
+            try {
+                const snapshot = await db.collection('candidatures_chauffeurs')
+                    .where('isTest', '==', true)
+                    .get();
+                
+                const batch = db.batch();
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                
+                await batch.commit();
+                log(`✅ ${snapshot.size} chauffeurs supprimés`, 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function supprimerToutesReservations() {
+            if (!confirm('⚠️ Supprimer TOUTES les réservations de test ? Cette action est irréversible.')) {
+                return;
+            }
+            
+            log('🔄 Suppression des réservations de test...', 'info');
+            
+            try {
+                const snapshot = await db.collection('reservations')
+                    .where('isTest', '==', true)
+                    .get();
+                
+                const batch = db.batch();
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                
+                await batch.commit();
+                log(`✅ ${snapshot.size} réservations supprimées`, 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function creerScenarioComplet() {
+            log('🎬 Création d\'un scénario complet...', 'info');
+            
+            try {
+                // 1. Créer 8 chauffeurs
+                await creerChauffeurs(8);
+                
+                // Attendre un peu
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // 2. Créer des réservations
+                await creerReservations(5, 'en_attente');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await creerReservations(3, 'assignee');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await creerReservations(2, 'en_cours');
+                
+                log('🎉🎉🎉 Scénario complet créé avec succès!', 'success');
+                log('Vous pouvez maintenant tester l\'attribution dans le dashboard', 'info');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        log('✅ Générateur de données de test chargé et prêt!', 'success');
+    </script>
+</body>
+</html>
