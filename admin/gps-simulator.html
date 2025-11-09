@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur GPS - Al Bourakh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #00A854;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-panel {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-start {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+        }
+        
+        .btn-stop {
+            background: #E30613;
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        
+        .status.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status.inactive {
+            background: #999;
+            color: white;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .drivers-list {
+            margin-top: 30px;
+        }
+        
+        .driver-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .driver-info {
+            flex: 1;
+        }
+        
+        .driver-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .driver-position {
+            font-size: 0.85em;
+            color: #666;
+            font-family: monospace;
+        }
+        
+        .driver-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .driver-status.moving {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .driver-status.stopped {
+            background: #999;
+            color: white;
+        }
+        
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .log-line {
+            margin: 5px 0;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>🛰️</span> Simulateur GPS Temps Réel
+        </h1>
+        <p style="color: #666; margin-bottom: 30px;">
+            Simule le déplacement des chauffeurs dans Dakar en temps réel
+        </p>
+        
+        <div class="warning">
+            <strong>ℹ️ Information :</strong> Ce simulateur met à jour les positions GPS des chauffeurs toutes les 10 secondes. 
+            Utilisez-le uniquement pour les tests.
+        </div>
+        
+        <div class="control-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <h3 style="margin-bottom: 10px;">Contrôles</h3>
+                    <span id="simulatorStatus" class="status inactive">⏸️ Arrêté</span>
+                </div>
+                <div>
+                    <button id="btnStart" class="btn btn-start" onclick="startSimulation()">
+                        ▶️ Démarrer la simulation
+                    </button>
+                    <button id="btnStop" class="btn btn-stop" onclick="stopSimulation()" disabled>
+                        ⏸️ Arrêter la simulation
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <span class="stat-value" id="statChauffeurs">0</span>
+                <span class="stat-label">Chauffeurs suivis</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value" id="statUpdates">0</span>
+                <span class="stat-label">Mises à jour effectuées</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-value" id="statInterval">10s</span>
+                <span class="stat-label">Intervalle</span>
+            </div>
+        </div>
+        
+        <div class="drivers-list">
+            <h3 style="margin-bottom: 15px; color: #333;">Chauffeurs en mouvement</h3>
+            <div id="driversList">
+                <div style="text-align: center; padding: 30px; color: #999;">
+                    Aucun chauffeur en simulation
+                </div>
+            </div>
+        </div>
+        
+        <div class="log">
+            <div id="logContainer">
+                <div class="log-line">[SYSTÈME] Simulateur GPS initialisé</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
+            authDomain: "albourakh-maps-sn.firebaseapp.com",
+            projectId: "albourakh-maps-sn",
+            storageBucket: "albourakh-maps-sn.firebasestorage.app",
+            messagingSenderId: "901444203447",
+            appId: "1:901444203447:web:5e4126f7e873d81b736e32"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        let simulationInterval = null;
+        let chauffeurs = [];
+        let updateCount = 0;
+        const UPDATE_INTERVAL = 10000; // 10 secondes
+        
+        // Limites géographiques de Dakar
+        const DAKAR_BOUNDS = {
+            minLat: 14.65,
+            maxLat: 14.80,
+            minLng: -17.55,
+            maxLng: -17.40
+        };
+        
+        function log(message) {
+            const logContainer = document.getElementById('logContainer');
+            const logLine = document.createElement('div');
+            logLine.className = 'log-line';
+            const time = new Date().toLocaleTimeString();
+            logLine.textContent = `[${time}] ${message}`;
+            logContainer.insertBefore(logLine, logContainer.firstChild);
+            
+            // Garder seulement les 50 dernières lignes
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+        
+        function generateRandomMovement(currentLat, currentLng) {
+            // Déplacement aléatoire (environ 50-200 mètres)
+            const deltaLat = (Math.random() - 0.5) * 0.003; // ~300m
+            const deltaLng = (Math.random() - 0.5) * 0.003;
+            
+            let newLat = currentLat + deltaLat;
+            let newLng = currentLng + deltaLng;
+            
+            // S'assurer de rester dans les limites de Dakar
+            newLat = Math.max(DAKAR_BOUNDS.minLat, Math.min(DAKAR_BOUNDS.maxLat, newLat));
+            newLng = Math.max(DAKAR_BOUNDS.minLng, Math.min(DAKAR_BOUNDS.maxLng, newLng));
+            
+            return { lat: newLat, lng: newLng };
+        }
+        
+        async function loadChauffeurs() {
+            try {
+                const snapshot = await db.collection('candidatures_chauffeurs')
+                    .where('statut', '==', 'acceptee')
+                    .get();
+                
+                chauffeurs = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.positionActuelle) {
+                        chauffeurs.push({
+                            id: doc.id,
+                            nom: data.nomComplet,
+                            position: data.positionActuelle,
+                            disponible: data.disponible
+                        });
+                    }
+                });
+                
+                document.getElementById('statChauffeurs').textContent = chauffeurs.length;
+                log(`${chauffeurs.length} chauffeurs chargés`);
+                
+                updateDriversList();
+                
+            } catch (error) {
+                log(`ERREUR: ${error.message}`);
+                console.error(error);
+            }
+        }
+        
+        function updateDriversList() {
+            const container = document.getElementById('driversList');
+            
+            if (chauffeurs.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #999;">
+                        Aucun chauffeur trouvé. Créez d'abord des chauffeurs de test.
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            chauffeurs.forEach(chauffeur => {
+                const item = document.createElement('div');
+                item.className = 'driver-item';
+                item.innerHTML = `
+                    <div class="driver-info">
+                        <div class="driver-name">${chauffeur.nom}</div>
+                        <div class="driver-position">
+                            📍 ${chauffeur.position.lat.toFixed(6)}, ${chauffeur.position.lng.toFixed(6)}
+                        </div>
+                    </div>
+                    <span class="driver-status ${simulationInterval ? 'moving' : 'stopped'}">
+                        ${simulationInterval ? '🚗 En mouvement' : '⏸️ Arrêté'}
+                    </span>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        async function updatePositions() {
+            try {
+                log('Mise à jour des positions GPS...');
+                
+                const batch = db.batch();
+                
+                for (let chauffeur of chauffeurs) {
+                    // Générer nouvelle position
+                    const newPosition = generateRandomMovement(
+                        chauffeur.position.lat,
+                        chauffeur.position.lng
+                    );
+                    
+                    // Mettre à jour localement
+                    chauffeur.position = newPosition;
+                    
+                    // Préparer mise à jour Firebase
+                    const ref = db.collection('candidatures_chauffeurs').doc(chauffeur.id);
+                    batch.update(ref, {
+                        positionActuelle: newPosition,
+                        dernierePosition: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Exécuter toutes les mises à jour
+                await batch.commit();
+                
+                updateCount++;
+                document.getElementById('statUpdates').textContent = updateCount;
+                
+                log(`✅ ${chauffeurs.length} positions mises à jour`);
+                updateDriversList();
+                
+            } catch (error) {
+                log(`❌ ERREUR: ${error.message}`);
+                console.error(error);
+            }
+        }
+        
+        async function startSimulation() {
+            if (simulationInterval) {
+                log('⚠️ Simulation déjà en cours');
+                return;
+            }
+            
+            // Charger les chauffeurs
+            await loadChauffeurs();
+            
+            if (chauffeurs.length === 0) {
+                alert('❌ Aucun chauffeur trouvé. Créez d\'abord des chauffeurs de test.');
+                return;
+            }
+            
+            // Démarrer la simulation
+            simulationInterval = setInterval(updatePositions, UPDATE_INTERVAL);
+            
+            // Première mise à jour immédiate
+            updatePositions();
+            
+            // Mise à jour UI
+            document.getElementById('simulatorStatus').className = 'status active';
+            document.getElementById('simulatorStatus').textContent = '▶️ En cours';
+            document.getElementById('btnStart').disabled = true;
+            document.getElementById('btnStop').disabled = false;
+            
+            log('🚀 Simulation démarrée');
+        }
+        
+        function stopSimulation() {
+            if (simulationInterval) {
+                clearInterval(simulationInterval);
+                simulationInterval = null;
+                
+                // Mise à jour UI
+                document.getElementById('simulatorStatus').className = 'status inactive';
+                document.getElementById('simulatorStatus').textContent = '⏸️ Arrêté';
+                document.getElementById('btnStart').disabled = false;
+                document.getElementById('btnStop').disabled = true;
+                
+                updateDriversList();
+                
+                log('⏸️ Simulation arrêtée');
+            }
+        }
+        
+        // Arrêter la simulation quand on quitte la page
+        window.addEventListener('beforeunload', () => {
+            if (simulationInterval) {
+                stopSimulation();
+            }
+        });
+        
+        log('✅ Simulateur GPS prêt');
+    </script>
+</body>
+</html>
