@@ -1518,47 +1518,47 @@
         <p class="section-subtitle">Couverture complète de Dakar et sa banlieue - Cliquez pour explorer</p>
         
         <div class="features-grid">
-            <div class="feature-card" onclick="showZoneQuartiers('centre')">
+            <div class="feature-card" onclick="exploreZone('centre')">
                 <div class="feature-icon" style="color: #00A854;">🏙️</div>
                 <h3 class="feature-title">Dakar Centre</h3>
                 <p class="feature-desc">15 quartiers incluant Plateau, Médina, Point E, Sacré-Cœur</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('ouest')">
+            <div class="feature-card" onclick="exploreZone('ouest')">
                 <div class="feature-icon" style="color: #2196F3;">🌊</div>
                 <h3 class="feature-title">Corniche & Ouest</h3>
                 <p class="feature-desc">15 quartiers incluant Almadies, Ngor, Ouakam, Yoff</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('pikine')">
+            <div class="feature-card" onclick="exploreZone('pikine')">
                 <div class="feature-icon" style="color: #FF9800;">🏘️</div>
                 <h3 class="feature-title">Pikine</h3>
                 <p class="feature-desc">13 quartiers incluant Thiaroye, Yeumbeul, Malika</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('guediawaye')">
+            <div class="feature-card" onclick="exploreZone('guediawaye')">
                 <div class="feature-icon" style="color: #9C27B0;">🏘️</div>
                 <h3 class="feature-title">Guédiawaye</h3>
                 <p class="feature-desc">11 quartiers incluant Golf Nord, Sam Notaire, Ndiarème</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('keur_massar')">
+            <div class="feature-card" onclick="exploreZone('keur_massar')">
                 <div class="feature-icon" style="color: #FF5722;">🏘️</div>
                 <h3 class="feature-title">Keur Massar</h3>
                 <p class="feature-desc">11 quartiers incluant Boune, Jaxaay, Mbeubeuss</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('sud')">
+            <div class="feature-card" onclick="exploreZone('sud')">
                 <div class="feature-icon" style="color: #4CAF50;">🌅</div>
                 <h3 class="feature-title">Dakar Sud</h3>
                 <p class="feature-desc">10 quartiers incluant Rufisque, Bargny, Diamniadio</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('grand_yoff')">
+            <div class="feature-card" onclick="exploreZone('grand_yoff')">
                 <div class="feature-icon" style="color: #00BCD4;">✈️</div>
                 <h3 class="feature-title">Grand Yoff</h3>
                 <p class="feature-desc">10 quartiers incluant Aéroport LSS, Bopp, Soprim</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('hann_bel_air')">
+            <div class="feature-card" onclick="exploreZone('hann_bel_air')">
                 <div class="feature-icon" style="color: #E91E63;">🏭</div>
                 <h3 class="feature-title">Hann Bel-Air</h3>
                 <p class="feature-desc">10 quartiers incluant Zone Industrielle, Port de Pêche</p>
             </div>
-            <div class="feature-card" onclick="showZoneQuartiers('parcelles')">
+            <div class="feature-card" onclick="exploreZone('parcelles')">
                 <div class="feature-icon" style="color: #FFC107;">🏡</div>
                 <h3 class="feature-title">Parcelles Assainies</h3>
                 <p class="feature-desc">18 unités couvrant toute la zone des Parcelles</p>
@@ -1872,7 +1872,7 @@
 
                     <div class="form-group">
                         <label><i class="fas fa-car"></i> Type de véhicule</label>
-                        <select id="driverVehicleType" required>
+                        <select id="driverVehicleTypeForm" required>
                             <option value="">Sélectionnez...</option>
                             <option value="berline">Berline</option>
                             <option value="suv">SUV</option>
@@ -2623,6 +2623,27 @@
             );
         }
 
+        // NOUVELLE FONCTION: Exploration des zones
+        function exploreZone(zoneKey) {
+            // Vérifier que la carte est initialisée
+            if (!map) {
+                showNotification('⚠️ Veuillez patienter que la carte soit chargée', 'info');
+                setTimeout(() => exploreZone(zoneKey), 1000);
+                return;
+            }
+
+            // Scroll vers la carte
+            document.querySelector('.map-container').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+
+            // Attendre la fin du scroll puis afficher la zone
+            setTimeout(() => {
+                showZoneQuartiers(zoneKey);
+            }, 800);
+        }
+
         function showZoneQuartiers(zoneKey) {
             const zoneNames = {
                 centre: 'Dakar Centre',
@@ -2954,7 +2975,7 @@
                     
                     // Informations véhicule
                     vehicule: {
-                        type: document.getElementById('driverVehicleType').value,
+                        type: document.getElementById('driverVehicleTypeForm').value,
                         marqueModele: document.getElementById('driverVehicleModel').value.trim(),
                         annee: parseInt(document.getElementById('driverVehicleYear').value),
                         immatriculation: document.getElementById('driverPlate').value.trim(),
