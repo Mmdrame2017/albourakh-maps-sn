@@ -723,139 +723,149 @@
         }
         
         async function loadReservations() {
-            const tbody = document.getElementById('reservationsBody');
-            tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
-            
-            try {
-                let query = db.collection('reservations').orderBy('timestamp', 'desc');
-                
-                const filterStatus = document.getElementById('filterStatus').value;
-                if (filterStatus) {
-                    query = query.where('statut', '==', filterStatus);
-                }
-                
-                const filterDate = document.getElementById('filterDate').value;
-                if (filterDate) {
-                    const startOfDay = new Date(filterDate);
-                    startOfDay.setHours(0, 0, 0, 0);
-                    const endOfDay = new Date(filterDate);
-                    endOfDay.setHours(23, 59, 59, 999);
-                    query = query.where('timestamp', '>=', startOfDay).where('timestamp', '<=', endOfDay);
-                }
-                
-                const snapshot = await query.get();
-                
-                allReservations = [];
-                snapshot.forEach(doc => {
-                    allReservations.push({ id: doc.id, ...doc.data() });
-                });
-                
-                document.getElementById('resCount').textContent = allReservations.length;
-                
-                if (allReservations.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune réservation</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = '';
-                
-                allReservations.forEach(data => {
-                    const row = tbody.insertRow();
-                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
-                    
-                    row.innerHTML = `
-                        <td>${date.toLocaleDateString()} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</td>
-                        <td><strong>${data.nom || 'N/A'}</strong><br><small>${data.email || ''}</small></td>
-                        <td>${data.telephone || 'N/A'}</td>
-                        <td><strong>${data.depart || 'N/A'}</strong><br>↓<br><strong>${data.destination || 'N/A'}</strong></td>
-                        <td>${data.typeVehicule || 'N/A'}</td>
-                        <td><strong>${(data.prixEstime || 0).toLocaleString()} FCFA</strong></td>
-                        <td>${data.modePaiement || 'N/A'}</td>
-                        <td><span class="status-badge status-${data.statut || 'en_attente'}">${data.statut || 'en_attente'}</span></td>
-                        <td>
-                            <button class="action-btn btn-view" onclick="viewReservationDetails('${data.id}')" title="Voir détails">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            ${data.statut === 'en_attente' ? `
-                                <button class="action-btn btn-accept" onclick="updateReservationStatus('${data.id}', 'confirmee')" title="Confirmer">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="action-btn btn-reject" onclick="updateReservationStatus('${data.id}', 'annulee')" title="Annuler">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : ''}
-                        </td>
-                    `;
-                });
-            } catch (error) {
-                console.error('❌ Erreur:', error);
-                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">❌ Erreur de chargement</td></tr>';
-                showToast('Erreur de chargement des réservations', 'error');
-            }
+    const tbody = document.getElementById('reservationsBody');
+    tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+    
+    try {
+        // Base query - récupère toutes les réservations
+        let query = db.collection('reservations').orderBy('timestamp', 'desc').limit(100);
+        
+        const snapshot = await query.get();
+        
+        // Filtrer APRÈS avoir récupéré les données (évite le besoin d'index Firestore)
+        let filteredData = [];
+        snapshot.forEach(doc => {
+            filteredData.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Appliquer le filtre par statut en JavaScript
+        const filterStatus = document.getElementById('filterStatus').value;
+        if (filterStatus) {
+            filteredData = filteredData.filter(data => data.statut === filterStatus);
         }
         
-        async function loadDrivers() {
-            const tbody = document.getElementById('chauffeursBody');
-            tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
-            
-            try {
-                let query = db.collection('candidatures_chauffeurs').orderBy('timestamp', 'desc');
-                
-                const filterStatus = document.getElementById('filterDriverStatus').value;
-                if (filterStatus) {
-                    query = query.where('statut', '==', filterStatus);
-                }
-                
-                const snapshot = await query.get();
-                
-                allDrivers = [];
-                snapshot.forEach(doc => {
-                    allDrivers.push({ id: doc.id, ...doc.data() });
-                });
-                
-                document.getElementById('driverCount').textContent = allDrivers.length;
-                
-                if (allDrivers.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune candidature</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = '';
-                
-                allDrivers.forEach(data => {
-                    const row = tbody.insertRow();
-                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
-                    
-                    row.innerHTML = `
-                        <td>${date.toLocaleDateString()}</td>
-                        <td><strong>${data.nomComplet || 'N/A'}</strong></td>
-                        <td>${data.telephone || 'N/A'}<br><small>${data.email || ''}</small></td>
-                        <td>${data.villeResidence || 'N/A'}</td>
-                        <td>${data.permis?.categorie || 'N/A'}<br><small>${data.permis?.anneesExperience || 0} ans exp.</small></td>
-                        <td>${data.vehicule?.type || 'N/A'}<br><small>${data.vehicule?.marqueModele || ''} (${data.vehicule?.annee || ''})</small></td>
-                        <td>${data.disponibilite || 'N/A'}</td>
-                        <td><span class="status-badge status-${data.statut || 'nouvelle'}">${data.statut || 'nouvelle'}</span></td>
-                        <td>
-                            <button class="action-btn btn-view" onclick="viewDriverDetails('${data.id}')" title="Voir détails">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            ${data.statut === 'nouvelle' ? `
-                                <button class="action-btn btn-accept" onclick="updateDriverStatus('${data.id}', 'acceptee')" title="Accepter">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="action-btn btn-reject" onclick="updateDriverStatus('${data.id}', 'refusee')" title="Refuser">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : ''}
-                        </td>
-                    `;
-                });
-            } catch (error) {
-                console.error('❌ Erreur:', error);
-                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">❌ Erreur de chargement</td></tr>';
-                showToast('Erreur de chargement des candidatures', 'error');
-            }
+        // Appliquer le filtre par date en JavaScript
+        const filterDate = document.getElementById('filterDate').value;
+        if (filterDate) {
+            const selectedDate = new Date(filterDate);
+            filteredData = filteredData.filter(data => {
+                if (!data.timestamp) return false;
+                const docDate = new Date(data.timestamp.seconds * 1000);
+                return docDate.toLocaleDateString() === selectedDate.toLocaleDateString();
+            });
         }
+        
+        allReservations = filteredData;
+        document.getElementById('resCount').textContent = filteredData.length;
+        
+        if (filteredData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune réservation trouvée avec ces filtres</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        filteredData.forEach(data => {
+            const row = tbody.insertRow();
+            const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+            
+            row.innerHTML = `
+                <td>${date.toLocaleDateString()} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</td>
+                <td><strong>${data.nom || 'N/A'}</strong><br><small>${data.email || ''}</small></td>
+                <td>${data.telephone || 'N/A'}</td>
+                <td><strong>${data.depart || 'N/A'}</strong><br>↓<br><strong>${data.destination || 'N/A'}</strong></td>
+                <td>${data.typeVehicule || 'N/A'}</td>
+                <td><strong>${(data.prixEstime || 0).toLocaleString()} FCFA</strong></td>
+                <td>${data.modePaiement || 'N/A'}</td>
+                <td><span class="status-badge status-${data.statut || 'en_attente'}">${data.statut || 'en_attente'}</span></td>
+                <td>
+                    <button class="action-btn btn-view" onclick="viewReservationDetails('${data.id}')" title="Voir détails">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${data.statut === 'en_attente' ? `
+                        <button class="action-btn btn-accept" onclick="updateReservationStatus('${data.id}', 'confirmee')" title="Confirmer">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="action-btn btn-reject" onclick="updateReservationStatus('${data.id}', 'annulee')" title="Annuler">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    ` : ''}
+                </td>
+            `;
+        });
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">❌ Erreur: ${error.message}</td></tr>`;
+        showToast('Erreur de chargement des réservations', 'error');
+    }
+}
+        
+       async function loadDrivers() {
+    const tbody = document.getElementById('chauffeursBody');
+    tbody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+    
+    try {
+        // Base query - récupère toutes les candidatures
+        let query = db.collection('candidatures_chauffeurs').orderBy('timestamp', 'desc').limit(100);
+        
+        const snapshot = await query.get();
+        
+        // Filtrer APRÈS avoir récupéré les données (évite le besoin d'index Firestore)
+        let filteredData = [];
+        snapshot.forEach(doc => {
+            filteredData.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Appliquer le filtre par statut en JavaScript
+        const filterStatus = document.getElementById('filterDriverStatus').value;
+        if (filterStatus) {
+            filteredData = filteredData.filter(data => data.statut === filterStatus);
+        }
+        
+        allDrivers = filteredData;
+        document.getElementById('driverCount').textContent = filteredData.length;
+        
+        if (filteredData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune candidature trouvée avec ces filtres</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        
+        filteredData.forEach(data => {
+            const row = tbody.insertRow();
+            const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+            
+            row.innerHTML = `
+                <td>${date.toLocaleDateString()}</td>
+                <td><strong>${data.nomComplet || 'N/A'}</strong></td>
+                <td>${data.telephone || 'N/A'}<br><small>${data.email || ''}</small></td>
+                <td>${data.villeResidence || 'N/A'}</td>
+                <td>${data.permis?.categorie || 'N/A'}<br><small>${data.permis?.anneesExperience || 0} ans exp.</small></td>
+                <td>${data.vehicule?.type || 'N/A'}<br><small>${data.vehicule?.marqueModele || ''} (${data.vehicule?.annee || ''})</small></td>
+                <td>${data.disponibilite || 'N/A'}</td>
+                <td><span class="status-badge status-${data.statut || 'nouvelle'}">${data.statut || 'nouvelle'}</span></td>
+                <td>
+                    <button class="action-btn btn-view" onclick="viewDriverDetails('${data.id}')" title="Voir détails">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${data.statut === 'nouvelle' ? `
+                        <button class="action-btn btn-accept" onclick="updateDriverStatus('${data.id}', 'acceptee')" title="Accepter">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="action-btn btn-reject" onclick="updateDriverStatus('${data.id}', 'refusee')" title="Refuser">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    ` : ''}
+                </td>
+            `;
+        });
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">❌ Erreur: ${error.message}</td></tr>`;
+        showToast('Erreur de chargement des candidatures', 'error');
+    }
+}
         
         async function loadStats() {
             try {
