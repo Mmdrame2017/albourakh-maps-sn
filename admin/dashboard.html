@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Al Bourakh - Dashboard Admin avec Attribution</title>
+    <title>Al Bourakh - Dashboard Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -27,9 +27,9 @@
         
         .header {
             background: white;
-            padding: 30px;
+            padding: 25px 30px;
             border-radius: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: flex;
             justify-content: space-between;
@@ -40,10 +40,11 @@
         
         .header-left h1 {
             color: #00A854;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 15px;
+            font-size: 1.8em;
         }
         
         .brand-logo-img {
@@ -55,46 +56,57 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         
         .admin-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: #f5f5f5;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.9em;
         }
         
-        .logout-btn, .refresh-btn {
-            padding: 12px 20px;
+        .btn {
+            padding: 10px 18px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
+            font-size: 0.9em;
         }
         
-        .logout-btn {
+        .btn-danger {
             background: #E30613;
             color: white;
         }
         
-        .refresh-btn {
+        .btn-primary {
             background: #00A854;
             color: white;
         }
         
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         
         .stat-card {
@@ -103,7 +115,6 @@
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s;
-            cursor: pointer;
         }
         
         .stat-card:hover {
@@ -113,7 +124,7 @@
         
         .stat-icon {
             font-size: 2.5em;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .stat-number {
@@ -125,7 +136,62 @@
         
         .stat-label {
             color: #666;
-            font-size: 1.1em;
+            font-size: 1em;
+        }
+        
+        .filters-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #00A854;
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #00A854;
         }
         
         .reservations-container {
@@ -133,6 +199,15 @@
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .reservation-card {
@@ -145,7 +220,7 @@
         
         .reservation-card:hover {
             border-color: #00A854;
-            box-shadow: 0 5px 20px rgba(0,168,84,0.2);
+            box-shadow: 0 5px 20px rgba(0,168,84,0.15);
         }
         
         .reservation-header {
@@ -160,7 +235,7 @@
         .status-badge {
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: 600;
             color: white;
         }
@@ -173,8 +248,8 @@
         
         .reservation-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
             margin-bottom: 15px;
         }
         
@@ -185,10 +260,12 @@
         }
         
         .info-label {
-            font-size: 0.85em;
+            font-size: 0.8em;
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .info-value {
@@ -200,29 +277,9 @@
         .chauffeur-assigned {
             background: linear-gradient(135deg, #2196F3, #00A854);
             color: white;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 18px;
+            border-radius: 12px;
             margin-top: 15px;
-        }
-        
-        .btn-assign {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .btn-assign:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(0,168,84,0.3);
         }
         
         .modal {
@@ -232,7 +289,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -254,9 +311,12 @@
         
         .modal-header {
             background: linear-gradient(135deg, #00A854, #FECB00);
-            padding: 25px;
+            padding: 25px 30px;
             border-radius: 20px 20px 0 0;
             color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .modal-body {
@@ -273,6 +333,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
         }
         
         .driver-card:hover {
@@ -291,13 +352,13 @@
         
         .driver-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
             gap: 10px;
             margin-top: 15px;
         }
         
         .driver-stat {
-            background: #f0f0f0;
+            background: #f5f5f5;
             padding: 10px;
             border-radius: 8px;
             text-align: center;
@@ -310,35 +371,9 @@
         }
         
         .driver-stat-label {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #666;
             margin-top: 3px;
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 15px 20px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            z-index: 10000;
-            animation: slideInUp 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 400px;
-        }
-        
-        .toast.success { background: #4CAF50; }
-        .toast.error { background: #E30613; }
-        .toast.info { background: #2196F3; }
-        
-        @keyframes slideInUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
         
         .close-modal {
@@ -373,12 +408,73 @@
             opacity: 0.3;
         }
         
+        .loading-spinner {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+        
+        .loading-spinner i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 10000;
+            animation: slideInUp 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+        }
+        
+        .toast.success { background: #4CAF50; }
+        .toast.error { background: #E30613; }
+        .toast.info { background: #2196F3; }
+        
+        @keyframes slideInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
         @media (max-width: 768px) {
             .reservation-info {
                 grid-template-columns: 1fr;
             }
             
             .driver-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .driver-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
@@ -390,19 +486,19 @@
             <div class="header-left">
                 <h1>
                     <img src="https://i.imgur.com/VtgG6pR.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'">
-                    <i class="fas fa-route"></i> Al Bourakh - Attribution Chauffeurs
+                    <i class="fas fa-tachometer-alt"></i> Dashboard Admin
                 </h1>
-                <p>📊 Gestion intelligente des courses en temps réel</p>
+                <p style="color: #666; font-size: 0.95em;">Gestion des réservations et chauffeurs</p>
             </div>
             <div class="header-right">
                 <div class="admin-info">
                     <i class="fas fa-user-shield"></i>
                     <span id="adminEmail">Chargement...</span>
                 </div>
-                <button class="refresh-btn" onclick="refreshData()">
+                <button class="btn btn-primary" onclick="refreshData()">
                     <i class="fas fa-sync-alt"></i> Actualiser
                 </button>
-                <button class="logout-btn" onclick="logout()">
+                <button class="btn btn-danger" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
@@ -411,61 +507,83 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">⏳</div>
-                <div class="stat-number" id="statEnAttente">0</div>
-                <div class="stat-label">En attente d'attribution</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">👨‍✈️</div>
-                <div class="stat-number" id="statDisponibles">0</div>
-                <div class="stat-label">Chauffeurs disponibles</div>
+                <div class="stat-number" id="statEnAttente">-</div>
+                <div class="stat-label">En attente</div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-icon">🚗</div>
-                <div class="stat-number" id="statEnCours">0</div>
-                <div class="stat-label">Courses en cours</div>
+                <div class="stat-number" id="statAssignee">-</div>
+                <div class="stat-label">Assignées</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🏃</div>
+                <div class="stat-number" id="statEnCours">-</div>
+                <div class="stat-label">En cours</div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-icon">✅</div>
-                <div class="stat-number" id="statTerminees">0</div>
-                <div class="stat-label">Terminées aujourd'hui</div>
+                <div class="stat-number" id="statTerminees">-</div>
+                <div class="stat-label">Terminées (24h)</div>
             </div>
         </div>
         
+        <div class="filters-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Rechercher par nom, téléphone, trajet..." onkeyup="filterReservations()">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <select class="filter-select" id="filterStatus" onchange="filterReservations()">
+                <option value="">Tous les statuts</option>
+                <option value="en_attente">En attente</option>
+                <option value="assignee">Assignée</option>
+                <option value="en_cours">En cours</option>
+                <option value="terminee">Terminée</option>
+                <option value="annulee">Annulée</option>
+            </select>
+            
+            <select class="filter-select" id="filterDate" onchange="filterReservations()">
+                <option value="all">Toutes les dates</option>
+                <option value="today">Aujourd'hui</option>
+                <option value="week">Cette semaine</option>
+                <option value="month">Ce mois</option>
+            </select>
+        </div>
+        
         <div class="reservations-container">
-            <h2 style="margin-bottom: 25px; color: #333; font-size: 1.8em;">
-                <i class="fas fa-clipboard-list"></i> Réservations à traiter
+            <h2 class="section-title">
+                <i class="fas fa-clipboard-list"></i> Réservations
+                <span id="reservationCount" style="font-size: 0.7em; color: #999; font-weight: normal;"></span>
             </h2>
             
             <div id="reservationsList">
-                <div style="text-align: center; padding: 50px; color: #999;">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 3em; margin-bottom: 20px;"></i>
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
                     <p>Chargement des réservations...</p>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Modal Attribution -->
+    <!-- Modal Attribution Chauffeur -->
     <div id="modalAttribution" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h2 style="font-size: 1.8em; margin-bottom: 10px;">
-                            <i class="fas fa-user-plus"></i> Sélectionner un chauffeur
-                        </h2>
-                        <p id="modalReservationInfo" style="font-size: 0.95em; opacity: 0.9;"></p>
-                    </div>
-                    <button class="close-modal" onclick="closeModal()">×</button>
+                <div>
+                    <h2 style="font-size: 1.6em; margin-bottom: 8px;">
+                        <i class="fas fa-user-plus"></i> Assigner un chauffeur
+                    </h2>
+                    <p id="modalReservationInfo" style="font-size: 0.9em; opacity: 0.95;"></p>
                 </div>
+                <button class="close-modal" onclick="closeModal()">×</button>
             </div>
             
             <div class="modal-body">
                 <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-                    <strong>💡 Conseil :</strong> Les chauffeurs sont triés par proximité. Le plus proche apparaît en premier.
+                    <strong><i class="fas fa-info-circle"></i> Information :</strong> Seuls les chauffeurs disponibles et acceptés sont affichés.
                 </div>
                 
                 <div id="driversList"></div>
@@ -493,7 +611,9 @@
         
         let currentUser = null;
         let selectedReservation = null;
+        let allReservations = [];
         
+        // Authentification
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -508,20 +628,27 @@
             if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
                 auth.signOut().then(() => {
                     window.location.href = 'login.html';
+                }).catch(error => {
+                    showToast('Erreur de déconnexion: ' + error.message, 'error');
                 });
             }
         }
         
-        async function loadAllData() {
-            await Promise.all([
-                loadReservations(),
-                loadStats()
-            ]);
+        function refreshData() {
+            showToast('Actualisation en cours...', 'info');
+            loadAllData();
         }
         
-        function refreshData() {
-            showToast('🔄 Actualisation...', 'info');
-            loadAllData();
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadReservations(),
+                    loadStats()
+                ]);
+            } catch (error) {
+                console.error('Erreur chargement:', error);
+                showToast('Erreur de chargement: ' + error.message, 'error');
+            }
         }
         
         async function loadReservations() {
@@ -529,32 +656,19 @@
             
             try {
                 const snapshot = await db.collection('reservations')
-                    .where('statut', 'in', ['en_attente', 'assignee', 'en_cours'])
                     .orderBy('timestamp', 'desc')
-                    .limit(20)
+                    .limit(100)
                     .get();
                 
-                if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-check-circle"></i>
-                            <h3>Aucune réservation à traiter</h3>
-                            <p>Toutes les réservations sont terminées ou annulées</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                container.innerHTML = '';
-                
+                allReservations = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const card = createReservationCard(doc.id, data);
-                    container.appendChild(card);
+                    allReservations.push({ id: doc.id, ...doc.data() });
                 });
                 
+                displayReservations(allReservations);
+                
             } catch (error) {
-                console.error('Erreur chargement:', error);
+                console.error('Erreur chargement réservations:', error);
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -565,82 +679,156 @@
             }
         }
         
-        function createReservationCard(id, data) {
+        function displayReservations(reservations) {
+            const container = document.getElementById('reservationsList');
+            
+            if (reservations.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Aucune réservation</h3>
+                        <p>Aucune réservation ne correspond à vos critères</p>
+                    </div>
+                `;
+                document.getElementById('reservationCount').textContent = '';
+                return;
+            }
+            
+            container.innerHTML = '';
+            document.getElementById('reservationCount').textContent = `(${reservations.length})`;
+            
+            reservations.forEach(reservation => {
+                const card = createReservationCard(reservation);
+                container.appendChild(card);
+            });
+        }
+        
+        function createReservationCard(data) {
             const card = document.createElement('div');
             card.className = 'reservation-card';
             
             const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+            const formattedDate = date.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
             
             card.innerHTML = `
                 <div class="reservation-header">
-                    <div>
-                        <span class="status-badge status-${data.statut}">${getStatusLabel(data.statut)}</span>
-                        <span style="margin-left: 15px; color: #999; font-size: 0.9em;">
-                            <i class="fas fa-clock"></i> ${date.toLocaleString('fr-FR')}
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-badge status-${data.statut || 'en_attente'}">${getStatusLabel(data.statut)}</span>
+                        <span style="color: #999; font-size: 0.85em;">
+                            <i class="fas fa-clock"></i> ${formattedDate}
                         </span>
                     </div>
-                    ${data.statut === 'en_attente' ? `
-                        <button class="btn-assign" onclick="openAttribution('${id}')">
-                            <i class="fas fa-user-plus"></i> Assigner un chauffeur
-                        </button>
-                    ` : ''}
+                    <div class="action-buttons">
+                        ${data.statut === 'en_attente' ? `
+                            <button class="btn btn-primary" onclick="openAttribution('${data.id}')">
+                                <i class="fas fa-user-plus"></i> Assigner
+                            </button>
+                        ` : ''}
+                        ${data.statut === 'assignee' ? `
+                            <button class="btn btn-secondary" onclick="demarrerCourse('${data.id}')">
+                                <i class="fas fa-play"></i> Démarrer
+                            </button>
+                        ` : ''}
+                        ${data.statut === 'en_cours' ? `
+                            <button class="btn" style="background: #4CAF50; color: white;" onclick="terminerCourse('${data.id}')">
+                                <i class="fas fa-check"></i> Terminer
+                            </button>
+                        ` : ''}
+                        ${['en_attente', 'assignee'].includes(data.statut) ? `
+                            <button class="btn btn-danger" onclick="annulerReservation('${data.id}')">
+                                <i class="fas fa-times"></i> Annuler
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
                 
                 <div class="reservation-info">
                     <div class="info-block">
                         <div class="info-label"><i class="fas fa-user"></i> Client</div>
-                        <div class="info-value">${data.nom || 'N/A'}</div>
+                        <div class="info-value">${data.nom || 'Non renseigné'}</div>
                         <div style="margin-top: 5px; color: #666; font-size: 0.9em;">
-                            <i class="fas fa-phone"></i> ${data.telephone || 'N/A'}
+                            <i class="fas fa-phone"></i> ${data.telephone || 'Non renseigné'}
                         </div>
+                        ${data.email ? `
+                            <div style="margin-top: 3px; color: #666; font-size: 0.85em;">
+                                <i class="fas fa-envelope"></i> ${data.email}
+                            </div>
+                        ` : ''}
                     </div>
                     
                     <div class="info-block">
                         <div class="info-label"><i class="fas fa-map-marker-alt"></i> Trajet</div>
-                        <div class="info-value">${data.depart || 'N/A'}</div>
-                        <div style="margin-top: 5px; color: #666;">↓</div>
-                        <div class="info-value">${data.destination || 'N/A'}</div>
+                        <div class="info-value">${data.depart || 'Non renseigné'}</div>
+                        <div style="margin: 5px 0; color: #00A854;">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="info-value">${data.destination || 'Non renseigné'}</div>
                     </div>
                     
                     <div class="info-block">
-                        <div class="info-label"><i class="fas fa-car"></i> Véhicule & Prix</div>
-                        <div class="info-value">${data.typeVehicule || 'Standard'}</div>
-                        <div style="margin-top: 5px; color: #00A854; font-size: 1.2em; font-weight: bold;">
-                            ${(data.prixEstime || 0).toLocaleString()} FCFA
+                        <div class="info-label"><i class="fas fa-car"></i> Véhicule</div>
+                        <div class="info-value">${getVehicleLabel(data.typeVehicule)}</div>
+                        <div style="margin-top: 8px;">
+                            <div class="info-label" style="margin-bottom: 3px;"><i class="fas fa-users"></i> Passagers</div>
+                            <div class="info-value">${data.passagers || 1} personne(s)</div>
                         </div>
                     </div>
                     
                     <div class="info-block">
-                        <div class="info-label"><i class="fas fa-calendar-check"></i> Date & Heure souhaitée</div>
-                        <div class="info-value">${data.date || 'N/A'}</div>
-                        <div style="margin-top: 5px; color: #666; font-size: 1.1em;">
-                            <i class="fas fa-clock"></i> ${data.heure || 'N/A'}
+                        <div class="info-label"><i class="fas fa-calendar-check"></i> Date souhaitée</div>
+                        <div class="info-value">${data.date || 'Non renseignée'}</div>
+                        <div style="margin-top: 5px; color: #666; font-size: 1.05em;">
+                            <i class="fas fa-clock"></i> ${data.heure || 'Non renseignée'}
                         </div>
                     </div>
+                    
+                    <div class="info-block">
+                        <div class="info-label"><i class="fas fa-credit-card"></i> Paiement</div>
+                        <div class="info-value">${getPaymentLabel(data.modePaiement)}</div>
+                        <div style="margin-top: 8px;">
+                            <div class="info-label" style="margin-bottom: 3px;"><i class="fas fa-money-bill-wave"></i> Prix estimé</div>
+                            <div class="info-value" style="color: #00A854; font-size: 1.2em;">
+                                ${(data.prixEstime || 0).toLocaleString()} FCFA
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${data.instructions ? `
+                        <div class="info-block" style="grid-column: 1 / -1;">
+                            <div class="info-label"><i class="fas fa-comment"></i> Instructions</div>
+                            <div class="info-value" style="font-weight: normal; font-size: 0.95em;">${data.instructions}</div>
+                        </div>
+                    ` : ''}
                 </div>
                 
                 ${data.chauffeurAssigne ? `
                     <div class="chauffeur-assigned">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.85em; opacity: 0.9; margin-bottom: 5px;">
                                     <i class="fas fa-user-check"></i> Chauffeur assigné
                                 </div>
                                 <div style="font-size: 1.3em; font-weight: bold;">
-                                    ${data.nomChauffeur || 'N/A'}
+                                    ${data.nomChauffeur || 'Non renseigné'}
                                 </div>
                                 <div style="margin-top: 5px; opacity: 0.95;">
-                                    <i class="fas fa-phone"></i> ${data.telephoneChauffeur || 'N/A'}
+                                    <i class="fas fa-phone"></i> ${data.telephoneChauffeur || 'Non renseigné'}
                                 </div>
+                                ${data.dateAssignation ? `
+                                    <div style="margin-top: 5px; font-size: 0.85em; opacity: 0.9;">
+                                        <i class="fas fa-clock"></i> Assigné le ${new Date(data.dateAssignation.seconds * 1000).toLocaleString('fr-FR')}
+                                    </div>
+                                ` : ''}
                             </div>
-                            ${data.statut === 'assignee' ? `
-                                <button class="btn-assign" style="background: #9C27B0;" onclick="demarrerCourse('${id}')">
-                                    <i class="fas fa-play"></i> Démarrer
-                                </button>
-                            ` : ''}
-                            ${data.statut === 'en_cours' ? `
-                                <button class="btn-assign" style="background: #4CAF50;" onclick="terminerCourse('${id}')">
-                                    <i class="fas fa-check"></i> Terminer
+                            ${data.statut === 'assignee' || data.statut === 'en_cours' ? `
+                                <button class="btn btn-danger" onclick="reassignerChauffeur('${data.id}')">
+                                    <i class="fas fa-exchange-alt"></i> Réassigner
                                 </button>
                             ` : ''}
                         </div>
@@ -659,53 +847,116 @@
                 terminee: 'Terminée',
                 annulee: 'Annulée'
             };
-            return labels[statut] || statut;
+            return labels[statut] || 'En attente';
+        }
+        
+        function getVehicleLabel(type) {
+            const labels = {
+                standard: '🚗 Standard',
+                confort: '✨ Confort',
+                van: '🚐 Van',
+                premium: '👑 Premium'
+            };
+            return labels[type] || '🚗 Standard';
+        }
+        
+        function getPaymentLabel(method) {
+            const labels = {
+                cash: '💵 Espèces',
+                orange: '📱 Orange Money',
+                wave: '💳 Wave',
+                card: '💳 Carte Bancaire'
+            };
+            return labels[method] || 'Non renseigné';
         }
         
         async function loadStats() {
             try {
-                const reservationsSnap = await db.collection('reservations').get();
-                const chauffeursSnap = await db.collection('candidatures_chauffeurs')
-                    .where('statut', '==', 'acceptee')
-                    .get();
+                const snapshot = await db.collection('reservations').get();
                 
-                let enAttente = 0, enCours = 0, terminees = 0, disponibles = 0;
+                let enAttente = 0, assignee = 0, enCours = 0, terminees = 0;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
                 
-                reservationsSnap.forEach(doc => {
-                    const statut = doc.data().statut;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const statut = data.statut || 'en_attente';
+                    
                     if (statut === 'en_attente') enAttente++;
+                    if (statut === 'assignee') assignee++;
                     if (statut === 'en_cours') enCours++;
                     if (statut === 'terminee') {
-                        const date = doc.data().timestamp ? new Date(doc.data().timestamp.seconds * 1000) : null;
-                        if (date && date.toDateString() === new Date().toDateString()) {
+                        const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : null;
+                        if (date && date >= today) {
                             terminees++;
                         }
                     }
                 });
                 
-                chauffeursSnap.forEach(doc => {
-                    if (doc.data().disponible) disponibles++;
-                });
-                
                 document.getElementById('statEnAttente').textContent = enAttente;
-                document.getElementById('statDisponibles').textContent = disponibles;
+                document.getElementById('statAssignee').textContent = assignee;
                 document.getElementById('statEnCours').textContent = enCours;
                 document.getElementById('statTerminees').textContent = terminees;
                 
             } catch (error) {
                 console.error('Erreur stats:', error);
+                showToast('Erreur de chargement des stats', 'error');
             }
+        }
+        
+        function filterReservations() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            const dateFilter = document.getElementById('filterDate').value;
+            
+            let filtered = allReservations.filter(res => {
+                // Recherche textuelle
+                const matchSearch = !searchTerm || 
+                    (res.nom && res.nom.toLowerCase().includes(searchTerm)) ||
+                    (res.telephone && res.telephone.includes(searchTerm)) ||
+                    (res.depart && res.depart.toLowerCase().includes(searchTerm)) ||
+                    (res.destination && res.destination.toLowerCase().includes(searchTerm));
+                
+                // Filtre statut
+                const matchStatus = !statusFilter || res.statut === statusFilter;
+                
+                // Filtre date
+                let matchDate = true;
+                if (dateFilter !== 'all' && res.timestamp) {
+                    const resDate = new Date(res.timestamp.seconds * 1000);
+                    const now = new Date();
+                    
+                    if (dateFilter === 'today') {
+                        matchDate = resDate.toDateString() === now.toDateString();
+                    } else if (dateFilter === 'week') {
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        matchDate = resDate >= weekAgo;
+                    } else if (dateFilter === 'month') {
+                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        matchDate = resDate >= monthAgo;
+                    }
+                }
+                
+                return matchSearch && matchStatus && matchDate;
+            });
+            
+            displayReservations(filtered);
         }
         
         async function openAttribution(reservationId) {
             try {
                 const resDoc = await db.collection('reservations').doc(reservationId).get();
-                const resData = resDoc.data();
                 
+                if (!resDoc.exists) {
+                    showToast('Réservation introuvable', 'error');
+                    return;
+                }
+                
+                const resData = resDoc.data();
                 selectedReservation = { id: reservationId, ...resData };
                 
                 document.getElementById('modalReservationInfo').textContent = 
-                    `${resData.nom} • ${resData.depart} → ${resData.destination}`;
+                    `${resData.nom || 'N/A'} • ${resData.depart || 'N/A'} → ${resData.destination || 'N/A'}`;
                 
                 await loadDriversList();
                 
@@ -719,7 +970,7 @@
         
         async function loadDriversList() {
             const container = document.getElementById('driversList');
-            container.innerHTML = '<div style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin" style="font-size: 2em;"></i></div>';
+            container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Chargement des chauffeurs...</p></div>';
             
             try {
                 const snapshot = await db.collection('candidatures_chauffeurs')
@@ -729,32 +980,13 @@
                 const drivers = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    
-                    // Calculer la distance si coordonnées disponibles
-                    let distance = null;
-                    if (selectedReservation.coordonneesDepart && data.positionActuelle) {
-                        distance = calculateDistance(
-                            selectedReservation.coordonneesDepart.lat,
-                            selectedReservation.coordonneesDepart.lng,
-                            data.positionActuelle.lat,
-                            data.positionActuelle.lng
-                        );
-                    }
-                    
-                    drivers.push({
-                        id: doc.id,
-                        ...data,
-                        distance: distance,
-                        tempsArrivee: distance ? Math.round(distance * 3) : null
-                    });
+                    drivers.push({ id: doc.id, ...data });
                 });
                 
-                // Trier par disponibilité puis distance
+                // Trier: disponibles d'abord
                 drivers.sort((a, b) => {
-                    if (a.disponible && !b.disponible) return -1;
-                    if (!a.disponible && b.disponible) return 1;
-                    if (a.distance && b.distance) return a.distance - b.distance;
-                    return 0;
+                    if (a.disponible === b.disponible) return 0;
+                    return a.disponible ? -1 : 1;
                 });
                 
                 container.innerHTML = '';
@@ -764,7 +996,7 @@
                         <div class="empty-state">
                             <i class="fas fa-user-slash"></i>
                             <h3>Aucun chauffeur actif</h3>
-                            <p>Veuillez d'abord accepter des candidatures chauffeurs</p>
+                            <p>Aucun chauffeur n'a encore été accepté</p>
                         </div>
                     `;
                     return;
@@ -776,8 +1008,8 @@
                 });
                 
             } catch (error) {
-                console.error('Erreur:', error);
-                container.innerHTML = `<div class="empty-state">Erreur: ${error.message}</div>`;
+                console.error('Erreur chargement chauffeurs:', error);
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Erreur</h3><p>${error.message}</p></div>`;
             }
         }
         
@@ -785,55 +1017,53 @@
             const card = document.createElement('div');
             card.className = 'driver-card' + (driver.disponible ? '' : ' unavailable');
             
+            const isAvailable = driver.disponible !== false;
+            
             card.innerHTML = `
                 <div class="driver-info">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em; font-weight: bold;">
-                            ${driver.nomComplet.charAt(0)}
+                            ${(driver.nomComplet || 'C').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                            <div style="font-size: 1.3em; font-weight: bold; color: #333;">
-                                ${driver.nomComplet}
-                                ${!driver.disponible ? '<span style="color: #E30613; font-size: 0.7em; margin-left: 10px;">● OCCUPÉ</span>' : '<span style="color: #4CAF50; font-size: 0.7em; margin-left: 10px;">● DISPONIBLE</span>'}
+                            <div style="font-size: 1.2em; font-weight: bold; color: #333;">
+                                ${driver.nomComplet || 'Nom non renseigné'}
+                                ${isAvailable ? 
+                                    '<span style="color: #4CAF50; font-size: 0.7em; margin-left: 10px;">● DISPONIBLE</span>' : 
+                                    '<span style="color: #E30613; font-size: 0.7em; margin-left: 10px;">● OCCUPÉ</span>'}
                             </div>
-                            <div style="color: #666; margin-top: 3px;">
-                                <i class="fas fa-phone"></i> ${driver.telephone}
+                            <div style="color: #666; margin-top: 3px; font-size: 0.9em;">
+                                <i class="fas fa-phone"></i> ${driver.telephone || 'Non renseigné'}
                             </div>
                         </div>
                     </div>
                     
                     <div class="driver-stats">
-                        ${driver.distance ? `
-                            <div class="driver-stat">
-                                <div class="driver-stat-value">${driver.distance.toFixed(1)} km</div>
-                                <div class="driver-stat-label">Distance</div>
-                            </div>
-                            <div class="driver-stat">
-                                <div class="driver-stat-value">${driver.tempsArrivee} min</div>
-                                <div class="driver-stat-label">Arrivée</div>
-                            </div>
-                        ` : ''}
                         <div class="driver-stat">
-                            <div class="driver-stat-value">${driver.vehicule?.type || 'Standard'}</div>
+                            <div class="driver-stat-value">${driver.vehicule?.type || 'N/A'}</div>
                             <div class="driver-stat-label">Véhicule</div>
-                        </div>
-                        <div class="driver-stat">
-                            <div class="driver-stat-value">⭐ ${driver.evaluationMoyenne || '4.5'}</div>
-                            <div class="driver-stat-label">Note</div>
                         </div>
                         <div class="driver-stat">
                             <div class="driver-stat-value">${driver.totalCourses || 0}</div>
                             <div class="driver-stat-label">Courses</div>
                         </div>
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">${driver.vehicule?.nombrePlaces || 4}</div>
+                            <div class="driver-stat-label">Places</div>
+                        </div>
+                        <div class="driver-stat">
+                            <div class="driver-stat-value">${driver.villeResidence || 'N/A'}</div>
+                            <div class="driver-stat-label">Ville</div>
+                        </div>
                     </div>
                 </div>
                 
-                ${driver.disponible ? `
-                    <button class="btn-assign" onclick="assignerChauffeur('${driver.id}')">
+                ${isAvailable ? `
+                    <button class="btn btn-primary" onclick="assignerChauffeur('${driver.id}')">
                         <i class="fas fa-check"></i> Assigner
                     </button>
                 ` : `
-                    <div style="padding: 12px 30px; background: #f0f0f0; border-radius: 10px; color: #999; font-weight: bold;">
+                    <div style="padding: 12px 24px; background: #f0f0f0; border-radius: 10px; color: #999; font-weight: bold; text-align: center;">
                         <i class="fas fa-ban"></i> Non disponible
                     </div>
                 `}
@@ -842,23 +1072,17 @@
             return card;
         }
         
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
         async function assignerChauffeur(chauffeurId) {
             if (!confirm('Confirmer l\'attribution de ce chauffeur ?')) return;
             
             try {
                 const chauffeurDoc = await db.collection('candidatures_chauffeurs').doc(chauffeurId).get();
+                
+                if (!chauffeurDoc.exists) {
+                    showToast('Chauffeur introuvable', 'error');
+                    return;
+                }
+                
                 const chauffeur = chauffeurDoc.data();
                 
                 await db.collection('reservations').doc(selectedReservation.id).update({
@@ -874,7 +1098,7 @@
                     coursesEnCours: firebase.firestore.FieldValue.increment(1)
                 });
                 
-                showToast(`✅ Chauffeur ${chauffeur.nomComplet} assigné avec succès!`, 'success');
+                showToast(`Chauffeur ${chauffeur.nomComplet} assigné avec succès!`, 'success');
                 closeModal();
                 loadAllData();
                 
@@ -893,7 +1117,7 @@
                     heureDepart: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                showToast('🚗 Course démarrée!', 'success');
+                showToast('Course démarrée!', 'success');
                 loadAllData();
                 
             } catch (error) {
@@ -922,7 +1146,68 @@
                     });
                 }
                 
-                showToast('✅ Course terminée!', 'success');
+                showToast('Course terminée!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur: ' + error.message, 'error');
+            }
+        }
+        
+        async function annulerReservation(reservationId) {
+            const raison = prompt('Raison de l\'annulation (optionnel):');
+            if (raison === null) return; // Annulation
+            
+            try {
+                const resDoc = await db.collection('reservations').doc(reservationId).get();
+                const resData = resDoc.data();
+                
+                await db.collection('reservations').doc(reservationId).update({
+                    statut: 'annulee',
+                    raisonAnnulation: raison || 'Non précisée',
+                    dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                if (resData.chauffeurAssigne) {
+                    await db.collection('candidatures_chauffeurs').doc(resData.chauffeurAssigne).update({
+                        disponible: true,
+                        coursesEnCours: firebase.firestore.FieldValue.increment(-1)
+                    });
+                }
+                
+                showToast('Réservation annulée', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur: ' + error.message, 'error');
+            }
+        }
+        
+        async function reassignerChauffeur(reservationId) {
+            if (!confirm('Voulez-vous réassigner un nouveau chauffeur à cette réservation ?')) return;
+            
+            try {
+                const resDoc = await db.collection('reservations').doc(reservationId).get();
+                const resData = resDoc.data();
+                
+                if (resData.chauffeurAssigne) {
+                    await db.collection('candidatures_chauffeurs').doc(resData.chauffeurAssigne).update({
+                        disponible: true,
+                        coursesEnCours: firebase.firestore.FieldValue.increment(-1)
+                    });
+                }
+                
+                await db.collection('reservations').doc(reservationId).update({
+                    chauffeurAssigne: firebase.firestore.FieldValue.delete(),
+                    nomChauffeur: firebase.firestore.FieldValue.delete(),
+                    telephoneChauffeur: firebase.firestore.FieldValue.delete(),
+                    statut: 'en_attente',
+                    dateReassignation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('Chauffeur désassigné. Vous pouvez maintenant assigner un nouveau chauffeur.', 'success');
                 loadAllData();
                 
             } catch (error) {
@@ -959,11 +1244,14 @@
             }, 4000);
         }
         
+        // Actualisation automatique toutes les 2 minutes
         setInterval(() => {
-            if (currentUser) loadStats();
-        }, 60000);
+            if (currentUser) {
+                loadStats();
+            }
+        }, 120000);
         
-        console.log('🚀 Dashboard Attribution Al Bourakh chargé');
+        console.log('✅ Dashboard Al Bourakh chargé et prêt pour la production');
     </script>
 </body>
 </html>
