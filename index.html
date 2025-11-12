@@ -297,6 +297,10 @@
             touch-action: none;
         }
 
+        #map.selection-mode {
+            cursor: crosshair !important;
+        }
+
         .gm-style {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         }
@@ -366,6 +370,59 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 1.2em;
+        }
+
+        /* MAP SELECTION MODE STYLES */
+        .map-selection-banner {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            font-weight: bold;
+            font-size: 1.1em;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: slideInDown 0.3s ease;
+        }
+
+        .map-selection-banner.active {
+            display: flex;
+        }
+
+        .map-selection-banner .close-selection {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .map-selection-banner .close-selection:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateX(-50%) translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
         }
 
         .chatbot-button {
@@ -731,6 +788,12 @@
                 right: 10px;
                 bottom: 90px;
             }
+
+            .map-selection-banner {
+                font-size: 0.9em;
+                padding: 12px 20px;
+                max-width: 90%;
+            }
         }
 
         /* Features Section */
@@ -861,6 +924,34 @@
         .form-group textarea {
             resize: vertical;
             min-height: 100px;
+        }
+
+        /* MAP SELECTION BUTTON STYLES */
+        .map-select-btn {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #2196F3, #00BCD4);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        .map-select-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(33,150,243,0.3);
+        }
+
+        .map-select-btn.active {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
         .vehicle-options {
@@ -1306,93 +1397,6 @@
             display: block;
         }
 
-        .price-calculator {
-            background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .calc-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: all 0.3s;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #00A854;
-        }
-
-        .calc-button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.3s;
-            margin-bottom: 10px;
-        }
-
-        .calc-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,168,84,0.3);
-        }
-
-        .price-result {
-            margin-top: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-        }
-
-        .price-result.show {
-            display: block;
-            animation: slideInUp 0.5s ease;
-        }
-
-        .price-amount {
-            font-size: 2em;
-            font-weight: bold;
-            color: #00A854;
-            margin-bottom: 5px;
-        }
-
-        .price-details {
-            font-size: 0.9em;
-            color: #666;
-        }
-
         @media (max-width: 768px) {
             .booking-container, .driver-container {
                 padding: 30px 20px;
@@ -1508,7 +1512,13 @@
         </div>
         
         <div class="map-wrapper">
-            <div id="map"></div>
+            <div id="map">
+                <div class="map-selection-banner" id="mapSelectionBanner">
+                    <i class="fas fa-hand-pointer"></i>
+                    <span id="selectionInstructions">Cliquez sur la carte pour définir le point de départ</span>
+                    <button class="close-selection" onclick="cancelMapSelection()">×</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1582,10 +1592,16 @@
                 <div class="form-group">
                     <label><i class="fas fa-map-marker-alt"></i> Point de départ</label>
                     <input type="text" id="bookingFrom" required placeholder="Ex: Plateau, Dakar">
+                    <button type="button" class="map-select-btn" onclick="selectFromOnMap()">
+                        <i class="fas fa-map-marked-alt"></i> Choisir sur la carte
+                    </button>
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-map-marker-alt"></i> Destination</label>
                     <input type="text" id="bookingTo" required placeholder="Ex: Almadies">
+                    <button type="button" class="map-select-btn" onclick="selectToOnMap()">
+                        <i class="fas fa-map-marked-alt"></i> Choisir sur la carte
+                    </button>
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-calendar-alt"></i> Date</label>
@@ -1811,7 +1827,6 @@
                         <input type="date" id="driverBirthdate" required>
                     </div>
 
-                    <!-- Section Permis de Conduire -->
                     <div class="form-group" style="grid-column: 1 / -1; background: #e8f5e9; padding: 15px; border-radius: 10px; margin-top: 20px;">
                         <h3 style="color: #00A854; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                             <i class="fas fa-id-card-alt"></i> Informations du Permis de Conduire
@@ -1863,7 +1878,6 @@
                         </select>
                     </div>
 
-                    <!-- Section Véhicule -->
                     <div class="form-group" style="grid-column: 1 / -1; background: #fff3cd; padding: 15px; border-radius: 10px; margin-top: 20px;">
                         <h3 style="color: #FECB00; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                             <i class="fas fa-car"></i> Informations du Véhicule
@@ -1900,7 +1914,6 @@
                         <input type="number" id="driverSeats" required min="4" max="8" placeholder="4">
                     </div>
 
-                    <!-- Disponibilité -->
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label><i class="fas fa-clock"></i> Disponibilité souhaitée</label>
                         <select id="driverAvailability" required>
@@ -1987,11 +2000,9 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <!-- Configuration Firebase -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
@@ -2008,7 +2019,6 @@
         console.log('✅ Firebase initialisé!');
     </script>
 
-    <!-- Script principal -->
     <script>
         let map, markers = [], trafficLayer, userMarker, searchMarker, autocomplete;
         let directionsService, directionsRenderer;
@@ -2018,6 +2028,12 @@
         let selectedVehiclePrice = 0;
         let selectedPaymentMethod = null;
         let autocompleteFrom, autocompleteTo;
+
+        // VARIABLES POUR SÉLECTION SUR CARTE
+        let mapSelectionMode = null; // 'from' ou 'to'
+        let departureMarker = null;
+        let destinationMarker = null;
+        let geocoder = null;
 
         const zones = {
             centre: [
@@ -2179,7 +2195,13 @@
             });
 
             trafficLayer = new google.maps.TrafficLayer();
+            geocoder = new google.maps.Geocoder();
             initSearchAutocomplete();
+
+            // ÉCOUTEUR DE CLIC SUR LA CARTE
+            map.addListener('click', function(event) {
+                handleMapClick(event.latLng);
+            });
 
             Object.keys(zones).forEach(category => {
                 zones[category].forEach(location => {
@@ -2197,8 +2219,172 @@
             initBookingAutocomplete();
         }
 
+        // FONCTION: Activer la sélection du point de départ sur la carte
+        function selectFromOnMap() {
+            if (mapSelectionMode === 'from') {
+                cancelMapSelection();
+                return;
+            }
+            
+            mapSelectionMode = 'from';
+            activateMapSelection('📍 Cliquez sur la carte pour définir le POINT DE DÉPART');
+            
+            // Modifier visuellement le bouton
+            document.querySelectorAll('.map-select-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Scroll vers la carte
+            document.querySelector('.map-container').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+
+        // FONCTION: Activer la sélection de la destination sur la carte
+        function selectToOnMap() {
+            if (mapSelectionMode === 'to') {
+                cancelMapSelection();
+                return;
+            }
+            
+            mapSelectionMode = 'to';
+            activateMapSelection('🎯 Cliquez sur la carte pour définir la DESTINATION');
+            
+            // Modifier visuellement le bouton
+            document.querySelectorAll('.map-select-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Scroll vers la carte
+            document.querySelector('.map-container').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+
+        // FONCTION: Activer le mode sélection sur carte
+        function activateMapSelection(message) {
+            const banner = document.getElementById('mapSelectionBanner');
+            const instructions = document.getElementById('selectionInstructions');
+            const mapDiv = document.getElementById('map');
+            
+            instructions.textContent = message;
+            banner.classList.add('active');
+            mapDiv.classList.add('selection-mode');
+            
+            showNotification('🗺️ Mode sélection activé! Cliquez sur la carte.', 'info');
+        }
+
+        // FONCTION: Gérer les clics sur la carte
+        function handleMapClick(latLng) {
+            if (!mapSelectionMode) return;
+            
+            const lat = latLng.lat();
+            const lng = latLng.lng();
+            
+            if (mapSelectionMode === 'from') {
+                // Supprimer l'ancien marqueur de départ
+                if (departureMarker) departureMarker.setMap(null);
+                
+                // Créer un nouveau marqueur vert pour le départ
+                departureMarker = new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                    title: "Point de départ",
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 15,
+                        fillColor: '#00A854',
+                        fillOpacity: 1,
+                        strokeColor: 'white',
+                        strokeWeight: 4
+                    },
+                    animation: google.maps.Animation.DROP
+                });
+                
+                // Géocoder inverse pour obtenir l'adresse
+                geocodeLocation(latLng, 'from');
+                
+            } else if (mapSelectionMode === 'to') {
+                // Supprimer l'ancien marqueur de destination
+                if (destinationMarker) destinationMarker.setMap(null);
+                
+                // Créer un nouveau marqueur rouge pour la destination
+                destinationMarker = new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                    title: "Destination",
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 15,
+                        fillColor: '#E30613',
+                        fillOpacity: 1,
+                        strokeColor: 'white',
+                        strokeWeight: 4
+                    },
+                    animation: google.maps.Animation.DROP
+                });
+                
+                // Géocoder inverse pour obtenir l'adresse
+                geocodeLocation(latLng, 'to');
+            }
+        }
+
+        // FONCTION: Géocodage inverse
+        function geocodeLocation(latLng, type) {
+            showNotification('🔍 Recherche de l\'adresse...', 'info');
+            
+            geocoder.geocode({ location: latLng }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const address = results[0].formatted_address;
+                    
+                    if (type === 'from') {
+                        document.getElementById('bookingFrom').value = address;
+                        showNotification('✅ Point de départ défini: ' + address, 'success');
+                    } else if (type === 'to') {
+                        document.getElementById('bookingTo').value = address;
+                        showNotification('✅ Destination définie: ' + address, 'success');
+                    }
+                    
+                    // Désactiver le mode sélection automatiquement
+                    cancelMapSelection();
+                    
+                    // Si les deux points sont définis, calculer l'itinéraire
+                    if (departureMarker && destinationMarker) {
+                        calculateRoute(
+                            departureMarker.getPosition().toJSON(),
+                            destinationMarker.getPosition().toJSON(),
+                            'Itinéraire'
+                        );
+                    }
+                    
+                } else {
+                    showNotification('❌ Impossible de trouver l\'adresse', 'error');
+                }
+            });
+        }
+
+        // FONCTION: Annuler la sélection sur carte
+        function cancelMapSelection() {
+            mapSelectionMode = null;
+            const banner = document.getElementById('mapSelectionBanner');
+            const mapDiv = document.getElementById('map');
+            
+            banner.classList.remove('active');
+            mapDiv.classList.remove('selection-mode');
+            
+            // Retirer l'état actif des boutons
+            document.querySelectorAll('.map-select-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            showNotification('🔴 Mode sélection désactivé', 'info');
+        }
+
         function initBookingAutocomplete() {
-            // Autocomplétion pour le champ "Point de départ"
             const inputFrom = document.getElementById('bookingFrom');
             if (inputFrom) {
                 autocompleteFrom = new google.maps.places.Autocomplete(inputFrom, {
@@ -2215,11 +2401,35 @@
                     const place = autocompleteFrom.getPlace();
                     if (place.geometry) {
                         inputFrom.value = place.name || place.formatted_address;
+                        
+                        // Mettre à jour le marqueur de départ
+                        if (departureMarker) departureMarker.setMap(null);
+                        departureMarker = new google.maps.Marker({
+                            position: place.geometry.location,
+                            map: map,
+                            title: "Point de départ",
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 15,
+                                fillColor: '#00A854',
+                                fillOpacity: 1,
+                                strokeColor: 'white',
+                                strokeWeight: 4
+                            }
+                        });
+                        
+                        // Si destination existe, calculer l'itinéraire
+                        if (destinationMarker) {
+                            calculateRoute(
+                                departureMarker.getPosition().toJSON(),
+                                destinationMarker.getPosition().toJSON(),
+                                'Itinéraire'
+                            );
+                        }
                     }
                 });
             }
 
-            // Autocomplétion pour le champ "Destination"
             const inputTo = document.getElementById('bookingTo');
             if (inputTo) {
                 autocompleteTo = new google.maps.places.Autocomplete(inputTo, {
@@ -2236,6 +2446,31 @@
                     const place = autocompleteTo.getPlace();
                     if (place.geometry) {
                         inputTo.value = place.name || place.formatted_address;
+                        
+                        // Mettre à jour le marqueur de destination
+                        if (destinationMarker) destinationMarker.setMap(null);
+                        destinationMarker = new google.maps.Marker({
+                            position: place.geometry.location,
+                            map: map,
+                            title: "Destination",
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 15,
+                                fillColor: '#E30613',
+                                fillOpacity: 1,
+                                strokeColor: 'white',
+                                strokeWeight: 4
+                            }
+                        });
+                        
+                        // Si départ existe, calculer l'itinéraire
+                        if (departureMarker) {
+                            calculateRoute(
+                                departureMarker.getPosition().toJSON(),
+                                destinationMarker.getPosition().toJSON(),
+                                'Itinéraire'
+                            );
+                        }
                     }
                 });
             }
@@ -2409,195 +2644,6 @@
                         const userPos = {lat: position.coords.latitude, lng: position.coords.longitude};
                         if (userMarker) userMarker.setMap(null);
                         userMarker = new google.maps.Marker({
-                            position: userPos,
-                            map: map,
-                            title: "Votre position",
-                            icon: {
-                                path: google.maps.SymbolPath.CIRCLE,
-                                scale: 12,
-                                fillColor: '#4285F4',
-                                fillOpacity: 1,
-                                strokeColor: 'white',
-                                strokeWeight: 4
-                            },
-                            animation: google.maps.Animation.DROP
-                        });
-                        map.setCenter(userPos);
-                        map.setZoom(15);
-                        
-                        // Afficher les destinations proches
-                        showNavigationDestinations(userPos);
-                    },
-                    () => {
-                        showNotification('❌ Géolocalisation refusée', 'error');
-                    }
-                );
-            } else {
-                showNotification('❌ Géolocalisation non supportée', 'error');
-            }
-        }
-
-        function showNavigationDestinations(userPos) {
-            // Trouver les 5 quartiers les plus proches
-            let allQuartiers = [];
-            Object.keys(zones).forEach(zoneKey => {
-                zones[zoneKey].forEach(quartier => {
-                    const distance = calculateDistance(
-                        userPos.lat, 
-                        userPos.lng, 
-                        quartier.lat, 
-                        quartier.lng
-                    );
-                    allQuartiers.push({...quartier, distance: distance});
-                });
-            });
-            
-            allQuartiers.sort((a, b) => a.distance - b.distance);
-            const nearest = allQuartiers.slice(0, 5);
-            
-            let content = `
-                <div style="padding: 20px; max-width: 350px;">
-                    <h3 style="color: #00A854; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-route"></i> Destinations à proximité
-                    </h3>
-                    <p style="margin-bottom: 15px; color: #666;">Sélectionnez une destination pour calculer l'itinéraire :</p>
-            `;
-            
-            nearest.forEach(quartier => {
-                content += `
-                    <div style="padding: 12px; margin-bottom: 10px; background: #f5f5f5; border-radius: 8px; cursor: pointer; border-left: 4px solid #00A854;" 
-                         onclick="calculateRoute({lat: ${userPos.lat}, lng: ${userPos.lng}}, {lat: ${quartier.lat}, lng: ${quartier.lng}}, '${quartier.name}')">
-                        <strong>${quartier.name}</strong><br>
-                        <small style="color: #666;">📍 ${quartier.distance.toFixed(1)} km • 🚗 ${quartier.vehicles} véhicules</small>
-                    </div>
-                `;
-            });
-            
-            content += `
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                    <small style="color: #999;">💡 Utilisez la recherche pour d'autres destinations</small>
-                </div>
-                </div>
-            `;
-            
-            const infoWindow = new google.maps.InfoWindow({
-                content: content,
-                position: userPos
-            });
-            infoWindow.open(map);
-        }
-
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371; // Rayon de la Terre en km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLng/2) * Math.sin(dLng/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        function calculateRoute(start, end, destinationName) {
-            if (!directionsService || !directionsRenderer) {
-                showNotification('❌ Service de navigation non disponible', 'error');
-                return;
-            }
-            showNotification('🧭 Calcul de l\'itinéraire en cours...', 'info');
-            const request = {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.DRIVING,
-                unitSystem: google.maps.UnitSystem.METRIC
-            };
-            directionsService.route(request, (result, status) => {
-                if (status === 'OK') {
-                    directionsRenderer.setDirections(result);
-                    const route = result.routes[0];
-                    const leg = route.legs[0];
-                    currentRoute = result;
-                    
-                    const distance = leg.distance.text;
-                    const duration = leg.duration.text;
-                    const estimatedPrice = Math.round(1500 + (leg.distance.value / 1000 * 200));
-                    
-                    showNotification(`✅ Itinéraire calculé!\n📍 ${distance}\n⏱️ ${duration}\n💰 ${estimatedPrice.toLocaleString()} FCFA`, 'success');
-                    
-                    // Afficher les instructions détaillées
-                    showRouteInstructions(leg, destinationName, distance, duration, estimatedPrice);
-                } else {
-                    showNotification('❌ Erreur calcul itinéraire: ' + status, 'error');
-                }
-            });
-        }
-
-        function showRouteInstructions(leg, destination, distance, duration, price) {
-            let instructions = `
-                <div style="padding: 20px; max-width: 400px;">
-                    <h3 style="color: #00A854; margin-bottom: 15px;">🗺️ Itinéraire vers ${destination}</h3>
-                    <div style="background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; border-radius: 10px; color: white; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span><strong>📍 Distance:</strong></span>
-                            <span>${distance}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span><strong>⏱️ Durée:</strong></span>
-                            <span>${duration}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span><strong>💰 Prix estimé:</strong></span>
-                            <span style="font-size: 1.2em;">${price.toLocaleString()} FCFA</span>
-                        </div>
-                    </div>
-                    <h4 style="margin-bottom: 10px; color: #333;">📋 Instructions:</h4>
-                    <div style="max-height: 300px; overflow-y: auto;">
-            `;
-            
-            leg.steps.forEach((step, i) => {
-                const instruction = step.instructions.replace(/<[^>]*>/g, '');
-                instructions += `
-                    <div style="padding: 10px; margin-bottom: 8px; background: #f5f5f5; border-left: 4px solid #00A854; border-radius: 5px;">
-                        <strong>${i + 1}.</strong> ${instruction}<br>
-                        <small style="color: #666;">📏 ${step.distance.text} • ⏱️ ${step.duration.text}</small>
-                    </div>
-                `;
-            });
-            
-            instructions += `
-                    </div>
-                    <button onclick="startNavigation()" style="width: 100%; padding: 12px; margin-top: 15px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">
-                        <i class="fas fa-play"></i> Démarrer la navigation
-                    </button>
-                </div>
-            `;
-            
-            const infoWindow = new google.maps.InfoWindow({
-                content: instructions,
-                position: leg.start_location
-            });
-            infoWindow.open(map);
-        }
-
-        function startNavigation() {
-            if (!currentRoute) {
-                showNotification('❌ Aucun itinéraire actif', 'error');
-                return;
-            }
-            showNotification('🚗 Navigation démarrée! Suivez les instructions.', 'success');
-        }
-
-        function findMyLocation() {
-            if (!navigator.geolocation) {
-                showNotification('❌ Géolocalisation non supportée', 'error');
-                return;
-            }
-            showNotification('📍 Recherche de votre position...', 'info');
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const pos = {lat: position.coords.latitude, lng: position.coords.longitude};
-                    if (userMarker) userMarker.setMap(null);
-                    userMarker = new google.maps.Marker({
                         position: pos,
                         map: map,
                         title: "Votre position",
@@ -2623,22 +2669,18 @@
             );
         }
 
-        // NOUVELLE FONCTION: Exploration des zones
         function exploreZone(zoneKey) {
-            // Vérifier que la carte est initialisée
             if (!map) {
                 showNotification('⚠️ Veuillez patienter que la carte soit chargée', 'info');
                 setTimeout(() => exploreZone(zoneKey), 1000);
                 return;
             }
 
-            // Scroll vers la carte
             document.querySelector('.map-container').scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'center' 
             });
 
-            // Attendre la fin du scroll puis afficher la zone
             setTimeout(() => {
                 showZoneQuartiers(zoneKey);
             }, 800);
@@ -2673,14 +2715,12 @@
             const zoneName = zoneNames[zoneKey];
             const zoneColor = zoneColors[zoneKey];
             
-            // Centrer la carte sur la zone
             const bounds = new google.maps.LatLngBounds();
             quartiers.forEach(q => {
                 bounds.extend(new google.maps.LatLng(q.lat, q.lng));
             });
             map.fitBounds(bounds);
             
-            // Créer le contenu de la popup
             let content = `
                 <div style="padding: 20px; max-width: 450px;">
                     <h3 style="color: ${zoneColor}; margin-bottom: 15px; font-size: 1.5em;">
@@ -2728,7 +2768,6 @@
             showNotification(`📍 Zoom sur ${name}`, 'info');
         }
 
-        // Booking Functions
         function initBookingForm() {
             const today = new Date();
             const dateInput = document.getElementById('bookingDate');
@@ -2871,6 +2910,10 @@
                     summary.style.display = 'none';
                     selectedVehicleType = null;
                     selectedPaymentMethod = null;
+                    
+                    // Supprimer les marqueurs
+                    if (departureMarker) departureMarker.setMap(null);
+                    if (destinationMarker) destinationMarker.setMap(null);
                 }, 1500);
             } catch (error) {
                 console.error('❌ Erreur lors de la réservation:', error);
@@ -2878,7 +2921,6 @@
             }
         }
 
-        // Driver Functions
         function calculateEarnings() {
             const hoursPerDay = parseInt(document.getElementById('hoursPerDay').value) || 8;
             const daysPerWeek = parseInt(document.getElementById('daysPerWeek').value) || 5;
@@ -2906,7 +2948,6 @@
         async function submitDriverApplication() {
             const form = document.getElementById('driverForm');
             
-            // Validation basique
             const requiredInputs = form.querySelectorAll('input[required], select[required]');
             let valid = true;
             
@@ -2926,7 +2967,6 @@
                 return;
             }
 
-            // Vérifier l'âge minimum (23 ans)
             const birthdate = new Date(document.getElementById('driverBirthdate').value);
             const today = new Date();
             const age = today.getFullYear() - birthdate.getFullYear();
@@ -2935,7 +2975,6 @@
                 return;
             }
 
-            // Vérifier ancienneté du permis (3 ans minimum)
             const licenseDate = new Date(document.getElementById('driverLicenseDate').value);
             const yearsWithLicense = (today - licenseDate) / (1000 * 60 * 60 * 24 * 365);
             if (yearsWithLicense < 3) {
@@ -2943,7 +2982,6 @@
                 return;
             }
 
-            // Vérifier suspension de permis
             if (document.getElementById('driverLicenseSuspension').value === 'oui_actuel') {
                 showNotification('⚠️ Nous ne pouvons pas accepter les candidatures avec un permis suspendu', 'error');
                 return;
@@ -2953,7 +2991,6 @@
             
             try {
                 const driverData = {
-                    // Informations personnelles
                     nomComplet: document.getElementById('driverName').value.trim(),
                     telephone: document.getElementById('driverPhone').value.trim(),
                     email: document.getElementById('driverEmail').value.trim(),
@@ -2962,7 +2999,6 @@
                     dateNaissance: document.getElementById('driverBirthdate').value,
                     age: age,
                     
-                    // Informations permis de conduire
                     permis: {
                         numero: document.getElementById('driverLicenseNumber').value.trim(),
                         categorie: document.getElementById('driverLicenseCategory').value,
@@ -2973,7 +3009,6 @@
                         suspension: document.getElementById('driverLicenseSuspension').value
                     },
                     
-                    // Informations véhicule
                     vehicule: {
                         type: document.getElementById('driverVehicleTypeForm').value,
                         marqueModele: document.getElementById('driverVehicleModel').value.trim(),
@@ -2983,11 +3018,9 @@
                         nombrePlaces: parseInt(document.getElementById('driverSeats').value)
                     },
                     
-                    // Disponibilité et expérience
                     disponibilite: document.getElementById('driverAvailability').value,
                     experience: document.getElementById('driverExperience').value.trim() || null,
                     
-                    // Métadonnées
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     statut: 'nouvelle',
                     source: 'web',
@@ -3039,7 +3072,6 @@
             showNotification('🚗 Rejoignez l\'équipe Al Bourakh', 'info');
         }
 
-        // Chatbot Functions
         function toggleChatbot() {
             const chatbot = document.getElementById('chatbotWindow');
             chatbot.classList.toggle('active');
@@ -3093,19 +3125,23 @@
             const messageLower = userMessage.toLowerCase();
 
             if (messageLower.match(/^(bonjour|salut|hello|hi)/)) {
-                return `Bonjour! 👋 Ravi de vous aider!\n\nJe peux vous renseigner sur:\n• 🚗 Réservation de courses\n• 💰 Tarifs et paiements\n• 📍 Zones desservies (118 quartiers)\n• 👨‍✈️ Devenir chauffeur\n\nQue puis-je faire pour vous?`;
+                return `Bonjour! 👋 Ravi de vous aider!\n\nJe peux vous renseigner sur:\n• 🚗 Réservation de courses\n• 💰 Tarifs et paiements\n• 📍 Zones desservies (118 quartiers)\n• 👨‍✈️ Devenir chauffeur\n• 🗺️ Sélection sur carte\n\nQue puis-je faire pour vous?`;
+            }
+
+            if (messageLower.includes('carte') || messageLower.includes('sélection')) {
+                return `🗺️ **Sélection Interactive sur Carte:**\n\nVous pouvez maintenant choisir votre point de départ et destination directement sur la carte!\n\n✅ Comment faire:\n1. Allez à la section "Réservez votre trajet"\n2. Cliquez sur "Choisir sur la carte"\n3. Cliquez sur la carte pour définir votre position\n4. L'adresse se remplit automatiquement!\n\nMarqueurs:\n🟢 Vert = Point de départ\n🔴 Rouge = Destination`;
             }
 
             if (messageLower.includes('zone') || messageLower.includes('quartier') || messageLower.includes('où') || messageLower.includes('couverture')) {
-                return `📍 **Nos 118 Quartiers en 8 Zones:**\n\n🏙️ **Dakar Centre** (15 quartiers)\nPlateau, Médina, Point E, Sacré-Cœur...\n\n🌊 **Corniche & Ouest** (15 quartiers)\nAlmadies, Ngor, Ouakam, Yoff...\n\n🏘️ **Pikine** (15 quartiers)\nThiaroye, Yeumbeul, Keur Massar...\n\n🏘️ **Guédiawaye** (11 quartiers)\nGolf Nord, Sam Notaire, Ndiarème...\n\n🌅 **Dakar Sud** (10 quartiers)\nRufisque, Bargny, Diamniadio...\n\n✈️ **Grand Yoff** (10 quartiers)\nAéroport LSS, Bopp, Soprim...\n\n🏭 **Hann Bel-Air** (10 quartiers)\nZone Industrielle, Port de Pêche...\n\n🏡 **Parcelles Assainies** (18 unités)\nUnités 1 à 18\n\nService 24/7 dans toutes les zones!`;
+                return `📍 **Nos 118 Quartiers en 9 Zones:**\n\n🏙️ **Dakar Centre** (15 quartiers)\nPlateau, Médina, Point E, Sacré-Cœur...\n\n🌊 **Corniche & Ouest** (15 quartiers)\nAlmadies, Ngor, Ouakam, Yoff...\n\n🏘️ **Pikine** (13 quartiers)\nThiaroye, Yeumbeul, Malika...\n\n🏘️ **Guédiawaye** (11 quartiers)\nGolf Nord, Sam Notaire, Ndiarème...\n\n🏘️ **Keur Massar** (11 quartiers)\nBoune, Jaxaay, Mbeubeuss...\n\n🌅 **Dakar Sud** (10 quartiers)\nRufisque, Bargny, Diamniadio...\n\n✈️ **Grand Yoff** (10 quartiers)\nAéroport LSS, Bopp, Soprim...\n\n🏭 **Hann Bel-Air** (10 quartiers)\nZone Industrielle, Port de Pêche...\n\n🏡 **Parcelles Assainies** (18 unités)\nUnités 1 à 18\n\nService 24/7 dans toutes les zones!`;
             }
 
             if (messageLower.includes('tarif') || messageLower.includes('prix')) {
-                return `💰 **Grille Tarifaire Al Bourakh:**\n\n🚗 Standard\n• Prise en charge: 1,000 FCFA\n• Par km: 200 FCFA\n\n✨ Confort\n• Prise en charge: 1,500 FCFA\n• Par km: 250 FCFA\n\n👑 Premium\n• Prise en charge: 2,000 FCFA\n• Par km: 300 FCFA\n\n🚐 Van (5-7 places)\n• Prise en charge: 2,500 FCFA\n• Par km: 300 FCFA`;
+                return `💰 **Grille Tarifaire Al Bourakh:**\n\n🚗 Standard\n• Prise en charge: 1,500 FCFA\n• Par km: 200 FCFA\n\n✨ Confort\n• Prise en charge: 2,000 FCFA\n• Par km: 250 FCFA\n\n👑 Premium\n• Prise en charge: 3,500 FCFA\n• Par km: 400 FCFA\n\n🚐 Van (5-7 places)\n• Prise en charge: 2,500 FCFA\n• Par km: 300 FCFA`;
             }
 
             if (messageLower.includes('réserv') || messageLower.includes('course')) {
-                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Choisissez votre véhicule\n3. Sélectionnez votre mode de paiement\n4. Confirmez!\n\nUn chauffeur vous contactera 15 min avant.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
+                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez "Choisir sur la carte" pour une sélection précise\n3. Choisissez votre véhicule\n4. Sélectionnez votre mode de paiement\n5. Confirmez!\n\nUn chauffeur vous contactera 15 min avant.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
             }
 
             if (messageLower.includes('chauffeur') || messageLower.includes('travailler')) {
@@ -3116,12 +3152,12 @@
                 return `🧭 **Navigation GPS:**\n\n**"Navigation GPS"** vous permet de:\n• Voir votre position\n• Choisir une destination proche\n• Calculer l'itinéraire complet\n• Obtenir les instructions étape par étape\n\n**"Ma Position"** vous permet de:\n• Localiser simplement votre position\n• Voir les véhicules à proximité\n\nUtilisez aussi la recherche intelligente pour trouver n'importe quelle adresse!`;
             }
 
-            return `Je suis désolé, je n'ai pas bien compris. 🤔\n\nPosez-moi une question sur:\n• Les tarifs\n• Comment réserver\n• Les 118 quartiers\n• Devenir chauffeur\n• La navigation GPS`;
+            return `Je suis désolé, je n'ai pas bien compris. 🤔\n\nPosez-moi une question sur:\n• Les tarifs\n• Comment réserver\n• Les 118 quartiers\n• Devenir chauffeur\n• La sélection sur carte\n• La navigation GPS`;
         }
 
         function showStatsDetail(type) {
             const details = {
-                zones: '🗺️ 118 quartiers répartis en 8 zones de Dakar',
+                zones: '🗺️ 118 quartiers répartis en 9 zones de Dakar',
                 vehicles: '🚕 753 véhicules en ligne',
                 drivers: '👨‍✈️ 421 chauffeurs actifs',
                 wait: '⏱️ Temps d\'attente moyen: 5 minutes'
@@ -3145,4 +3181,190 @@
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0S4bvgw9zQgqRiyW0vwxDi1lp9m35MI8&callback=initMap&libraries=places,geometry"></script>
 </body>
-</html>
+</html>maps.Marker({
+                            position: userPos,
+                            map: map,
+                            title: "Votre position",
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 12,
+                                fillColor: '#4285F4',
+                                fillOpacity: 1,
+                                strokeColor: 'white',
+                                strokeWeight: 4
+                            },
+                            animation: google.maps.Animation.DROP
+                        });
+                        map.setCenter(userPos);
+                        map.setZoom(15);
+                        
+                        showNavigationDestinations(userPos);
+                    },
+                    () => {
+                        showNotification('❌ Géolocalisation refusée', 'error');
+                    }
+                );
+            } else {
+                showNotification('❌ Géolocalisation non supportée', 'error');
+            }
+        }
+
+        function showNavigationDestinations(userPos) {
+            let allQuartiers = [];
+            Object.keys(zones).forEach(zoneKey => {
+                zones[zoneKey].forEach(quartier => {
+                    const distance = calculateDistance(
+                        userPos.lat, 
+                        userPos.lng, 
+                        quartier.lat, 
+                        quartier.lng
+                    );
+                    allQuartiers.push({...quartier, distance: distance});
+                });
+            });
+            
+            allQuartiers.sort((a, b) => a.distance - b.distance);
+            const nearest = allQuartiers.slice(0, 5);
+            
+            let content = `
+                <div style="padding: 20px; max-width: 350px;">
+                    <h3 style="color: #00A854; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-route"></i> Destinations à proximité
+                    </h3>
+                    <p style="margin-bottom: 15px; color: #666;">Sélectionnez une destination pour calculer l'itinéraire :</p>
+            `;
+            
+            nearest.forEach(quartier => {
+                content += `
+                    <div style="padding: 12px; margin-bottom: 10px; background: #f5f5f5; border-radius: 8px; cursor: pointer; border-left: 4px solid #00A854;" 
+                         onclick="calculateRoute({lat: ${userPos.lat}, lng: ${userPos.lng}}, {lat: ${quartier.lat}, lng: ${quartier.lng}}, '${quartier.name}')">
+                        <strong>${quartier.name}</strong><br>
+                        <small style="color: #666;">📍 ${quartier.distance.toFixed(1)} km • 🚗 ${quartier.vehicles} véhicules</small>
+                    </div>
+                `;
+            });
+            
+            content += `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <small style="color: #999;">💡 Utilisez la recherche pour d'autres destinations</small>
+                </div>
+                </div>
+            `;
+            
+            const infoWindow = new google.maps.InfoWindow({
+                content: content,
+                position: userPos
+            });
+            infoWindow.open(map);
+        }
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function calculateRoute(start, end, destinationName) {
+            if (!directionsService || !directionsRenderer) {
+                showNotification('❌ Service de navigation non disponible', 'error');
+                return;
+            }
+            showNotification('🧭 Calcul de l\'itinéraire en cours...', 'info');
+            const request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC
+            };
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    const route = result.routes[0];
+                    const leg = route.legs[0];
+                    currentRoute = result;
+                    
+                    const distance = leg.distance.text;
+                    const duration = leg.duration.text;
+                    const estimatedPrice = Math.round(1500 + (leg.distance.value / 1000 * 200));
+                    
+                    showNotification(`✅ Itinéraire calculé!\n📍 ${distance}\n⏱️ ${duration}\n💰 ${estimatedPrice.toLocaleString()} FCFA`, 'success');
+                    
+                    showRouteInstructions(leg, destinationName, distance, duration, estimatedPrice);
+                } else {
+                    showNotification('❌ Erreur calcul itinéraire: ' + status, 'error');
+                }
+            });
+        }
+
+        function showRouteInstructions(leg, destination, distance, duration, price) {
+            let instructions = `
+                <div style="padding: 20px; max-width: 400px;">
+                    <h3 style="color: #00A854; margin-bottom: 15px;">🗺️ Itinéraire vers ${destination}</h3>
+                    <div style="background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; border-radius: 10px; color: white; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span><strong>📍 Distance:</strong></span>
+                            <span>${distance}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span><strong>⏱️ Durée:</strong></span>
+                            <span>${duration}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span><strong>💰 Prix estimé:</strong></span>
+                            <span style="font-size: 1.2em;">${price.toLocaleString()} FCFA</span>
+                        </div>
+                    </div>
+                    <h4 style="margin-bottom: 10px; color: #333;">📋 Instructions:</h4>
+                    <div style="max-height: 300px; overflow-y: auto;">
+            `;
+            
+            leg.steps.forEach((step, i) => {
+                const instruction = step.instructions.replace(/<[^>]*>/g, '');
+                instructions += `
+                    <div style="padding: 10px; margin-bottom: 8px; background: #f5f5f5; border-left: 4px solid #00A854; border-radius: 5px;">
+                        <strong>${i + 1}.</strong> ${instruction}<br>
+                        <small style="color: #666;">📏 ${step.distance.text} • ⏱️ ${step.duration.text}</small>
+                    </div>
+                `;
+            });
+            
+            instructions += `
+                    </div>
+                    <button onclick="startNavigation()" style="width: 100%; padding: 12px; margin-top: 15px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                        <i class="fas fa-play"></i> Démarrer la navigation
+                    </button>
+                </div>
+            `;
+            
+            const infoWindow = new google.maps.InfoWindow({
+                content: instructions,
+                position: leg.start_location
+            });
+            infoWindow.open(map);
+        }
+
+        function startNavigation() {
+            if (!currentRoute) {
+                showNotification('❌ Aucun itinéraire actif', 'error');
+                return;
+            }
+            showNotification('🚗 Navigation démarrée! Suivez les instructions.', 'success');
+        }
+
+        function findMyLocation() {
+            if (!navigator.geolocation) {
+                showNotification('❌ Géolocalisation non supportée', 'error');
+                return;
+            }
+            showNotification('📍 Recherche de votre position...', 'info');
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = {lat: position.coords.latitude, lng: position.coords.longitude};
+                    if (userMarker) userMarker.setMap(null);
+                    userMarker = new google.
