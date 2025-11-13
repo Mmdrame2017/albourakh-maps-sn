@@ -1143,6 +1143,30 @@
                 width: 100%;
                 min-width: auto;
             }
+            
+            /* OPTIMISATION CRITIQUE : Boutons GPS sur une seule ligne */
+            .map-controls {
+                width: 100%;
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 4px;
+                justify-content: space-between;
+            }
+            
+            .map-btn {
+                flex: 1;
+                min-width: 0;
+                padding: 10px 6px;
+                font-size: 0.7em;
+                gap: 3px;
+                white-space: nowrap;
+                justify-content: center;
+            }
+            
+            .map-btn i {
+                font-size: 1em;
+            }
+            
             .map-wrapper {
                 flex-direction: column;
             }
@@ -1399,10 +1423,20 @@
                 min-height: 350px;
             }
             
+            /* OPTIMISATION ULTRA-COMPACTE : Boutons GPS sur une seule ligne pour très petits écrans */
+            .map-controls {
+                width: 100%;
+                gap: 3px;
+            }
+            
             .map-btn {
-                padding: 8px 10px;
-                font-size: 0.8em;
-                gap: 5px;
+                padding: 8px 4px;
+                font-size: 0.65em;
+                gap: 2px;
+            }
+            
+            .map-btn i {
+                font-size: 0.9em;
             }
 
             .hero-title {
@@ -1614,16 +1648,16 @@
             
             <div class="map-controls">
                 <button class="map-btn btn-primary" onclick="activateGPSNavigation()">
-                    <i class="fas fa-route"></i> Navigation GPS
+                    <i class="fas fa-route"></i> <span>Navigation GPS</span>
                 </button>
                 <button class="map-btn btn-secondary" onclick="findMyLocation()">
-                    <i class="fas fa-location-arrow"></i> Ma Position
+                    <i class="fas fa-location-arrow"></i> <span>Ma Position</span>
                 </button>
                 <button class="map-btn btn-outline" onclick="centerMap()">
-                    <i class="fas fa-crosshairs"></i> Centrer
+                    <i class="fas fa-crosshairs"></i> <span>Centrer</span>
                 </button>
                 <button class="map-btn btn-outline" onclick="toggleTraffic()">
-                    <i class="fas fa-traffic-light"></i> Trafic
+                    <i class="fas fa-traffic-light"></i> <span>Trafic</span>
                 </button>
             </div>
         </div>
