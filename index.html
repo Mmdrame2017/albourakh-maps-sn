@@ -1283,6 +1283,34 @@
                 border-radius: 10px;
             }
 
+            /* MODIFICATION CRITIQUE: Carte "Recherche Intelligente" - dimensions identiques au bouton de réservation */
+            .feature-card:last-child {
+                grid-column: 1 / -1;
+                padding: 14px 20px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                border-radius: 12px;
+                min-height: 50px;
+            }
+
+            .feature-card:last-child .feature-icon {
+                font-size: 1.5em;
+                margin-bottom: 0;
+            }
+
+            .feature-card:last-child .feature-title {
+                font-size: 1em;
+                margin-bottom: 0;
+                line-height: 1.2;
+            }
+
+            .feature-card:last-child .feature-desc {
+                display: none;
+            }
+
             .feature-icon {
                 font-size: 1.5em;
                 margin-bottom: 5px;
@@ -1479,6 +1507,20 @@
             .feature-card {
                 padding: 8px 4px;
                 border-radius: 8px;
+            }
+
+            /* MODIFICATION CRITIQUE: Carte "Recherche Intelligente" maintient ses dimensions */
+            .feature-card:last-child {
+                padding: 12px 16px;
+                min-height: 45px;
+            }
+
+            .feature-card:last-child .feature-icon {
+                font-size: 1.3em;
+            }
+
+            .feature-card:last-child .feature-title {
+                font-size: 0.9em;
             }
 
             .feature-icon {
