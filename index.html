@@ -737,65 +737,6 @@
             50% { transform: translateY(-10px); }
         }
 
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2em;
-            }
-            .hero-subtitle {
-                font-size: 1em;
-            }
-            .hero-logo {
-                width: 80px;
-                height: 80px;
-            }
-            .brand-logo-img {
-                width: 40px;
-                height: 40px;
-            }
-            .map-header {
-                flex-direction: column;
-            }
-            .search-container {
-                width: 100%;
-                min-width: auto;
-            }
-            .map-wrapper {
-                flex-direction: column;
-            }
-            .side-panel {
-                width: 100%;
-                max-height: 400px;
-                border-left: none;
-                border-top: 3px solid #00A854;
-            }
-            
-            #map {
-                height: 400px;
-                min-height: 400px;
-                width: 100% !important;
-                touch-action: pan-x pan-y;
-            }
-            
-            .stat-card {
-                min-width: 140px;
-            }
-
-            .chatbot-window {
-                width: calc(100% - 20px);
-                height: calc(100% - 120px);
-                right: 10px;
-                bottom: 90px;
-            }
-
-            .map-selection-banner {
-                width: calc(100% - 40px);
-                padding: 12px 20px;
-                font-size: 0.95em;
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
         /* Features Section */
         .features-section, .booking-section, .cta-section {
             max-width: 1400px;
@@ -1181,28 +1122,227 @@
             color: #00A854;
         }
 
+        /* OPTIMISATIONS MOBILE */
         @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2em;
+            }
+            .hero-subtitle {
+                font-size: 1em;
+            }
+            .hero-logo {
+                width: 100px;
+                height: 75px;
+            }
+            .brand-logo-img {
+                width: 40px;
+                height: 30px;
+            }
+            .map-header {
+                flex-direction: column;
+            }
+            .search-container {
+                width: 100%;
+                min-width: auto;
+            }
+            .map-wrapper {
+                flex-direction: column;
+            }
+            .side-panel {
+                width: 100%;
+                max-height: 400px;
+                border-left: none;
+                border-top: 3px solid #00A854;
+            }
+            
+            #map {
+                height: 400px;
+                min-height: 400px;
+                width: 100% !important;
+                touch-action: pan-x pan-y;
+            }
+            
+            .stat-card {
+                min-width: 140px;
+            }
+
+            .chatbot-window {
+                width: calc(100% - 20px);
+                height: calc(100% - 120px);
+                right: 10px;
+                bottom: 90px;
+            }
+
+            .map-selection-banner {
+                width: calc(100% - 40px);
+                padding: 12px 20px;
+                font-size: 0.95em;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            /* Optimisation des boutons pour mobile */
+            .btn-map-select {
+                padding: 8px 12px;
+                font-size: 0.75em;
+                gap: 4px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                white-space: nowrap;
+            }
+
+            .btn-map-select i {
+                font-size: 0.9em;
+            }
+
+            .input-with-button {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .input-with-button input {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .btn-cta {
+                padding: 12px 20px;
+                font-size: 0.95em;
+                height: auto;
+                min-height: 44px;
+            }
+
+            .cta-title {
+                font-size: 1.8em;
+            }
+
+            .cta-text {
+                font-size: 1.1em;
+            }
+
+            .chatbot-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+                bottom: 20px;
+                right: 20px;
+            }
+
             .booking-container {
                 padding: 30px 20px;
             }
+
+            .booking-header h2 {
+                font-size: 1.8em;
+            }
+
+            .booking-header p {
+                font-size: 1em;
+            }
+
             .booking-form {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
+
+            .form-group label {
+                font-size: 0.95em;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 12px;
+                font-size: 0.95em;
+            }
+
             .vehicle-options {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
+
+            .vehicle-option {
+                padding: 15px;
+            }
+
+            .vehicle-option-icon {
+                font-size: 2.5em;
+            }
+
+            .payment-methods {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .payment-method {
+                min-width: auto;
+                padding: 12px;
+            }
+
+            .booking-summary {
+                padding: 20px;
+                margin-top: 20px;
+            }
+
+            .summary-title {
+                font-size: 1.2em;
+            }
+
+            .summary-items {
+                padding: 15px;
+            }
+
+            .summary-item {
+                font-size: 0.95em;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .summary-total {
+                font-size: 1.1em;
+                padding: 12px 15px;
+            }
+
             .booking-actions {
                 flex-direction: column;
+                gap: 12px;
+                margin-top: 20px;
             }
-            .cta-title {
-                font-size: 2em;
+
+            .btn-book {
+                padding: 14px;
+                font-size: 1em;
             }
-            .input-with-button {
-                flex-direction: column;
+
+            .section-title {
+                font-size: 1.8em;
             }
-            .btn-map-select {
-                width: 100%;
-                justify-content: center;
+
+            .section-subtitle {
+                font-size: 1em;
+            }
+
+            .feature-card {
+                padding: 25px;
+            }
+
+            .feature-icon {
+                font-size: 2.5em;
+            }
+
+            .feature-title {
+                font-size: 1.2em;
+            }
+
+            .feature-desc {
+                font-size: 0.95em;
+            }
+
+            .section-logo {
+                width: 90px;
+                height: 68px;
             }
         }
 
@@ -1216,6 +1356,75 @@
                 padding: 8px 10px;
                 font-size: 0.8em;
                 gap: 5px;
+            }
+
+            .hero-title {
+                font-size: 1.5em;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9em;
+            }
+
+            .hero-logo {
+                width: 80px;
+                height: 60px;
+            }
+
+            .stat-card {
+                min-width: 120px;
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .stat-label {
+                font-size: 0.95em;
+            }
+
+            .btn-map-select {
+                padding: 6px 10px;
+                font-size: 0.7em;
+                height: 36px;
+            }
+
+            .btn-cta {
+                padding: 10px 16px;
+                font-size: 0.85em;
+            }
+
+            .booking-header h2 {
+                font-size: 1.5em;
+            }
+
+            .vehicle-option {
+                padding: 12px;
+            }
+
+            .payment-method {
+                padding: 10px;
+            }
+
+            .chatbot-button {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3em;
+            }
+
+            .feature-card {
+                padding: 20px;
+            }
+
+            .section-logo {
+                width: 70px;
+                height: 53px;
+            }
+
+            .brand-logo-img {
+                width: 35px;
+                height: 26px;
             }
         }
     </style>
@@ -1382,7 +1591,7 @@
                     <div class="input-with-button">
                         <input type="text" id="bookingFrom" required placeholder="Ex: Plateau, Dakar">
                         <button type="button" class="btn-map-select" onclick="selectOnMap('from')">
-                            <i class="fas fa-map-marked-alt"></i> Choisir sur la carte
+                            <i class="fas fa-map-marked-alt"></i> Carte
                         </button>
                     </div>
                 </div>
@@ -1391,7 +1600,7 @@
                     <div class="input-with-button">
                         <input type="text" id="bookingTo" required placeholder="Ex: Almadies">
                         <button type="button" class="btn-map-select" onclick="selectOnMap('to')">
-                            <i class="fas fa-map-marked-alt"></i> Choisir sur la carte
+                            <i class="fas fa-map-marked-alt"></i> Carte
                         </button>
                     </div>
                 </div>
@@ -2853,7 +3062,7 @@
             }
 
             if (messageLower.includes('réserv') || messageLower.includes('course') || messageLower.includes('carte') || messageLower.includes('itinéraire')) {
-                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Choisir sur la carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. Choisissez votre véhicule\n5. Sélectionnez votre mode de paiement\n6. Confirmez!\n\n✨ **Nouveauté:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
+                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. Choisissez votre véhicule\n5. Sélectionnez votre mode de paiement\n6. Confirmez!\n\n✨ **Nouveauté:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
             }
 
             if (messageLower.includes('navigation') || messageLower.includes('gps')) {
