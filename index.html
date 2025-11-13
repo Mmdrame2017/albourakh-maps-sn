@@ -1582,7 +1582,6 @@
     <section class="hero-section">
         <div class="hero-content">
             <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" class="hero-logo" onerror="this.style.display='none'">
-            <!-- BOUTON DUPLIQUÉ AJOUTÉ ICI -->
             <button class="hero-cta-button" onclick="scrollToBooking()">
                 <i class="fas fa-car"></i> Réserver une course
             </button>
@@ -1707,7 +1706,7 @@
                 <div class="form-group">
                     <label><i class="fas fa-map-marker-alt"></i> Point de départ</label>
                     <div class="input-with-button">
-                        <input type="text" id="bookingFrom" required placeholder="Ex: Plateau, Dakar">
+                        <input type="text" id="bookingFrom" required placeholder="Détection automatique...">
                         <button type="button" class="btn-map-select" onclick="selectOnMap('from')">
                             <i class="fas fa-map-marked-alt"></i> Carte
                         </button>
@@ -1723,7 +1722,6 @@
                     </div>
                 </div>
                 
-                <!-- NOUVEAU: Groupe Date et Heure sur une même ligne -->
                 <div class="datetime-group">
                     <div class="form-group">
                         <label><i class="fas fa-calendar-alt"></i> Date</label>
@@ -1899,11 +1897,9 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <!-- Configuration Firebase -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
@@ -1920,7 +1916,6 @@
         console.log('✅ Firebase initialisé!');
     </script>
 
-    <!-- Script principal -->
     <script>
         let map, markers = [], trafficLayer, userMarker, searchMarker, autocomplete;
         let directionsService, directionsRenderer;
@@ -1932,16 +1927,14 @@
         let autocompleteFrom, autocompleteTo;
         let geocoder;
         
-        // Variables pour la sélection sur la carte
-        let mapSelectionMode = null; // 'from' ou 'to'
+        let mapSelectionMode = null;
         let departureMarker = null;
         let destinationMarker = null;
         let mapClickListener = null;
         let routeInfoWindow = null;
         let autoCalculateTimeout = null;
-        let zoneInfoWindow = null; // InfoWindow pour les zones
+        let zoneInfoWindow = null;
 
-        // Fonction pour fermer l'infoWindow de zone
         function closeZoneInfo() {
             if (zoneInfoWindow) {
                 zoneInfoWindow.close();
@@ -2126,6 +2119,66 @@
             
             initBookingForm();
             initBookingAutocomplete();
+            
+            // NOUVELLE FONCTIONNALITÉ: Géolocalisation automatique au chargement
+            autoFillUserLocation();
+        }
+
+        // NOUVELLE FONCTION: Remplir automatiquement la position de l'utilisateur
+        function autoFillUserLocation() {
+            if (!navigator.geolocation) {
+                console.log('❌ Géolocalisation non supportée');
+                return;
+            }
+
+            showNotification('📍 Détection de votre position...', 'info');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userPos = {
+                        lat: position.coords.latitude, 
+                        lng: position.coords.longitude
+                    };
+                    
+                    // Utiliser le geocoder pour obtenir l'adresse
+                    geocoder.geocode({ location: userPos }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            const address = results[0].formatted_address;
+                            
+                            // Remplir le champ de départ
+                            const bookingFromInput = document.getElementById('bookingFrom');
+                            bookingFromInput.value = address;
+                            bookingFromInput.style.borderColor = '#00A854';
+                            bookingFromInput.style.backgroundColor = '#e8f5e9';
+                            
+                            // Placer le marqueur de départ
+                            updateDepartureMarker(new google.maps.LatLng(userPos.lat, userPos.lng));
+                            
+                            // Centrer la carte sur la position
+                            map.setCenter(userPos);
+                            map.setZoom(14);
+                            
+                            showNotification('✅ Position détectée: ' + address, 'success');
+                            
+                            // Réinitialiser le style après 3 secondes
+                            setTimeout(() => {
+                                bookingFromInput.style.borderColor = '';
+                                bookingFromInput.style.backgroundColor = '';
+                            }, 3000);
+                        } else {
+                            showNotification('⚠️ Position détectée mais adresse non trouvée', 'info');
+                            const bookingFromInput = document.getElementById('bookingFrom');
+                            bookingFromInput.value = `Position: ${userPos.lat.toFixed(6)}, ${userPos.lng.toFixed(6)}`;
+                            updateDepartureMarker(new google.maps.LatLng(userPos.lat, userPos.lng));
+                        }
+                    });
+                },
+                (error) => {
+                    console.log('Erreur géolocalisation:', error);
+                    showNotification('⚠️ Géolocalisation refusée - Veuillez remplir manuellement', 'info');
+                    document.getElementById('bookingFrom').placeholder = 'Ex: Plateau, Dakar';
+                }
+            );
         }
 
         function initBookingAutocomplete() {
@@ -2174,15 +2227,11 @@
                     if (place.geometry) {
                         inputTo.value = place.name || place.formatted_address;
                         updateDestinationMarker(place.geometry.location);
-                        
-                        // NOUVEAU: Auto-remplir date et heure dès que la destination est renseignée
                         autoFillDateTime();
-                        
                         checkAndCalculateRoute();
                     }
                 });
 
-                // NOUVEAU: Écouteur pour auto-remplir date/heure quand on tape manuellement
                 inputTo.addEventListener('change', () => {
                     if (inputTo.value.trim()) {
                         autoFillDateTime();
@@ -2192,30 +2241,23 @@
             }
         }
 
-        // NOUVELLE FONCTION: Auto-remplir date et heure actuelles
         function autoFillDateTime() {
             const dateInput = document.getElementById('bookingDate');
             const timeInput = document.getElementById('bookingTime');
             
-            // Ne remplir que si les champs sont vides
             if (!dateInput.value || !timeInput.value) {
                 const now = new Date();
-                
-                // Ajouter 30 minutes pour laisser le temps de préparation
                 now.setMinutes(now.getMinutes() + 30);
                 
-                // Format date: YYYY-MM-DD
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
                 const day = String(now.getDate()).padStart(2, '0');
                 dateInput.value = `${year}-${month}-${day}`;
                 
-                // Format heure: HH:MM
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 timeInput.value = `${hours}:${minutes}`;
                 
-                // Animation visuelle pour montrer le changement
                 dateInput.style.borderColor = '#00A854';
                 timeInput.style.borderColor = '#00A854';
                 
@@ -2275,10 +2317,7 @@
                     } else if (mapSelectionMode === 'to') {
                         document.getElementById('bookingTo').value = address;
                         updateDestinationMarker(location);
-                        
-                        // NOUVEAU: Auto-remplir date et heure
                         autoFillDateTime();
-                        
                         showNotification(`✅ Destination: ${address}`, 'success');
                     }
                     
@@ -2629,8 +2668,6 @@
             setTimeout(() => {
                 document.getElementById('bookingTo').value = quartier;
                 document.getElementById('bookingTo').focus();
-                
-                // NOUVEAU: Auto-remplir date et heure
                 autoFillDateTime();
             }, 1000);
         }
@@ -2939,12 +2976,10 @@
                 </div>
             `;
             
-            // Fermer l'ancienne infoWindow si elle existe
             if (zoneInfoWindow) {
                 zoneInfoWindow.close();
             }
             
-            // Créer une nouvelle infoWindow
             zoneInfoWindow = new google.maps.InfoWindow({
                 content: content,
                 position: bounds.getCenter()
@@ -2965,9 +3000,6 @@
             const today = new Date();
             const dateInput = document.getElementById('bookingDate');
             dateInput.min = today.toISOString().split('T')[0];
-            
-            // Ne plus pré-remplir l'heure ici - cela sera fait automatiquement
-            // quand la destination sera renseignée
         }
 
         function selectVehicle(type, basePrice) {
@@ -3245,7 +3277,7 @@
             }
 
             if (messageLower.includes('réserv') || messageLower.includes('course') || messageLower.includes('carte') || messageLower.includes('itinéraire')) {
-                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. ⏰ **Date et heure sont auto-remplies** dès que vous choisissez votre destination\n5. Choisissez votre véhicule\n6. Sélectionnez votre mode de paiement\n7. Confirmez!\n\n✨ **Nouveautés:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte, et la date/heure actuelles sont renseignées!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
+                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. ⏰ **Date et heure sont auto-remplies** dès que vous choisissez votre destination\n5. Choisissez votre véhicule\n6. Sélectionnez votre mode de paiement\n7. Confirmez!\n\n✨ **Nouveautés:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte, et la date/heure actuelles sont renseignées!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\n🆕 **Géolocalisation automatique:** Votre position est détectée automatiquement comme point de départ!\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
             }
 
             if (messageLower.includes('navigation') || messageLower.includes('gps')) {
