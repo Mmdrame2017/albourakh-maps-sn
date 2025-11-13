@@ -1599,6 +1599,16 @@
         let mapClickListener = null;
         let routeInfoWindow = null;
         let autoCalculateTimeout = null;
+        let zoneInfoWindow = null; // InfoWindow pour les zones
+
+        // Fonction pour fermer l'infoWindow de zone
+        function closeZoneInfo() {
+            if (zoneInfoWindow) {
+                zoneInfoWindow.close();
+                zoneInfoWindow = null;
+                showNotification('✅ Fenêtre fermée', 'info');
+            }
+        }
 
         const zones = {
             centre: [
@@ -1795,14 +1805,11 @@
                     const place = autocompleteFrom.getPlace();
                     if (place.geometry) {
                         inputFrom.value = place.name || place.formatted_address;
-                        // Mettre à jour le marqueur de départ
                         updateDepartureMarker(place.geometry.location);
-                        // Calculer l'itinéraire si destination définie
                         checkAndCalculateRoute();
                     }
                 });
 
-                // Écouteur pour changements manuels
                 inputFrom.addEventListener('change', () => {
                     if (inputFrom.value.trim()) {
                         checkAndCalculateRoute();
@@ -1826,14 +1833,11 @@
                     const place = autocompleteTo.getPlace();
                     if (place.geometry) {
                         inputTo.value = place.name || place.formatted_address;
-                        // Mettre à jour le marqueur de destination
                         updateDestinationMarker(place.geometry.location);
-                        // Calculer l'itinéraire si départ défini
                         checkAndCalculateRoute();
                     }
                 });
 
-                // Écouteur pour changements manuels
                 inputTo.addEventListener('change', () => {
                     if (inputTo.value.trim()) {
                         checkAndCalculateRoute();
@@ -1841,8 +1845,6 @@
                 });
             }
         }
-
-        // NOUVELLES FONCTIONS POUR LA SÉLECTION SUR LA CARTE
 
         function selectOnMap(type) {
             mapSelectionMode = type;
@@ -1859,13 +1861,11 @@
             banner.classList.add('active');
             mapElement.classList.add('selection-mode');
             
-            // Scroll vers la carte
             document.querySelector('.map-container').scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'center' 
             });
             
-            // Ajouter l'écouteur de clic sur la carte
             if (mapClickListener) {
                 google.maps.event.removeListener(mapClickListener);
             }
@@ -1882,7 +1882,6 @@
             
             showNotification('🔍 Récupération de l\'adresse...', 'info');
             
-            // Geocoding inverse pour obtenir l'adresse
             geocoder.geocode({ location: location }, function(results, status) {
                 if (status === 'OK' && results[0]) {
                     const address = results[0].formatted_address;
@@ -1897,10 +1896,7 @@
                         showNotification(`✅ Destination: ${address}`, 'success');
                     }
                     
-                    // Désactiver le mode sélection après avoir choisi
                     cancelMapSelection();
-                    
-                    // Calculer l'itinéraire si les deux points sont définis
                     checkAndCalculateRoute();
                 } else {
                     showNotification('❌ Impossible de récupérer l\'adresse', 'error');
@@ -1908,9 +1904,7 @@
             });
         }
 
-        // NOUVELLE FONCTION: Vérifier et calculer l'itinéraire automatiquement
         function checkAndCalculateRoute() {
-            // Utiliser un délai pour éviter trop de calculs
             if (autoCalculateTimeout) {
                 clearTimeout(autoCalculateTimeout);
             }
@@ -1925,7 +1919,6 @@
             }, 500);
         }
 
-        // NOUVELLE FONCTION: Calculer l'itinéraire pour la réservation
         function calculateBookingRoute() {
             if (!departureMarker || !destinationMarker) {
                 return;
@@ -1946,11 +1939,10 @@
                     const route = result.routes[0];
                     const leg = route.legs[0];
                     
-                    const distance = leg.distance.value / 1000; // en km
+                    const distance = leg.distance.value / 1000;
                     const duration = leg.duration.text;
                     const distanceText = leg.distance.text;
                     
-                    // Calculer le prix estimé
                     const basePrice = selectedVehicleType ? selectedVehiclePrice : 1500;
                     const pricePerKm = {
                         standard: 200,
@@ -1961,9 +1953,7 @@
                     const kmRate = selectedVehicleType ? pricePerKm[selectedVehicleType] : 200;
                     const estimatedPrice = Math.round(basePrice + (distance * kmRate));
                     
-                    // Afficher les informations
                     showRouteInfo(distanceText, duration, estimatedPrice);
-                    
                     showNotification(`✅ Itinéraire calculé: ${distanceText}, ${duration}`, 'success');
                 } else {
                     showNotification('❌ Impossible de calculer l\'itinéraire', 'error');
@@ -1972,9 +1962,7 @@
             });
         }
 
-        // NOUVELLE FONCTION: Afficher les informations d'itinéraire
         function showRouteInfo(distance, duration, price) {
-            // Fermer l'ancienne infoWindow si elle existe
             if (routeInfoWindow) {
                 routeInfoWindow.close();
             }
@@ -2004,7 +1992,6 @@
                 </div>
             `;
 
-            // Créer et afficher l'infoWindow au centre de l'itinéraire
             const midPoint = new google.maps.LatLng(
                 (departureMarker.getPosition().lat() + destinationMarker.getPosition().lat()) / 2,
                 (departureMarker.getPosition().lng() + destinationMarker.getPosition().lng()) / 2
@@ -2019,12 +2006,10 @@
         }
 
         function updateDepartureMarker(location) {
-            // Supprimer l'ancien marqueur s'il existe
             if (departureMarker) {
                 departureMarker.setMap(null);
             }
             
-            // Créer un nouveau marqueur pour le départ
             departureMarker = new google.maps.Marker({
                 position: location,
                 map: map,
@@ -2051,17 +2036,14 @@
                 infoWindow.open(map, departureMarker);
             });
             
-            // Centrer sur le marqueur
             map.panTo(location);
         }
 
         function updateDestinationMarker(location) {
-            // Supprimer l'ancien marqueur s'il existe
             if (destinationMarker) {
                 destinationMarker.setMap(null);
             }
             
-            // Créer un nouveau marqueur pour la destination
             destinationMarker = new google.maps.Marker({
                 position: location,
                 map: map,
@@ -2088,7 +2070,6 @@
                 infoWindow.open(map, destinationMarker);
             });
             
-            // Centrer sur le marqueur
             map.panTo(location);
         }
 
@@ -2100,14 +2081,11 @@
             banner.classList.remove('active');
             mapElement.classList.remove('selection-mode');
             
-            // Retirer l'écouteur de clic
             if (mapClickListener) {
                 google.maps.event.removeListener(mapClickListener);
                 mapClickListener = null;
             }
         }
-
-        // FIN DES NOUVELLES FONCTIONS
 
         function centerMap() {
             const dakarCenter = {lat: 14.7167, lng: -17.4677};
@@ -2565,18 +2543,25 @@
             
             content += `
                     </div>
-                    <button onclick="google.maps.event.trigger(map, 'click')" 
+                    <button onclick="closeZoneInfo()" 
                             style="width: 100%; padding: 10px; margin-top: 15px; background: ${zoneColor}; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
                         Fermer
                     </button>
                 </div>
             `;
             
-            const infoWindow = new google.maps.InfoWindow({
+            // Fermer l'ancienne infoWindow si elle existe
+            if (zoneInfoWindow) {
+                zoneInfoWindow.close();
+            }
+            
+            // Créer une nouvelle infoWindow
+            zoneInfoWindow = new google.maps.InfoWindow({
                 content: content,
                 position: bounds.getCenter()
             });
-            infoWindow.open(map);
+            
+            zoneInfoWindow.open(map);
             
             showNotification(`📍 Zone ${zoneName} - ${quartiers.length} quartiers`, 'success');
         }
@@ -2612,7 +2597,6 @@
             };
             showNotification(`✅ Véhicule sélectionné: ${vehicleNames[type]}`, 'success');
             
-            // Recalculer l'itinéraire si les deux points sont définis
             if (departureMarker && destinationMarker) {
                 calculateBookingRoute();
             }
@@ -2653,16 +2637,14 @@
                 return;
             }
 
-            // Essayer d'obtenir les infos de l'itinéraire calculé
             let totalPrice;
             if (directionsRenderer.getDirections()) {
                 const route = directionsRenderer.getDirections().routes[0];
                 const leg = route.legs[0];
-                const distance = leg.distance.value / 1000; // en km
+                const distance = leg.distance.value / 1000;
                 const pricePerKm = {standard: 200, confort: 250, van: 300, premium: 400};
                 totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicleType]));
             } else {
-                // Estimation si pas d'itinéraire calculé
                 const distance = (Math.random() * 22 + 3).toFixed(1);
                 const pricePerKm = {standard: 200, confort: 250, van: 300, premium: 400};
                 totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicleType]));
@@ -2735,11 +2717,10 @@
                 showNotification('🎉 Réservation confirmée! SMS envoyé.', 'success');
 
                 setTimeout(() => {
-                    // Vérifier si c'est une réservation immédiate ou future
                     const bookingDateTime = new Date(`${bookingData.date}T${bookingData.heure}`);
                     const now = new Date();
                     const timeDiff = bookingDateTime - now;
-                    const isImmediate = timeDiff < 3600000; // Moins d'1 heure = immédiat
+                    const isImmediate = timeDiff < 3600000;
                     
                     let contactMessage;
                     if (isImmediate) {
@@ -2760,7 +2741,6 @@
                     selectedVehicleType = null;
                     selectedPaymentMethod = null;
                     
-                    // Supprimer les marqueurs de départ et destination
                     if (departureMarker) {
                         departureMarker.setMap(null);
                         departureMarker = null;
@@ -2770,12 +2750,10 @@
                         destinationMarker = null;
                     }
                     
-                    // Supprimer l'itinéraire tracé
                     if (directionsRenderer) {
                         directionsRenderer.setDirections({routes: []});
                     }
                     
-                    // Fermer l'infoWindow d'itinéraire
                     if (routeInfoWindow) {
                         routeInfoWindow.close();
                         routeInfoWindow = null;
