@@ -1734,8 +1734,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label><i class="fas fa-user"></i> Nom complet</label>
-                    <input type="text" id="bookingName" required placeholder="Votre nom">
+                    <label><i class="fas fa-user"></i> Nom complet (optionnel)</label>
+                    <input type="text" id="bookingName" placeholder="Votre nom">
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-phone"></i> Téléphone</label>
@@ -2120,11 +2120,9 @@
             initBookingForm();
             initBookingAutocomplete();
             
-            // NOUVELLE FONCTIONNALITÉ: Géolocalisation automatique au chargement
             autoFillUserLocation();
         }
 
-        // NOUVELLE FONCTION: Remplir automatiquement la position de l'utilisateur
         function autoFillUserLocation() {
             if (!navigator.geolocation) {
                 console.log('❌ Géolocalisation non supportée');
@@ -2140,27 +2138,22 @@
                         lng: position.coords.longitude
                     };
                     
-                    // Utiliser le geocoder pour obtenir l'adresse
                     geocoder.geocode({ location: userPos }, (results, status) => {
                         if (status === 'OK' && results[0]) {
                             const address = results[0].formatted_address;
                             
-                            // Remplir le champ de départ
                             const bookingFromInput = document.getElementById('bookingFrom');
                             bookingFromInput.value = address;
                             bookingFromInput.style.borderColor = '#00A854';
                             bookingFromInput.style.backgroundColor = '#e8f5e9';
                             
-                            // Placer le marqueur de départ
                             updateDepartureMarker(new google.maps.LatLng(userPos.lat, userPos.lng));
                             
-                            // Centrer la carte sur la position
                             map.setCenter(userPos);
                             map.setZoom(14);
                             
                             showNotification('✅ Position détectée: ' + address, 'success');
                             
-                            // Réinitialiser le style après 3 secondes
                             setTimeout(() => {
                                 bookingFromInput.style.borderColor = '';
                                 bookingFromInput.style.backgroundColor = '';
@@ -3045,9 +3038,10 @@
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
             const passengers = document.getElementById('bookingPassengers').value;
+            const phone = document.getElementById('bookingPhone').value.trim();
 
-            if (!from || !to || !date || !time) {
-                showNotification('⚠️ Veuillez remplir tous les champs obligatoires', 'error');
+            if (!from || !to || !date || !time || !phone) {
+                showNotification('⚠️ Veuillez remplir tous les champs obligatoires (départ, destination, date, heure, téléphone)', 'error');
                 return;
             }
             if (!selectedVehicleType) {
@@ -3101,11 +3095,10 @@
         }
 
         async function confirmBooking() {
-            const name = document.getElementById('bookingName').value.trim();
             const phone = document.getElementById('bookingPhone').value.trim();
 
-            if (!name || !phone) {
-                showNotification('⚠️ Veuillez remplir votre nom et téléphone', 'error');
+            if (!phone) {
+                showNotification('⚠️ Veuillez remplir votre numéro de téléphone', 'error');
                 return;
             }
 
@@ -3116,7 +3109,7 @@
             }
 
             const bookingData = {
-                nom: name,
+                nom: document.getElementById('bookingName').value.trim() || null,
                 telephone: phone,
                 email: document.getElementById('bookingEmail').value.trim() || null,
                 depart: document.getElementById('bookingFrom').value.trim(),
@@ -3277,7 +3270,7 @@
             }
 
             if (messageLower.includes('réserv') || messageLower.includes('course') || messageLower.includes('carte') || messageLower.includes('itinéraire')) {
-                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. ⏰ **Date et heure sont auto-remplies** dès que vous choisissez votre destination\n5. Choisissez votre véhicule\n6. Sélectionnez votre mode de paiement\n7. Confirmez!\n\n✨ **Nouveautés:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte, et la date/heure actuelles sont renseignées!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\n🆕 **Géolocalisation automatique:** Votre position est détectée automatiquement comme point de départ!\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
+                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. ⏰ **Date et heure sont auto-remplies** dès que vous choisissez votre destination\n5. Choisissez votre véhicule\n6. Sélectionnez votre mode de paiement\n7. Confirmez!\n\n✨ **Nouveautés:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte, et la date/heure actuelles sont renseignées!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\n🆕 **Géolocalisation automatique:** Votre position est détectée automatiquement comme point de départ!\n\n📝 **Le nom est maintenant optionnel** - seul le numéro de téléphone est requis!\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
             }
 
             if (messageLower.includes('navigation') || messageLower.includes('gps')) {
