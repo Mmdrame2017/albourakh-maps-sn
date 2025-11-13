@@ -1258,17 +1258,53 @@
                 font-size: 0.95em;
             }
 
+            /* OPTIMISATION SPÉCIALE: Section "129 Quartiers" - Cards plus compactes */
+            .feature-card {
+                padding: 18px 15px; /* Réduit de 35px à 18px vertical et 15px horizontal */
+            }
+
+            .feature-icon {
+                font-size: 2em; /* Réduit de 3em à 2em */
+                margin-bottom: 8px; /* Réduit de 20px à 8px */
+            }
+
+            .feature-title {
+                font-size: 1.05em; /* Réduit de 1.5em à 1.05em */
+                margin-bottom: 8px; /* Réduit de 15px à 8px */
+            }
+
+            .feature-desc {
+                font-size: 0.85em; /* Réduit de 0.95em à 0.85em */
+                line-height: 1.4;
+            }
+
+            /* OPTIMISATION SPÉCIALE: Section Véhicules - Options plus compactes */
             .vehicle-options {
-                grid-template-columns: 1fr;
-                gap: 12px;
+                grid-template-columns: 1fr 1fr; /* 2 colonnes au lieu d'une */
+                gap: 10px; /* Réduit de 15px à 10px */
             }
 
             .vehicle-option {
-                padding: 15px;
+                padding: 12px 8px; /* Réduit de 20px à 12px vertical et 8px horizontal */
             }
 
             .vehicle-option-icon {
-                font-size: 2.5em;
+                font-size: 2em; /* Réduit de 3em à 2em */
+                margin-bottom: 6px; /* Réduit de 10px à 6px */
+            }
+
+            .vehicle-option-name {
+                font-size: 0.9em;
+                margin-bottom: 4px;
+            }
+
+            .vehicle-option-capacity {
+                font-size: 0.75em; /* Réduit de 0.9em à 0.75em */
+                margin-bottom: 4px;
+            }
+
+            .vehicle-option-price {
+                font-size: 0.9em; /* Réduit de 1.1em à 0.9em */
             }
 
             .payment-methods {
@@ -1322,22 +1358,6 @@
 
             .section-subtitle {
                 font-size: 1em;
-            }
-
-            .feature-card {
-                padding: 25px;
-            }
-
-            .feature-icon {
-                font-size: 2.5em;
-            }
-
-            .feature-title {
-                font-size: 1.2em;
-            }
-
-            .feature-desc {
-                font-size: 0.95em;
             }
 
             .section-logo {
@@ -1399,8 +1419,52 @@
                 font-size: 1.5em;
             }
 
+            /* OPTIMISATION TRÈS PETITS ÉCRANS: Section "129 Quartiers" */
+            .feature-card {
+                padding: 15px 12px;
+            }
+
+            .feature-icon {
+                font-size: 1.8em;
+                margin-bottom: 6px;
+            }
+
+            .feature-title {
+                font-size: 0.95em;
+                margin-bottom: 6px;
+            }
+
+            .feature-desc {
+                font-size: 0.8em;
+            }
+
+            /* OPTIMISATION TRÈS PETITS ÉCRANS: Section Véhicules */
+            .vehicle-options {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
             .vehicle-option {
-                padding: 12px;
+                padding: 10px 6px;
+            }
+
+            .vehicle-option-icon {
+                font-size: 1.6em;
+                margin-bottom: 4px;
+            }
+
+            .vehicle-option-name {
+                font-size: 0.85em;
+                margin-bottom: 3px;
+            }
+
+            .vehicle-option-capacity {
+                font-size: 0.7em;
+                margin-bottom: 3px;
+            }
+
+            .vehicle-option-price {
+                font-size: 0.85em;
             }
 
             .payment-method {
@@ -1411,10 +1475,6 @@
                 width: 45px;
                 height: 45px;
                 font-size: 1.3em;
-            }
-
-            .feature-card {
-                padding: 20px;
             }
 
             .section-logo {
