@@ -102,55 +102,6 @@
             animation: fadeInUp 1s ease 0.3s both;
         }
 
-        /* Live Stats */
-        .live-stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 40px 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-            justify-content: center;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            min-width: 180px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-        }
-
-        .stat-number {
-            display: block;
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #00A854;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            display: block;
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 8px;
-        }
-
-        .stat-trend {
-            display: block;
-            font-size: 0.9em;
-            color: #4CAF50;
-            font-weight: 600;
-        }
-
         /* Map Container */
         .map-container {
             max-width: 1400px;
@@ -1183,10 +1134,6 @@
                 width: 100% !important;
                 touch-action: pan-x pan-y;
             }
-            
-            .stat-card {
-                min-width: 140px;
-            }
 
             .chatbot-window {
                 width: calc(100% - 20px);
@@ -1452,19 +1399,6 @@
                 height: 60px;
             }
 
-            .stat-card {
-                min-width: 120px;
-                padding: 15px;
-            }
-
-            .stat-number {
-                font-size: 2em;
-            }
-
-            .stat-label {
-                font-size: 0.95em;
-            }
-
             .btn-map-select {
                 padding: 6px 10px;
                 font-size: 0.7em;
@@ -1601,29 +1535,6 @@
             </p>
         </div>
     </section>
-
-    <div class="live-stats">
-        <div class="stat-card" onclick="showStatsDetail('zones')">
-            <span class="stat-number" id="liveZones">118</span>
-            <span class="stat-label">Quartiers</span>
-            <span class="stat-trend">↑ Couverture complète</span>
-        </div>
-        <div class="stat-card" onclick="showStatsDetail('vehicles')">
-            <span class="stat-number" id="liveVehicles">753</span>
-            <span class="stat-label">Véhicules</span>
-            <span class="stat-trend">↑ En ligne</span>
-        </div>
-        <div class="stat-card" onclick="showStatsDetail('drivers')">
-            <span class="stat-number" id="liveDrivers">421</span>
-            <span class="stat-label">Chauffeurs</span>
-            <span class="stat-trend">↑ Actifs</span>
-        </div>
-        <div class="stat-card" onclick="showStatsDetail('wait')">
-            <span class="stat-number">5min</span>
-            <span class="stat-label">Attente Moy.</span>
-            <span class="stat-trend">↓ -2min</span>
-        </div>
-    </div>
 
     <div class="map-container">
         <div class="map-header">
@@ -3230,16 +3141,6 @@
             }
 
             return `Je suis désolé, je n'ai pas bien compris. 🤔\n\nPosez-moi une question sur:\n• Les tarifs\n• Comment réserver (avec sélection sur carte)\n• Les 118 quartiers\n• La navigation GPS`;
-        }
-
-        function showStatsDetail(type) {
-            const details = {
-                zones: '🗺️ 118 quartiers répartis en 9 zones de Dakar',
-                vehicles: '🚕 753 véhicules en ligne',
-                drivers: '👨‍✈️ 421 chauffeurs actifs',
-                wait: '⏱️ Temps d\'attente moyen: 5 minutes'
-            };
-            if (details[type]) showNotification(details[type], 'info');
         }
 
         function showNotification(message, type = 'info') {
