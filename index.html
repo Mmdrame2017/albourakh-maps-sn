@@ -949,15 +949,13 @@
         }
 
         .payment-methods {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
-            flex-wrap: wrap;
             margin-top: 10px;
         }
 
         .payment-method {
-            flex: 1;
-            min-width: 150px;
             padding: 15px;
             border: 2px solid #ddd;
             border-radius: 10px;
@@ -1320,14 +1318,30 @@
                 font-size: 0.9em;
             }
 
+            /* OPTIMISATION CRITIQUE: Section Paiement - Grille 2x3 sur mobile */
             .payment-methods {
-                flex-direction: column;
-                gap: 12px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
 
             .payment-method {
-                min-width: auto;
-                padding: 12px;
+                padding: 10px 8px;
+                min-height: 85px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .payment-method-icon {
+                font-size: 1.8em;
+                margin-bottom: 6px;
+            }
+
+            .payment-method-name {
+                font-size: 0.85em;
+                line-height: 1.2;
+                text-align: center;
             }
 
             .booking-summary {
@@ -1490,8 +1504,25 @@
                 font-size: 0.85em;
             }
 
+            /* OPTIMISATION TRÈS PETITS ÉCRANS: Section Paiement - Grille 2x3 compacte */
+            .payment-methods {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
             .payment-method {
-                padding: 10px;
+                padding: 8px 6px;
+                min-height: 75px;
+            }
+
+            .payment-method-icon {
+                font-size: 1.6em;
+                margin-bottom: 5px;
+            }
+
+            .payment-method-name {
+                font-size: 0.8em;
+                line-height: 1.15;
             }
 
             .chatbot-button {
@@ -1774,6 +1805,14 @@
                     <div class="payment-method" onclick="selectPayment('card')">
                         <div class="payment-method-icon">💳</div>
                         <div class="payment-method-name">Carte Bancaire</div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment('freemoney')">
+                        <div class="payment-method-icon">💰</div>
+                        <div class="payment-method-name">Free Money</div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment('wizall')">
+                        <div class="payment-method-icon">🔷</div>
+                        <div class="payment-method-name">Wizzall</div>
                     </div>
                 </div>
             </div>
@@ -2904,7 +2943,9 @@
                 cash: '💵 Espèces',
                 orange: '📱 Orange Money',
                 wave: '💳 Wave',
-                card: '💳 Carte Bancaire'
+                card: '💳 Carte Bancaire',
+                freemoney: '💰 Free Money',
+                wizall: '🔷 Wizzall'
             };
             showNotification(`✅ Paiement: ${paymentNames[method]}`, 'success');
         }
@@ -2952,7 +2993,9 @@
                 cash: '💵 Espèces',
                 orange: '📱 Orange Money',
                 wave: '💳 Wave',
-                card: '💳 Carte Bancaire'
+                card: '💳 Carte Bancaire',
+                freemoney: '💰 Free Money',
+                wizall: '🔷 Wizzall'
             };
 
             document.getElementById('summaryRoute').textContent = `${from} → ${to}`;
