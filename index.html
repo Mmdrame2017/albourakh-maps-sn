@@ -873,6 +873,14 @@
             box-shadow: 0 5px 15px rgba(0,168,84,0.3);
         }
 
+        /* NOUVEAU: Conteneur pour Date et Heure sur une même ligne */
+        .datetime-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            grid-column: 1 / -1;
+        }
+
         .vehicle-options {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1257,6 +1265,12 @@
                 font-size: 0.95em;
             }
 
+            /* NOUVEAU: Date et Heure côte à côte sur mobile */
+            .datetime-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
             /* OPTIMISATION SPÉCIALE: Section "129 Quartiers" - Grille 3x3 sur mobile */
             .features-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -1447,6 +1461,12 @@
 
             .booking-header h2 {
                 font-size: 1.5em;
+            }
+
+            /* Date et Heure restent côte à côte même sur très petits écrans */
+            .datetime-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
 
             /* OPTIMISATION TRÈS PETITS ÉCRANS: Section "129 Quartiers" - Grille 3x3 encore plus compacte */
@@ -1702,14 +1722,19 @@
                         </button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label><i class="fas fa-calendar-alt"></i> Date</label>
-                    <input type="date" id="bookingDate" required>
+                
+                <!-- NOUVEAU: Groupe Date et Heure sur une même ligne -->
+                <div class="datetime-group">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Date</label>
+                        <input type="date" id="bookingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Heure</label>
+                        <input type="time" id="bookingTime" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label><i class="fas fa-clock"></i> Heure</label>
-                    <input type="time" id="bookingTime" required>
-                </div>
+                
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> Nom complet</label>
                     <input type="text" id="bookingName" required placeholder="Votre nom">
@@ -2149,15 +2174,57 @@
                     if (place.geometry) {
                         inputTo.value = place.name || place.formatted_address;
                         updateDestinationMarker(place.geometry.location);
+                        
+                        // NOUVEAU: Auto-remplir date et heure dès que la destination est renseignée
+                        autoFillDateTime();
+                        
                         checkAndCalculateRoute();
                     }
                 });
 
+                // NOUVEAU: Écouteur pour auto-remplir date/heure quand on tape manuellement
                 inputTo.addEventListener('change', () => {
                     if (inputTo.value.trim()) {
+                        autoFillDateTime();
                         checkAndCalculateRoute();
                     }
                 });
+            }
+        }
+
+        // NOUVELLE FONCTION: Auto-remplir date et heure actuelles
+        function autoFillDateTime() {
+            const dateInput = document.getElementById('bookingDate');
+            const timeInput = document.getElementById('bookingTime');
+            
+            // Ne remplir que si les champs sont vides
+            if (!dateInput.value || !timeInput.value) {
+                const now = new Date();
+                
+                // Ajouter 30 minutes pour laisser le temps de préparation
+                now.setMinutes(now.getMinutes() + 30);
+                
+                // Format date: YYYY-MM-DD
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                dateInput.value = `${year}-${month}-${day}`;
+                
+                // Format heure: HH:MM
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                timeInput.value = `${hours}:${minutes}`;
+                
+                // Animation visuelle pour montrer le changement
+                dateInput.style.borderColor = '#00A854';
+                timeInput.style.borderColor = '#00A854';
+                
+                setTimeout(() => {
+                    dateInput.style.borderColor = '';
+                    timeInput.style.borderColor = '';
+                }, 1500);
+                
+                showNotification('📅 Date et heure renseignées automatiquement', 'info');
             }
         }
 
@@ -2208,6 +2275,10 @@
                     } else if (mapSelectionMode === 'to') {
                         document.getElementById('bookingTo').value = address;
                         updateDestinationMarker(location);
+                        
+                        // NOUVEAU: Auto-remplir date et heure
+                        autoFillDateTime();
+                        
                         showNotification(`✅ Destination: ${address}`, 'success');
                     }
                     
@@ -2558,6 +2629,9 @@
             setTimeout(() => {
                 document.getElementById('bookingTo').value = quartier;
                 document.getElementById('bookingTo').focus();
+                
+                // NOUVEAU: Auto-remplir date et heure
+                autoFillDateTime();
             }, 1000);
         }
 
@@ -2891,10 +2965,9 @@
             const today = new Date();
             const dateInput = document.getElementById('bookingDate');
             dateInput.min = today.toISOString().split('T')[0];
-            const timeInput = document.getElementById('bookingTime');
-            const currentHour = today.getHours();
-            const currentMinute = today.getMinutes();
-            timeInput.value = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+            
+            // Ne plus pré-remplir l'heure ici - cela sera fait automatiquement
+            // quand la destination sera renseignée
         }
 
         function selectVehicle(type, basePrice) {
@@ -3172,7 +3245,7 @@
             }
 
             if (messageLower.includes('réserv') || messageLower.includes('course') || messageLower.includes('carte') || messageLower.includes('itinéraire')) {
-                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. Choisissez votre véhicule\n5. Sélectionnez votre mode de paiement\n6. Confirmez!\n\n✨ **Nouveauté:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
+                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. ⏰ **Date et heure sont auto-remplies** dès que vous choisissez votre destination\n5. Choisissez votre véhicule\n6. Sélectionnez votre mode de paiement\n7. Confirmez!\n\n✨ **Nouveautés:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte, et la date/heure actuelles sont renseignées!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
             }
 
             if (messageLower.includes('navigation') || messageLower.includes('gps')) {
