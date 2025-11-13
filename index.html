@@ -102,6 +102,32 @@
             animation: fadeInUp 1s ease 0.3s both;
         }
 
+        /* Style pour le bouton dupliqué dans le hero */
+        .hero-cta-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 20px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #00A854;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .hero-cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .hero-cta-button i {
+            margin-right: 10px;
+        }
+
         /* Map Container */
         .map-container {
             max-width: 1400px;
@@ -1083,6 +1109,10 @@
                 width: 100px;
                 height: 75px;
             }
+            .hero-cta-button {
+                padding: 16px 32px;
+                font-size: 1em;
+            }
             .brand-logo-img {
                 width: 40px;
                 height: 30px;
@@ -1399,6 +1429,11 @@
                 height: 60px;
             }
 
+            .hero-cta-button {
+                padding: 12px 24px;
+                font-size: 0.9em;
+            }
+
             .btn-map-select {
                 padding: 6px 10px;
                 font-size: 0.7em;
@@ -1527,6 +1562,10 @@
     <section class="hero-section">
         <div class="hero-content">
             <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" class="hero-logo" onerror="this.style.display='none'">
+            <!-- BOUTON DUPLIQUÉ AJOUTÉ ICI -->
+            <button class="hero-cta-button" onclick="scrollToBooking()">
+                <i class="fas fa-car"></i> Réserver une course
+            </button>
             <h1 class="hero-title">
                 <i class="fas fa-route"></i> Al Bourakh Maps GPS
             </h1>
