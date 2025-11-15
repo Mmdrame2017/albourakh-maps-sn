@@ -1939,23 +1939,24 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
+        // ✅ CONFIGURATION FIREBASE UNIQUE (LA BONNE)
         const firebaseConfig = {
-            apiKey: "AIzaSyCOgutu381jjllkDZh8OqLFQxeUQgcYAl0",
-            authDomain: "albourakh-maps-sn.firebaseapp.com",
-            projectId: "albourakh-maps-sn",
-            storageBucket: "albourakh-maps-sn.firebasestorage.app",
-            messagingSenderId: "901444203447",
-            appId: "1:901444203447:web:5e4126f7e873d81b736e32",
-            measurementId: "G-FVHTZ2NRYB"
+            apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
+            authDomain: "albourakh-sn-ok.firebaseapp.com",
+            projectId: "albourakh-sn-ok",
+            storageBucket: "albourakh-sn-ok.firebasestorage.app",
+            messagingSenderId: "297875396274",
+            appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('✅ Firebase initialisé!');
+        console.log('✅ Firebase connecté à Al Bourakh!');
     </script>
 
     <script>
@@ -3337,23 +3338,17 @@
     </script>
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0S4bvgw9zQgqRiyW0vwxDi1lp9m35MI8&callback=initMap&libraries=places,geometry"></script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-<script>
-// Configuration Firebase (VOS VRAIES CLÉS)
+// ✅ CONFIGURATION FIREBASE UNIQUE (LA BONNE)
 const firebaseConfig = {
-  apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
-  authDomain: "albourakh-sn-ok.firebaseapp.com",
-  projectId: "albourakh-sn-ok",
-  storageBucket: "albourakh-sn-ok.firebasestorage.app",
-  messagingSenderId: "297875396274",
-  appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
+    apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
+    authDomain: "albourakh-sn-ok.firebaseapp.com",
+    projectId: "albourakh-sn-ok",
+    storageBucket: "albourakh-sn-ok.firebasestorage.app",
+    messagingSenderId: "297875396274",
+    appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-console.log('✅ Firebase connecté à Al Bourakh!');
-</script></body>
+console.log('✅ Firebase connecté à Al Bourakh!');</body>
 </html>
