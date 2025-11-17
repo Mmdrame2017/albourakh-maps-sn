@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
     <title>Al Bourakh - Dashboard Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,159 +14,49 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #00A854, #FECB00);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
         
-        .login-container {
-            max-width: 450px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        .login-logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .login-logo i {
-            font-size: 4em;
-            color: #00A854;
-            margin-bottom: 15px;
-        }
-        
-        .login-logo h1 {
-            color: #333;
-            font-size: 1.8em;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: all 0.3s;
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            border-color: #00A854;
-            box-shadow: 0 0 15px rgba(0,168,84,0.2);
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 1.1em;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,168,84,0.3);
-        }
-        
-        .dashboard-container {
-            display: none;
-            max-width: 1800px;
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
-        }
-        
-        .dashboard-container.active {
-            display: block;
         }
         
         .header {
             background: white;
-            padding: 25px 30px;
-            border-radius: 20px;
-            margin-bottom: 25px;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
         }
         
-        .header-left h1 {
+        .header h1 {
             color: #00A854;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 1.8em;
+            margin-bottom: 10px;
         }
         
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .header p {
+            color: #666;
         }
         
-        .admin-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f5f5f5;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-size: 0.9em;
-        }
-        
-        .btn-danger {
+        .logout-btn {
+            float: right;
+            padding: 10px 20px;
             background: #E30613;
             color: white;
-            padding: 10px 18px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-secondary {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-weight: bold;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
         
         .stat-card {
@@ -185,7 +74,7 @@
         
         .stat-icon {
             font-size: 2.5em;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
         
         .stat-number {
@@ -197,98 +86,78 @@
         
         .stat-label {
             color: #666;
-            font-size: 1em;
+            font-size: 1.1em;
         }
         
-        .filters-bar {
+        .tabs {
             background: white;
-            padding: 20px;
             border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 0.95em;
-            transition: all 0.3s;
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: #00A854;
-        }
-        
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-        
-        .filter-select {
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 0.95em;
-            cursor: pointer;
-            background: white;
-        }
-        
-        .reservations-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
+            padding: 20px;
+            margin-bottom: 30px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         
-        .section-title {
-            margin-bottom: 25px;
-            color: #333;
-            font-size: 1.6em;
+        .tab-buttons {
             display: flex;
-            align-items: center;
-            gap: 12px;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
-        .reservation-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
+        .tab-btn {
+            padding: 12px 25px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
             transition: all 0.3s;
         }
         
-        .reservation-card:hover {
-            border-color: #00A854;
-            box-shadow: 0 5px 20px rgba(0,168,84,0.15);
+        .tab-btn.active {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
         }
         
-        .reservation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #00A854;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
         }
         
         .status-badge {
-            padding: 8px 16px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.85em;
             font-weight: 600;
@@ -296,156 +165,75 @@
         }
         
         .status-en_attente { background: #FFA500; }
-        .status-assignee { background: #2196F3; }
-        .status-acceptee { background: #4CAF50; }
-        .status-en_cours { background: #9C27B0; }
-        .status-terminee { background: #4CAF50; }
+        .status-confirmee { background: #4CAF50; }
+        .status-en_cours { background: #2196F3; }
+        .status-terminee { background: #00A854; }
         .status-annulee { background: #E30613; }
+        .status-nouvelle { background: #FFA500; }
+        .status-acceptee { background: #4CAF50; }
+        .status-refusee { background: #E30613; }
         
-        .reservation-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 18px;
-            margin-bottom: 15px;
-        }
-        
-        .info-block {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-        }
-        
-        .info-label {
-            font-size: 0.8em;
-            color: #666;
-            margin-bottom: 6px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .info-value {
-            font-size: 1em;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .chauffeur-assigned {
-            background: linear-gradient(135deg, #2196F3, #00A854);
-            color: white;
-            padding: 18px;
-            border-radius: 12px;
-            margin-top: 15px;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.75);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 1200px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            padding: 25px 30px;
-            border-radius: 20px 20px 0 0;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-body {
-            padding: 30px;
-        }
-        
-        .driver-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .driver-card:hover {
-            border-color: #00A854;
-            background: #f9f9f9;
-        }
-        
-        .driver-card.unavailable {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .driver-info {
-            flex: 1;
-        }
-        
-        .driver-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .driver-stat {
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .driver-stat-value {
-            font-weight: bold;
-            font-size: 1.1em;
-            color: #00A854;
-        }
-        
-        .driver-stat-label {
-            font-size: 0.75em;
-            color: #666;
-            margin-top: 3px;
-        }
-        
-        .close-modal {
-            background: rgba(255,255,255,0.2);
+        .action-btn {
+            padding: 6px 12px;
             border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 1.5em;
+            margin: 2px;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-view { background: #2196F3; color: white; }
+        .btn-accept { background: #4CAF50; color: white; }
+        .btn-reject { background: #E30613; color: white; }
+        .btn-edit { background: #FF9800; color: white; }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            min-width: 200px;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #00A854;
+        }
+        
+        .export-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
         }
         
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: #999;
+            padding: 50px;
+            color: #666;
         }
         
         .empty-state i {
@@ -453,178 +241,246 @@
             margin-bottom: 20px;
             opacity: 0.3;
         }
-        
-        .loading-spinner {
-            text-align: center;
-            padding: 50px;
-            color: #999;
+
+        .security-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .security-warning strong {
+            color: #856404;
         }
         
-        .loading-spinner i {
-            font-size: 3em;
-            margin-bottom: 15px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 15px 20px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            z-index: 10000;
-            animation: slideInUp 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .toast.success { background: #4CAF50; }
-        .toast.error { background: #E30613; }
-        .toast.info { background: #2196F3; }
-        
-        @keyframes slideInUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Écran de Connexion -->
-    <div id="loginContainer" class="login-container">
-        <div class="login-logo">
-            <i class="fas fa-tachometer-alt"></i>
-            <h1>Dashboard Admin</h1>
-            <p style="color: #666; margin-top: 10px;">Al Bourakh</p>
-        </div>
-        
-        <div class="input-group">
-            <label>📧 Email Admin</label>
-            <input type="email" id="adminEmail" placeholder="admin@albourakh.sn">
-        </div>
-        
-        <div class="input-group">
-            <label>🔒 Mot de passe</label>
-            <input type="password" id="adminPassword" placeholder="Mot de passe admin">
-        </div>
-        
-        <button class="btn btn-primary" onclick="handleLogin()">
-            Se connecter
-        </button>
-    </div>
-    
-    <!-- Dashboard -->
-    <div id="dashboardContainer" class="dashboard-container">
+    <div class="container">
         <div class="header">
-            <div class="header-left">
-                <h1><i class="fas fa-tachometer-alt"></i> Dashboard Admin</h1>
-                <p style="color: #666; font-size: 0.95em;">Gestion des réservations et chauffeurs</p>
-            </div>
-            <div class="header-right">
-                <div class="admin-info">
-                    <i class="fas fa-user-shield"></i>
-                    <span id="adminEmailDisplay">Admin</span>
-                </div>
-                <button class="btn btn-primary" onclick="refreshData()" style="padding: 10px 18px; border-radius: 10px;">
-                    <i class="fas fa-sync-alt"></i> Actualiser
-                </button>
-                <button class="btn-danger" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+            <h1><i class="fas fa-chart-line"></i> Al Bourakh - Dashboard Admin</h1>
+            <p>Gérez vos réservations et candidatures en temps réel</p>
+        </div>
+
+        <!-- Avertissement de sécurité -->
+        <div class="security-warning">
+            <strong>⚠️ AVERTISSEMENT DE SÉCURITÉ :</strong> Ce dashboard utilise une authentification basique par prompt JavaScript. 
+            Le mot de passe est visible dans le code source. Pour une sécurité optimale, 
+            <strong>utilisez Firebase Authentication</strong> comme dans le dashboard admin principal.
         </div>
         
-        <div class="stats-grid">
+        <!-- Statistiques -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number" id="totalReservations">0</div>
+                <div class="stat-label">Réservations Totales</div>
+            </div>
+            
             <div class="stat-card">
                 <div class="stat-icon">⏳</div>
-                <div class="stat-number" id="statEnAttente">0</div>
-                <div class="stat-label">En attente</div>
+                <div class="stat-number" id="pendingReservations">0</div>
+                <div class="stat-label">En Attente</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-icon">🚗</div>
-                <div class="stat-number" id="statAssignee">0</div>
-                <div class="stat-label">Assignées</div>
+                <div class="stat-icon">👨‍✈️</div>
+                <div class="stat-number" id="totalDrivers">0</div>
+                <div class="stat-label">Candidatures Chauffeurs</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-icon">🏃</div>
-                <div class="stat-number" id="statEnCours">0</div>
-                <div class="stat-label">En cours</div>
+                <div class="stat-icon">💰</div>
+                <div class="stat-number" id="totalRevenue">0 FCFA</div>
+                <div class="stat-label">Revenu Estimé</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-number" id="statTerminees">0</div>
-                <div class="stat-label">Terminées (24h)</div>
+                <div class="stat-icon">📊</div>
+                <div class="stat-number" id="todayReservations">0</div>
+                <div class="stat-label">Aujourd'hui</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-number" id="chatInteractions">0</div>
+                <div class="stat-label">Interactions Chatbot</div>
             </div>
         </div>
         
-        <div class="filters-bar">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Rechercher..." onkeyup="filterReservations()">
-                <i class="fas fa-search"></i>
+        <!-- Onglets -->
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('reservations')">
+                    <i class="fas fa-car"></i> Réservations
+                </button>
+                <button class="tab-btn" onclick="switchTab('chauffeurs')">
+                    <i class="fas fa-users"></i> Candidatures Chauffeurs
+                </button>
+                <button class="tab-btn" onclick="switchTab('chatbot')">
+                    <i class="fas fa-comments"></i> Chatbot
+                </button>
+                <button class="tab-btn" onclick="switchTab('calculs')">
+                    <i class="fas fa-calculator"></i> Calculs Prix
+                </button>
             </div>
             
-            <select class="filter-select" id="filterStatus" onchange="filterReservations()">
-                <option value="">Tous les statuts</option>
-                <option value="en_attente">En attente</option>
-                <option value="assignee">Assignée</option>
-                <option value="acceptee">Acceptée</option>
-                <option value="en_cours">En cours</option>
-                <option value="terminee">Terminée</option>
-                <option value="annulee">Annulée</option>
-            </select>
-        </div>
-        
-        <div class="reservations-container">
-            <h2 class="section-title">
-                <i class="fas fa-clipboard-list"></i> Réservations
-                <span id="reservationCount" style="font-size: 0.7em; color: #999; font-weight: normal;"></span>
-            </h2>
+            <!-- Réservations -->
+            <div id="reservations" class="tab-content active">
+                <div class="filters">
+                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchReservations">
+                    <select class="filter-input" id="filterStatus" onchange="loadReservations()">
+                        <option value="">Tous les statuts</option>
+                        <option value="en_attente">En attente</option>
+                        <option value="confirmee">Confirmée</option>
+                        <option value="en_cours">En cours</option>
+                        <option value="terminee">Terminée</option>
+                        <option value="annulee">Annulée</option>
+                    </select>
+                    <input type="date" class="filter-input" id="filterDate" onchange="loadReservations()">
+                    <button class="export-btn" onclick="exportReservations()">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                </div>
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date/Heure</th>
+                                <th>Client</th>
+                                <th>Téléphone</th>
+                                <th>Trajet</th>
+                                <th>Véhicule</th>
+                                <th>Prix</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservationsBody">
+                            <tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             
-            <div id="reservationsList">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Chargement...</p>
+            <!-- Chauffeurs -->
+            <div id="chauffeurs" class="tab-content">
+                <div class="filters">
+                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchChauffeurs">
+                    <select class="filter-input" id="filterDriverStatus" onchange="loadDrivers()">
+                        <option value="">Tous les statuts</option>
+                        <option value="nouvelle">Nouvelle</option>
+                        <option value="en_revision">En révision</option>
+                        <option value="acceptee">Acceptée</option>
+                        <option value="refusee">Refusée</option>
+                    </select>
+                    <button class="export-btn" onclick="exportDrivers()">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                </div>
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Nom</th>
+                                <th>Téléphone</th>
+                                <th>Ville</th>
+                                <th>Véhicule</th>
+                                <th>Disponibilité</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chauffeursBody">
+                            <tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Chatbot -->
+            <div id="chatbot" class="tab-content">
+                <div class="filters">
+                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchChatbot">
+                    <button class="export-btn" onclick="exportChatbot()">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                </div>
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date/Heure</th>
+                                <th>Message Utilisateur</th>
+                                <th>Réponse Bot</th>
+                                <th>Session ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chatbotBody">
+                            <tr><td colspan="4" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Calculs -->
+            <div id="calculs" class="tab-content">
+                <div class="filters">
+                    <input type="text" class="filter-input" placeholder="🔍 Rechercher..." id="searchCalculs">
+                    <button class="export-btn" onclick="exportCalculs()">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                </div>
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date/Heure</th>
+                                <th>Départ</th>
+                                <th>Destination</th>
+                                <th>Véhicule</th>
+                                <th>Distance</th>
+                                <th>Prix</th>
+                                <th>Converti</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calculsBody">
+                            <tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Modal Attribution -->
-    <div id="modalAttribution" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <h2><i class="fas fa-user-plus"></i> Assigner un chauffeur</h2>
-                    <p id="modalReservationInfo"></p>
-                </div>
-                <button class="close-modal" onclick="closeModal()">×</button>
-            </div>
-            <div class="modal-body" id="driversList"></div>
-        </div>
-    </div>
-    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <script>
-        // ✅ CONFIGURATION FIREBASE SYNCHRONISÉE AVEC L'APP CHAUFFEUR
+        // ✅ CONFIGURATION FIREBASE CORRIGÉE - Synchronisée avec albourakh-sn-ok
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -634,328 +490,431 @@
             appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
         };
         
+        // ⚠️ AVERTISSEMENT DE SÉCURITÉ :
+        // Cette méthode d'authentification est TRÈS peu sécurisée !
+        // Le mot de passe est visible dans le code source (F12 → Sources)
+        // Recommandation : Utiliser Firebase Auth comme dans le dashboard principal
+        
+        const adminPassword = prompt("🔐 Mot de passe admin:");
+        if (adminPassword !== "Admin2025!") {  // ✅ Mot de passe corrigé
+            alert("❌ Accès refusé!");
+            window.location = "/";
+        }
+        
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
         
-        let currentUser = null;
-        let selectedReservation = null;
-        let allReservations = [];
+        // Charger tout au démarrage
+        loadAllData();
         
-        // AUTH
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                document.getElementById('loginContainer').style.display = 'block';
-                document.getElementById('dashboardContainer').classList.remove('active');
-            } else {
-                currentUser = user;
-                document.getElementById('adminEmailDisplay').textContent = user.email;
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('dashboardContainer').classList.add('active');
-                loadAllData();
-            }
-        });
-        
-        async function handleLogin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value.trim();
+        function switchTab(tabName) {
+            // Cacher tous les onglets
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
             
-            if (!email || !password) {
-                showToast('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-            
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                showToast('Connexion réussie !', 'success');
-            } catch (error) {
-                console.error('Erreur:', error);
-                showToast('Email ou mot de passe incorrect', 'error');
-            }
-        }
-        
-        function logout() {
-            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
-                auth.signOut();
-            }
-        }
-        
-        function refreshData() {
-            showToast('Actualisation...', 'info');
-            loadAllData();
+            // Afficher l'onglet sélectionné
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
         }
         
         async function loadAllData() {
-            await Promise.all([loadReservations(), loadStats()]);
+            await loadReservations();
+            await loadDrivers();
+            await loadChatbot();
+            await loadCalculs();
+            await loadStats();
         }
         
         async function loadReservations() {
-            const container = document.getElementById('reservationsList');
+            const tbody = document.getElementById('reservationsBody');
+            tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
             
             try {
-                const snapshot = await db.collection('reservations')
-                    .orderBy('timestamp', 'desc')
-                    .limit(100)
-                    .get();
+                let query = db.collection('reservations').orderBy('timestamp', 'desc').limit(100);
                 
-                allReservations = [];
+                const filterStatus = document.getElementById('filterStatus').value;
+                if (filterStatus) {
+                    query = query.where('statut', '==', filterStatus);
+                }
+                
+                const snapshot = await query.get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune réservation</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                
                 snapshot.forEach(doc => {
-                    allReservations.push({ id: doc.id, ...doc.data() });
+                    const data = doc.data();
+                    const row = tbody.insertRow();
+                    
+                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+                    
+                    row.innerHTML = `
+                        <td>${date.toLocaleDateString()} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</td>
+                        <td><strong>${data.nom || data.clientNom || 'N/A'}</strong><br><small>${data.email || ''}</small></td>
+                        <td>${data.telephone || data.clientTelephone || 'N/A'}</td>
+                        <td><strong>${data.depart}</strong><br>↓<br><strong>${data.destination}</strong></td>
+                        <td>${data.typeVehicule || 'N/A'}</td>
+                        <td><strong>${(data.prixEstime || 0).toLocaleString()} FCFA</strong></td>
+                        <td><span class="status-badge status-${data.statut}">${data.statut}</span></td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewReservationDetails('${doc.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${data.statut === 'en_attente' ? `
+                                <button class="action-btn btn-accept" onclick="updateReservationStatus('${doc.id}', 'confirmee')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="action-btn btn-reject" onclick="updateReservationStatus('${doc.id}', 'annulee')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    `;
                 });
-                
-                displayReservations(allReservations);
             } catch (error) {
                 console.error('Erreur:', error);
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Erreur</h3><p>${error.message}</p></div>`;
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">❌ Erreur de chargement: ' + error.message + '</td></tr>';
             }
         }
         
-        function displayReservations(reservations) {
-            const container = document.getElementById('reservationsList');
+        async function loadDrivers() {
+            const tbody = document.getElementById('chauffeursBody');
+            tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
             
-            if (reservations.length === 0) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><h3>Aucune réservation</h3></div>';
-                return;
+            try {
+                let query = db.collection('candidatures_chauffeurs').orderBy('timestamp', 'desc').limit(100);
+                
+                const filterStatus = document.getElementById('filterDriverStatus').value;
+                if (filterStatus) {
+                    query = query.where('statut', '==', filterStatus);
+                }
+                
+                const snapshot = await query.get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune candidature</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const row = tbody.insertRow();
+                    
+                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+                    
+                    row.innerHTML = `
+                        <td>${date.toLocaleDateString()}</td>
+                        <td><strong>${data.nomComplet}</strong><br><small>${data.email}</small></td>
+                        <td>${data.telephone}</td>
+                        <td>${data.villeResidence}</td>
+                        <td>${data.typeVehicule}<br><small>${data.marqueModele} (${data.anneeVehicule})</small></td>
+                        <td>${data.disponibilite}</td>
+                        <td><span class="status-badge status-${data.statut}">${data.statut}</span></td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewDriverDetails('${doc.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${data.statut === 'nouvelle' ? `
+                                <button class="action-btn btn-accept" onclick="updateDriverStatus('${doc.id}', 'acceptee')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="action-btn btn-reject" onclick="updateDriverStatus('${doc.id}', 'refusee')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Erreur:', error);
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">❌ Erreur de chargement: ' + error.message + '</td></tr>';
             }
-            
-            container.innerHTML = '';
-            document.getElementById('reservationCount').textContent = `(${reservations.length})`;
-            
-            reservations.forEach(res => {
-                const card = document.createElement('div');
-                card.className = 'reservation-card';
-                
-                const date = res.timestamp ? new Date(res.timestamp.seconds * 1000).toLocaleString('fr-FR') : 'N/A';
-                
-                card.innerHTML = `
-                    <div class="reservation-header">
-                        <span class="status-badge status-${res.statut || 'en_attente'}">${getStatusLabel(res.statut)}</span>
-                        <div class="action-buttons">
-                            ${res.statut === 'en_attente' ? `<button class="btn btn-primary" onclick="openAttribution('${res.id}')" style="padding: 8px 16px; border-radius: 8px;"><i class="fas fa-user-plus"></i> Assigner</button>` : ''}
-                        </div>
-                    </div>
-                    <div class="reservation-info">
-                        <div class="info-block">
-                            <div class="info-label">Client</div>
-                            <div class="info-value">${res.clientNom || 'N/A'}</div>
-                            <div style="margin-top: 5px; color: #666;">${res.clientTelephone || ''}</div>
-                        </div>
-                        <div class="info-block">
-                            <div class="info-label">Trajet</div>
-                            <div class="info-value">${res.depart || 'N/A'}</div>
-                            <div style="margin: 5px 0; color: #00A854;">↓</div>
-                            <div class="info-value">${res.destination || 'N/A'}</div>
-                        </div>
-                        <div class="info-block">
-                            <div class="info-label">Prix estimé</div>
-                            <div class="info-value" style="color: #00A854; font-size: 1.3em;">${(res.prixEstime || 0).toLocaleString()} FCFA</div>
-                        </div>
-                        <div class="info-block">
-                            <div class="info-label">Date</div>
-                            <div class="info-value">${date}</div>
-                        </div>
-                    </div>
-                    ${res.chauffeurAssigne ? `
-                        <div class="chauffeur-assigned">
-                            <strong>Chauffeur assigné:</strong> ${res.nomChauffeur || 'N/A'}
-                            <div style="margin-top: 5px;">${res.telephoneChauffeur || ''}</div>
-                        </div>
-                    ` : ''}
-                `;
-                
-                container.appendChild(card);
-            });
         }
         
-        function getStatusLabel(statut) {
-            const labels = {
-                en_attente: 'En attente',
-                assignee: 'Assignée',
-                acceptee: 'Acceptée',
-                en_cours: 'En cours',
-                terminee: 'Terminée',
-                annulee: 'Annulée'
-            };
-            return labels[statut] || 'En attente';
+        async function loadChatbot() {
+            const tbody = document.getElementById('chatbotBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            
+            try {
+                const snapshot = await db.collection('chatbot_interactions')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i><br>Aucune interaction</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const row = tbody.insertRow();
+                    
+                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+                    
+                    row.innerHTML = `
+                        <td>${date.toLocaleString()}</td>
+                        <td>${data.messageUtilisateur}</td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${data.reponseBot.substring(0, 100)}...</td>
+                        <td><small>${data.sessionId?.substring(0, 15)}...</small></td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Erreur:', error);
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">❌ Erreur de chargement: ' + error.message + '</td></tr>';
+            }
+        }
+        
+        async function loadCalculs() {
+            const tbody = document.getElementById('calculsBody');
+            tbody.innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            
+            try {
+                const snapshot = await db.collection('calculs_prix')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><br>Aucun calcul</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const row = tbody.insertRow();
+                    
+                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+                    
+                    row.innerHTML = `
+                        <td>${date.toLocaleString()}</td>
+                        <td>${data.depart}</td>
+                        <td>${data.destination}</td>
+                        <td>${data.typeVehicule}</td>
+                        <td>${data.distanceEstimee} km</td>
+                        <td><strong>${(data.prixCalcule || 0).toLocaleString()} FCFA</strong></td>
+                        <td>${data.converti ? '✅ Oui' : '❌ Non'}</td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Erreur:', error);
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">❌ Erreur de chargement: ' + error.message + '</td></tr>';
+            }
         }
         
         async function loadStats() {
             try {
-                const snapshot = await db.collection('reservations').get();
-                let stats = { en_attente: 0, assignee: 0, en_cours: 0, terminee: 0 };
+                // Réservations
+                const resSnapshot = await db.collection('reservations').get();
+                document.getElementById('totalReservations').textContent = resSnapshot.size;
+                
+                const pending = resSnapshot.docs.filter(doc => doc.data().statut === 'en_attente').length;
+                document.getElementById('pendingReservations').textContent = pending;
+                
+                const revenue = resSnapshot.docs
+                    .filter(doc => doc.data().statut === 'terminee')
+                    .reduce((sum, doc) => sum + (doc.data().prixEstime || 0), 0);
+                document.getElementById('totalRevenue').textContent = revenue.toLocaleString() + ' FCFA';
                 
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                today.setHours(0,0,0,0);
+                const todayCount = resSnapshot.docs.filter(doc => {
+                    const docDate = doc.data().timestamp ? new Date(doc.data().timestamp.seconds * 1000) : new Date();
+                    docDate.setHours(0,0,0,0);
+                    return docDate.getTime() === today.getTime();
+                }).length;
+                document.getElementById('todayReservations').textContent = todayCount;
                 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const statut = data.statut || 'en_attente';
-                    
-                    // En attente
-                    if (statut === 'en_attente') stats.en_attente++;
-                    
-                    // Assignée (incluant acceptée et arrivé)
-                    if (['assignee', 'acceptee', 'arrive'].includes(statut)) stats.assignee++;
-                    
-                    // En cours
-                    if (statut === 'en_cours') stats.en_cours++;
-                    
-                    // Terminée (seulement les dernières 24h)
-                    if (statut === 'terminee') {
-                        const date = data.timestamp ? new Date(data.timestamp.seconds * 1000) : null;
-                        if (date && date >= today) stats.terminee++;
-                    }
-                });
+                // Chauffeurs
+                const driverSnapshot = await db.collection('candidatures_chauffeurs').get();
+                document.getElementById('totalDrivers').textContent = driverSnapshot.size;
                 
-                document.getElementById('statEnAttente').textContent = stats.en_attente;
-                document.getElementById('statAssignee').textContent = stats.assignee;
-                document.getElementById('statEnCours').textContent = stats.en_cours;
-                document.getElementById('statTerminees').textContent = stats.terminee;
+                // Chatbot
+                const chatSnapshot = await db.collection('chatbot_interactions').get();
+                document.getElementById('chatInteractions').textContent = chatSnapshot.size;
+                
             } catch (error) {
                 console.error('Erreur stats:', error);
             }
         }
         
-        function filterReservations() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('filterStatus').value;
+        async function viewReservationDetails(id) {
+            const doc = await db.collection('reservations').doc(id).get();
+            const data = doc.data();
             
-            let filtered = allReservations.filter(res => {
-                const matchSearch = !searchTerm || 
-                    (res.clientNom && res.clientNom.toLowerCase().includes(searchTerm)) ||
-                    (res.depart && res.depart.toLowerCase().includes(searchTerm)) ||
-                    (res.destination && res.destination.toLowerCase().includes(searchTerm));
-                
-                const matchStatus = !statusFilter || res.statut === statusFilter;
-                
-                return matchSearch && matchStatus;
-            });
-            
-            displayReservations(filtered);
+            alert(`📋 DÉTAILS RÉSERVATION\n\n` +
+                `Nom: ${data.nom || data.clientNom}\n` +
+                `Téléphone: ${data.telephone || data.clientTelephone}\n` +
+                `Email: ${data.email || 'N/A'}\n\n` +
+                `Trajet:\n${data.depart} → ${data.destination}\n\n` +
+                `Date: ${data.date || 'N/A'}\n` +
+                `Heure: ${data.heure || 'N/A'}\n` +
+                `Passagers: ${data.passagers || 'N/A'}\n\n` +
+                `Véhicule: ${data.typeVehicule}\n` +
+                `Prix: ${(data.prixEstime || 0).toLocaleString()} FCFA\n` +
+                `Paiement: ${data.modePaiement || 'N/A'}\n\n` +
+                `Instructions: ${data.instructions || 'Aucune'}\n\n` +
+                `Statut: ${data.statut}`
+            );
         }
         
-        async function openAttribution(reservationId) {
-            try {
-                const resDoc = await db.collection('reservations').doc(reservationId).get();
-                if (!resDoc.exists) {
-                    showToast('Réservation introuvable', 'error');
-                    return;
+        async function viewDriverDetails(id) {
+            const doc = await db.collection('candidatures_chauffeurs').doc(id).get();
+            const data = doc.data();
+            
+            alert(`👨‍✈️ DÉTAILS CHAUFFEUR\n\n` +
+                `Nom: ${data.nomComplet}\n` +
+                `Téléphone: ${data.telephone}\n` +
+                `Email: ${data.email}\n` +
+                `Ville: ${data.villeResidence}\n` +
+                `CNI: ${data.numeroCNI}\n\n` +
+                `Véhicule:\n` +
+                `Type: ${data.typeVehicule}\n` +
+                `Modèle: ${data.marqueModele}\n` +
+                `Année: ${data.anneeVehicule}\n` +
+                `Immat: ${data.immatriculation}\n` +
+                `Couleur: ${data.couleur}\n\n` +
+                `Permis: ${data.numeroPermis}\n` +
+                `Date obtention: ${data.dateObtentionPermis}\n\n` +
+                `Disponibilité: ${data.disponibilite}\n` +
+                `Expérience: ${data.experience || 'N/A'}\n\n` +
+                `Statut: ${data.statut}`
+            );
+        }
+        
+        async function updateReservationStatus(id, newStatus) {
+            if (confirm('Confirmer le changement de statut ?')) {
+                try {
+                    await db.collection('reservations').doc(id).update({
+                        statut: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert('✅ Statut mis à jour!');
+                    loadReservations();
+                    loadStats();
+                } catch (error) {
+                    alert('❌ Erreur: ' + error.message);
                 }
-                
-                const resData = resDoc.data();
-                selectedReservation = { id: reservationId, ...resData };
-                
-                document.getElementById('modalReservationInfo').textContent = 
-                    `${resData.clientNom || 'N/A'} • ${resData.depart || 'N/A'} → ${resData.destination || 'N/A'}`;
-                
-                await loadDriversList();
-                document.getElementById('modalAttribution').classList.add('active');
-            } catch (error) {
-                console.error('Erreur:', error);
-                showToast('Erreur: ' + error.message, 'error');
             }
         }
         
-        async function loadDriversList() {
-            const container = document.getElementById('driversList');
-            container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Chargement...</p></div>';
-            
+        async function updateDriverStatus(id, newStatus) {
+            if (confirm('Confirmer le changement de statut ?')) {
+                try {
+                    await db.collection('candidatures_chauffeurs').doc(id).update({
+                        statut: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert('✅ Statut mis à jour!');
+                    loadDrivers();
+                    loadStats();
+                } catch (error) {
+                    alert('❌ Erreur: ' + error.message);
+                }
+            }
+        }
+        
+        function exportReservations() {
+            exportToCSV('reservations', 'reservations_albourakh.csv');
+        }
+        
+        function exportDrivers() {
+            exportToCSV('candidatures_chauffeurs', 'chauffeurs_albourakh.csv');
+        }
+        
+        function exportChatbot() {
+            exportToCSV('chatbot_interactions', 'chatbot_albourakh.csv');
+        }
+        
+        function exportCalculs() {
+            exportToCSV('calculs_prix', 'calculs_albourakh.csv');
+        }
+        
+        async function exportToCSV(collection, filename) {
             try {
-                // ✅ Utilise la collection 'drivers' comme l'app chauffeur
-                const snapshot = await db.collection('drivers')
-                    .where('statut', '==', 'disponible')
-                    .get();
-                
-                container.innerHTML = '';
+                const snapshot = await db.collection(collection).get();
                 
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><h3>Aucun chauffeur disponible</h3></div>';
+                    alert('Aucune donnée à exporter');
                     return;
                 }
                 
+                const data = [];
                 snapshot.forEach(doc => {
-                    const driver = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'driver-card';
-                    
-                    card.innerHTML = `
-                        <div class="driver-info">
-                            <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 8px;">
-                                ${driver.prenom || ''} ${driver.nom || ''}
-                                <span style="color: #4CAF50; font-size: 0.7em;">● DISPONIBLE</span>
-                            </div>
-                            <div style="color: #666;">
-                                <i class="fas fa-phone"></i> ${driver.telephone || 'N/A'}
-                            </div>
-                            <div style="margin-top: 10px;">
-                                <strong>Véhicule:</strong> ${driver.vehicule || 'N/A'}
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="assignerChauffeur('${doc.id}')" style="padding: 10px 20px; border-radius: 10px;">
-                            <i class="fas fa-check"></i> Assigner
-                        </button>
-                    `;
-                    
-                    container.appendChild(card);
+                    data.push({ id: doc.id, ...doc.data() });
                 });
+                
+                // Convertir en CSV
+                const headers = Object.keys(data[0]);
+                let csv = headers.join(',') + '\n';
+                
+                data.forEach(row => {
+                    csv += headers.map(h => {
+                        const value = row[h];
+                        if (value && typeof value === 'object' && value.seconds) {
+                            return new Date(value.seconds * 1000).toLocaleString();
+                        }
+                        return JSON.stringify(value || '');
+                    }).join(',') + '\n';
+                });
+                
+                // Télécharger
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                
+                alert('✅ Exporté avec succès!');
             } catch (error) {
-                console.error('Erreur:', error);
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Erreur</h3><p>${error.message}</p></div>`;
+                alert('❌ Erreur: ' + error.message);
             }
         }
         
-        async function assignerChauffeur(chauffeurId) {
-            if (!confirm('Confirmer l\'attribution ?')) return;
-            
-            try {
-                const chauffeurDoc = await db.collection('drivers').doc(chauffeurId).get();
-                if (!chauffeurDoc.exists) {
-                    showToast('Chauffeur introuvable', 'error');
-                    return;
-                }
-                
-                const chauffeur = chauffeurDoc.data();
-                
-                await db.collection('reservations').doc(selectedReservation.id).update({
-                    chauffeurAssigne: chauffeurId,
-                    nomChauffeur: `${chauffeur.prenom || ''} ${chauffeur.nom || ''}`,
-                    telephoneChauffeur: chauffeur.telephone,
-                    statut: 'assignee',
-                    dateAssignation: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                await db.collection('drivers').doc(chauffeurId).update({
-                    statut: 'en_course',
-                    reservationEnCours: selectedReservation.id
-                });
-                
-                showToast('Chauffeur assigné avec succès!', 'success');
-                closeModal();
-                loadAllData();
-            } catch (error) {
-                console.error('Erreur:', error);
-                showToast('Erreur: ' + error.message, 'error');
+        function logout() {
+            if (confirm('Se déconnecter ?')) {
+                window.location.reload();
             }
         }
         
-        function closeModal() {
-            document.getElementById('modalAttribution').classList.remove('active');
-            selectedReservation = null;
-        }
+        // Recherche en temps réel
+        document.getElementById('searchReservations')?.addEventListener('input', (e) => {
+            const search = e.target.value.toLowerCase();
+            document.querySelectorAll('#reservationsBody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        });
         
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i><span>${message}</span>`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
+        document.getElementById('searchChauffeurs')?.addEventListener('input', (e) => {
+            const search = e.target.value.toLowerCase();
+            document.querySelectorAll('#chauffeursBody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        });
         
+        // Auto-refresh toutes les 30 secondes
         setInterval(() => {
-            if (currentUser) loadStats();
-        }, 120000);
+            loadStats();
+        }, 30000);
         
-        console.log('✅ Dashboard Admin Al Bourakh chargé');
+        console.log('✅ Dashboard Admin Al Bourakh chargé (Version corrigée)');
     </script>
 </body>
 </html>
