@@ -2003,9 +2003,6 @@
         const db = firebase.firestore();
         console.log('✅ Firebase connecté à Al Bourakh!');
 
-        // Configuration n8n webhook
-        const N8N_WEBHOOK_URL = 'https://mmdrame2017.app.n8n.cloud/webhook/c388e793-c941-4d4c-8567-4b6ab66602df';
-
         // Variables globales
         let map, markers = [], trafficLayer, userMarker, searchMarker, autocomplete;
         let directionsService, directionsRenderer;
@@ -3343,6 +3340,48 @@
             }
         }
 
+        // Base de connaissances Al Bourakh
+        const AL_BOURAKH_KNOWLEDGE = `Tu es l'assistant virtuel officiel d'Al Bourakh, le premier service de transport avec chauffeur 100% sénégalais.
+
+**INFORMATIONS ESSENTIELLES:**
+
+**SERVICES & TARIFS:**
+- Standard (Kia Rio): 1000 FCFA base + 200 FCFA/km
+- Confort (VW Polo): 1500 FCFA base + 250 FCFA/km  
+- Van: 2000 FCFA base + 300 FCFA/km
+- Premium (Hyundai): 2500 FCFA base + 400 FCFA/km
+- Moto Jakarta: 500 FCFA base + 150 FCFA/km
+
+**NAVETTE AÉROPORT AIBD (tarifs fixes):**
+- Dakar Centre → AIBD: 15,000 FCFA
+- Almadies → AIBD: 18,000 FCFA
+- Pikine → AIBD: 12,000 FCFA
+
+**ZONES COUVERTES:**
+Dakar (Plateau, Médina, Almadies, Ngor, Yoff, Pikine, Guédiawaye), Thiès, Saint-Louis
+
+**CONTACT:**
+- Téléphone 24/7: +221 77 123 45 67
+- WhatsApp: +221 77 123 45 67
+- Email: support@albourakh.sn
+
+**PAIEMENT:**
+Cash, Orange Money, Wave, Free Money, E-Money, Wari, Carte bancaire
+
+**PROGRAMME FIDÉLITÉ:**
+- Bronze (0-999 pts): Standard
+- Argent (1000-4999 pts): -5%
+- Or (5000-14999 pts): -10%
+- Platine (15000+ pts): -15%
+
+**SÉCURITÉ:**
+- Tous chauffeurs vérifiés (casier judiciaire)
+- Assurance jusqu'à 10M FCFA
+- Bouton SOS dans l'app
+- Partage de trajet en temps réel
+
+Réponds de manière naturelle, chaleureuse et professionnelle en français. Si on te pose une question sur un prix ou service, donne les informations exactes ci-dessus.`;
+
         async function sendChatbotMessage() {
             const input = document.getElementById('chatbotInput');
             const message = input.value.trim();
@@ -3358,32 +3397,43 @@
             showTypingIndicator();
 
             try {
-                const response = await fetch(N8N_WEBHOOK_URL, {
-                    method: 'POST',
+                // Utiliser l'API Claude directement
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json",
+                        "x-api-key": "VOTRE_CLE_API_ANTHROPIC" // L'utilisateur devra remplacer
                     },
                     body: JSON.stringify({
-                        message: message,
-                        sessionId: getSessionId(),
-                        timestamp: new Date().toISOString()
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 1024,
+                        system: AL_BOURAKH_KNOWLEDGE,
+                        messages: [
+                            {
+                                role: "user",
+                                content: message
+                            }
+                        ]
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erreur réseau');
+                    throw new Error('Erreur API');
                 }
 
                 const data = await response.json();
                 hideTypingIndicator();
                 
-                const botResponse = data.output || data.response || data.message || "Désolé, je n'ai pas compris votre question.";
+                const botResponse = data.content[0].text || "Désolé, je n'ai pas compris votre question.";
                 addChatMessage(botResponse, 'bot');
                 
             } catch (error) {
                 console.error('Erreur chatbot:', error);
                 hideTypingIndicator();
-                addChatMessage("Désolé, une erreur s'est produite. Veuillez réessayer.", 'bot');
+                
+                // Réponse de secours basique
+                const fallbackResponse = getFallbackResponse(message);
+                addChatMessage(fallbackResponse, 'bot');
             } finally {
                 sendButton.disabled = false;
                 input.disabled = false;
@@ -3391,13 +3441,52 @@
             }
         }
 
-        function getSessionId() {
-            let sessionId = localStorage.getItem('chatSessionId');
-            if (!sessionId) {
-                sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('chatSessionId', sessionId);
+        // Système de réponses de secours
+        function getFallbackResponse(message) {
+            const msg = message.toLowerCase();
+            
+            // Prix et tarifs
+            if (msg.includes('prix') || msg.includes('tarif') || msg.includes('coût') || msg.includes('combien')) {
+                return `📊 **Nos Tarifs Al Bourakh:**\n\n🚗 **Standard**: 1000 FCFA + 200 FCFA/km\n✨ **Confort**: 1500 FCFA + 250 FCFA/km\n🚐 **Van**: 2000 FCFA + 300 FCFA/km\n👑 **Premium**: 2500 FCFA + 400 FCFA/km\n🏍️ **Moto Jakarta**: 500 FCFA + 150 FCFA/km\n\n✈️ **Aéroport AIBD**: 15,000 FCFA depuis Dakar Centre\n\nBesoin d'un devis précis ? Remplissez le formulaire de réservation !`;
             }
-            return sessionId;
+            
+            // Contact
+            if (msg.includes('contact') || msg.includes('appeler') || msg.includes('téléphone') || msg.includes('joindre')) {
+                return `📞 **Contactez-nous 24/7:**\n\n☎️ Téléphone: +221 77 123 45 67\n💬 WhatsApp: +221 77 123 45 67\n📧 Email: support@albourakh.sn\n\nNotre équipe est disponible jour et nuit pour vous servir !`;
+            }
+            
+            // Réservation
+            if (msg.includes('réserv') || msg.includes('commander') || msg.includes('course')) {
+                return `🚕 **Pour réserver votre course:**\n\n1. Remplissez le formulaire ci-dessus avec:\n   - Votre point de départ\n   - Votre destination\n   - Date et heure souhaitées\n\n2. Choisissez votre type de véhicule\n\n3. Sélectionnez votre mode de paiement\n\n4. Cliquez sur "Confirmer la réservation"\n\n✅ Vous recevrez une confirmation par SMS !`;
+            }
+            
+            // Zones
+            if (msg.includes('zone') || msg.includes('quartier') || msg.includes('où') || msg.includes('couverture')) {
+                return `📍 **Nos zones de couverture:**\n\n🏙️ **Dakar**: Plateau, Médina, Almadies, Ngor, Yoff, Ouakam, Pikine, Guédiawaye, Parcelles Assainies\n\n🌆 **Autres régions**: Thiès, Saint-Louis\n\n🚁 Bientôt: Mbour, Saly, Kaolack\n\nVous pouvez réserver dans toutes ces zones !`;
+            }
+            
+            // Paiement
+            if (msg.includes('paiement') || msg.includes('payer') || msg.includes('mobile money') || msg.includes('orange')) {
+                return `💳 **Modes de paiement acceptés:**\n\n💵 Espèces\n📱 Orange Money\n💳 Wave\n💰 Free Money\n🔷 E-Money (Tigo)\n💎 Wari\n💳 Carte Bancaire (Visa, Mastercard)\n\nChoisissez votre mode préféré lors de la réservation !`;
+            }
+            
+            // Aéroport
+            if (msg.includes('aéroport') || msg.includes('aibd') || msg.includes('vol') || msg.includes('avion')) {
+                return `✈️ **Navette Aéroport AIBD:**\n\n📍 **Tarifs fixes** depuis Dakar:\n- Centre-ville: 15,000 FCFA\n- Almadies: 18,000 FCFA\n- Pikine: 12,000 FCFA\n\n✅ Inclus: Suivi de vol, assistance bagages\n⏰ Recommandation: Réservez 3h avant votre vol\n\nRéservez maintenant dans le formulaire ci-dessus !`;
+            }
+            
+            // Sécurité
+            if (msg.includes('sécurité') || msg.includes('sûr') || msg.includes('fiable') || msg.includes('assurance')) {
+                return `🛡️ **Votre sécurité est notre priorité:**\n\n✅ Tous nos chauffeurs sont vérifiés (casier judiciaire)\n🚗 Véhicules assurés jusqu'à 10M FCFA\n📱 Bouton SOS dans l'application\n📍 Partage de trajet en temps réel\n⭐ Système de notation chauffeurs\n\nVoyagez l'esprit tranquille avec Al Bourakh !`;
+            }
+            
+            // Fidélité
+            if (msg.includes('fidélité') || msg.includes('point') || msg.includes('réduction') || msg.includes('promotion')) {
+                return `⭐ **Programme Fidélité Al Bourakh VIP:**\n\n🥉 **Bronze** (0-999 pts): Membre standard\n🥈 **Argent** (1000-4999 pts): -5% sur tous trajets\n🥇 **Or** (5000-14999 pts): -10% + surclassement gratuit\n💎 **Platine** (15000+ pts): -15% + service VIP\n\nGagnez 1 point par 100 FCFA dépensés !\n\n🎁 Code BIENVENUE: -30% sur vos 3 premiers trajets !`;
+            }
+            
+            // Réponse générale
+            return `Bonjour ! Je suis l'assistant Al Bourakh 🚕\n\nJe peux vous aider avec:\n- 💰 Les tarifs et prix\n- 📍 Les zones couvertes\n- 🚗 La réservation de courses\n- 💳 Les modes de paiement\n- ✈️ La navette aéroport\n- ⭐ Le programme fidélité\n\nPosez-moi votre question ou contactez-nous au +221 77 123 45 67 !`;
         }
 
         function showTypingIndicator() {
