@@ -102,7 +102,6 @@
             animation: fadeInUp 1s ease 0.3s both;
         }
 
-        /* Style pour le bouton dupliqué dans le hero */
         .hero-cta-button {
             display: inline-block;
             margin-top: 30px;
@@ -502,6 +501,55 @@
             margin-top: 5px;
         }
 
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 15px;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
         .chatbot-input-container {
             padding: 15px 20px;
             background: white;
@@ -524,6 +572,11 @@
             border-color: #00A854;
         }
 
+        .chatbot-input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
         .chatbot-send {
             width: 45px;
             height: 45px;
@@ -539,9 +592,14 @@
             transition: all 0.3s;
         }
 
-        .chatbot-send:hover {
+        .chatbot-send:hover:not(:disabled) {
             transform: scale(1.1);
             box-shadow: 0 5px 15px rgba(0,168,84,0.3);
+        }
+
+        .chatbot-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .notification {
@@ -599,7 +657,6 @@
             animation: pulse 1.5s ease-in-out infinite;
         }
 
-        /* Map Selection Overlay */
         .map-selection-banner {
             position: fixed;
             top: 20px;
@@ -714,7 +771,6 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* Features Section */
         .features-section, .booking-section, .cta-section {
             max-width: 1400px;
             margin: 60px auto;
@@ -778,7 +834,6 @@
             line-height: 1.6;
         }
 
-        /* Booking Section */
         .booking-container {
             background: white;
             border-radius: 20px;
@@ -873,7 +928,6 @@
             box-shadow: 0 5px 15px rgba(0,168,84,0.3);
         }
 
-        /* NOUVEAU: Conteneur pour Date et Heure sur une même ligne */
         .datetime-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1052,7 +1106,6 @@
             transform: scale(1.05);
         }
 
-        /* CTA Section */
         .cta-section {
             background: linear-gradient(135deg, #00A854, #FECB00);
             padding: 80px 20px;
@@ -1105,7 +1158,6 @@
             color: #00A854;
         }
 
-        /* OPTIMISATIONS MOBILE */
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2em;
@@ -1133,7 +1185,6 @@
                 min-width: auto;
             }
             
-            /* OPTIMISATION CRITIQUE : Boutons GPS sur une seule ligne */
             .map-controls {
                 width: 100%;
                 display: flex;
@@ -1188,7 +1239,6 @@
                 gap: 10px;
             }
 
-            /* Optimisation des boutons pour mobile */
             .btn-map-select {
                 padding: 8px 12px;
                 font-size: 0.75em;
@@ -1265,13 +1315,11 @@
                 font-size: 0.95em;
             }
 
-            /* NOUVEAU: Date et Heure côte à côte sur mobile */
             .datetime-group {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
             }
 
-            /* OPTIMISATION SPÉCIALE: Section "129 Quartiers" - Grille 3x3 sur mobile */
             .features-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
@@ -1283,7 +1331,6 @@
                 border-radius: 10px;
             }
 
-            /* MODIFICATION CRITIQUE: Carte "Recherche Intelligente" - dimensions identiques au bouton de réservation */
             .feature-card:last-child {
                 grid-column: 1 / -1;
                 padding: 14px 20px;
@@ -1332,7 +1379,6 @@
                 text-overflow: ellipsis;
             }
 
-            /* OPTIMISATION SPÉCIALE: Section Véhicules - Options plus compactes */
             .vehicle-options {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
@@ -1361,7 +1407,6 @@
                 font-size: 0.9em;
             }
 
-            /* OPTIMISATION CRITIQUE: Section Paiement - Grille 2x3 sur mobile */
             .payment-methods {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
@@ -1442,7 +1487,6 @@
                 min-height: 350px;
             }
             
-            /* OPTIMISATION ULTRA-COMPACTE : Boutons GPS sur une seule ligne pour très petits écrans */
             .map-controls {
                 width: 100%;
                 gap: 3px;
@@ -1491,13 +1535,11 @@
                 font-size: 1.5em;
             }
 
-            /* Date et Heure restent côte à côte même sur très petits écrans */
             .datetime-group {
                 grid-template-columns: 1fr 1fr;
                 gap: 8px;
             }
 
-            /* OPTIMISATION TRÈS PETITS ÉCRANS: Section "129 Quartiers" - Grille 3x3 encore plus compacte */
             .features-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 6px;
@@ -1509,7 +1551,6 @@
                 border-radius: 8px;
             }
 
-            /* MODIFICATION CRITIQUE: Carte "Recherche Intelligente" maintient ses dimensions */
             .feature-card:last-child {
                 padding: 12px 16px;
                 min-height: 45px;
@@ -1540,7 +1581,6 @@
                 -webkit-line-clamp: 2;
             }
 
-            /* OPTIMISATION TRÈS PETITS ÉCRANS: Section Véhicules */
             .vehicle-options {
                 grid-template-columns: 1fr 1fr;
                 gap: 8px;
@@ -1569,7 +1609,6 @@
                 font-size: 0.85em;
             }
 
-            /* OPTIMISATION TRÈS PETITS ÉCRANS: Section Paiement - Grille 2x3 compacte */
             .payment-methods {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
@@ -1615,7 +1654,6 @@
         <div class="loading-text">🚕 Chargement d'Al Bourakh Maps GPS...</div>
     </div>
 
-    <!-- Bannière de sélection sur la carte -->
     <div id="mapSelectionBanner" class="map-selection-banner">
         <span id="selectionText">🗺️ Cliquez sur la carte pour choisir le point de départ</span>
         <button onclick="cancelMapSelection()">Annuler</button>
@@ -1923,6 +1961,14 @@
                     <div class="message-time">Maintenant</div>
                 </div>
             </div>
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message-avatar avatar-bot">🚕</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
         </div>
 
         <div class="chatbot-input-container">
@@ -1933,18 +1979,17 @@
                 placeholder="Posez votre question..."
                 onkeypress="handleChatbotKeypress(event)"
             >
-            <button class="chatbot-send" onclick="sendChatbotMessage()">
+            <button class="chatbot-send" id="chatbotSend" onclick="sendChatbotMessage()">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ✅ CONFIGURATION FIREBASE UNIQUE (LA BONNE)
+        // Configuration Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -1957,9 +2002,11 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         console.log('✅ Firebase connecté à Al Bourakh!');
-    </script>
 
-    <script>
+        // Configuration n8n webhook
+        const N8N_WEBHOOK_URL = 'https://mmdrame2017.app.n8n.cloud/webhook/c388e793-c941-4d4c-8567-4b6ab66602df';
+
+        // Variables globales
         let map, markers = [], trafficLayer, userMarker, searchMarker, autocomplete;
         let directionsService, directionsRenderer;
         let currentRoute = null;
@@ -1969,7 +2016,6 @@
         let selectedPaymentMethod = null;
         let autocompleteFrom, autocompleteTo;
         let geocoder;
-        
         let mapSelectionMode = null;
         let departureMarker = null;
         let destinationMarker = null;
@@ -1977,14 +2023,6 @@
         let routeInfoWindow = null;
         let autoCalculateTimeout = null;
         let zoneInfoWindow = null;
-
-        function closeZoneInfo() {
-            if (zoneInfoWindow) {
-                zoneInfoWindow.close();
-                zoneInfoWindow = null;
-                showNotification('✅ Fenêtre fermée', 'info');
-            }
-        }
 
         const zones = {
             centre: [
@@ -2120,50 +2158,60 @@
             ]
         };
 
+        // Initialisation de la carte
         function initMap() {
-            const dakarCenter = {lat: 14.7167, lng: -17.4677};
-            const isMobile = window.innerWidth <= 768;
-            
-            const mapOptions = {
-                center: dakarCenter,
-                zoom: isMobile ? 11 : 11,
-                mapTypeControl: !isMobile,
-                fullscreenControl: true,
-                zoomControl: true,
-                gestureHandling: isMobile ? 'greedy' : 'auto'
-            };
-            
-            map = new google.maps.Map(document.getElementById('map'), mapOptions);
-            geocoder = new google.maps.Geocoder();
-            directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer({
-                map: map,
-                suppressMarkers: false,
-                polylineOptions: {
-                    strokeColor: '#00A854',
-                    strokeWeight: isMobile ? 4 : 5,
-                    strokeOpacity: 0.8
-                }
-            });
-
-            trafficLayer = new google.maps.TrafficLayer();
-            initSearchAutocomplete();
-
-            Object.keys(zones).forEach(category => {
-                zones[category].forEach(location => {
-                    addMarker(location, category);
+            try {
+                const dakarCenter = {lat: 14.7167, lng: -17.4677};
+                const isMobile = window.innerWidth <= 768;
+                
+                const mapOptions = {
+                    center: dakarCenter,
+                    zoom: isMobile ? 11 : 12,
+                    mapTypeControl: !isMobile,
+                    fullscreenControl: true,
+                    zoomControl: true,
+                    streetViewControl: false,
+                    gestureHandling: isMobile ? 'greedy' : 'auto'
+                };
+                
+                map = new google.maps.Map(document.getElementById('map'), mapOptions);
+                geocoder = new google.maps.Geocoder();
+                directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer({
+                    map: map,
+                    suppressMarkers: false,
+                    polylineOptions: {
+                        strokeColor: '#00A854',
+                        strokeWeight: isMobile ? 4 : 5,
+                        strokeOpacity: 0.8
+                    }
                 });
-            });
 
-            setTimeout(() => {
+                trafficLayer = new google.maps.TrafficLayer();
+                
+                initSearchAutocomplete();
+
+                Object.keys(zones).forEach(category => {
+                    zones[category].forEach(location => {
+                        addMarker(location, category);
+                    });
+                });
+
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    showNotification('✅ Carte GPS chargée avec succès!', 'success');
+                }, 1500);
+                
+                initBookingForm();
+                initBookingAutocomplete();
+                autoFillUserLocation();
+                
+                console.log('✅ Carte initialisée avec succès');
+            } catch (error) {
+                console.error('❌ Erreur initialisation carte:', error);
                 document.getElementById('loadingOverlay').style.display = 'none';
-                showNotification('✅ Carte GPS chargée avec succès!', 'success');
-            }, 2000);
-            
-            initBookingForm();
-            initBookingAutocomplete();
-            
-            autoFillUserLocation();
+                showNotification('❌ Erreur de chargement de la carte', 'error');
+            }
         }
 
         function autoFillUserLocation() {
@@ -2545,6 +2593,14 @@
             if (mapClickListener) {
                 google.maps.event.removeListener(mapClickListener);
                 mapClickListener = null;
+            }
+        }
+
+        function closeZoneInfo() {
+            if (zoneInfoWindow) {
+                zoneInfoWindow.close();
+                zoneInfoWindow = null;
+                showNotification('✅ Fenêtre fermée', 'info');
             }
         }
 
@@ -3137,6 +3193,7 @@
             showNotification('👀 Vérifiez votre réservation', 'info');
         }
 
+        // ✅ FONCTION CORRIGÉE avec les bons noms de champs
         async function confirmBooking() {
             const phone = document.getElementById('bookingPhone').value.trim();
 
@@ -3151,33 +3208,55 @@
                 return;
             }
 
+            // ✅ STRUCTURE DE DONNÉES CORRIGÉE ET UNIFIÉE
             const bookingData = {
-                nom: document.getElementById('bookingName').value.trim() || null,
-                telephone: phone,
-                email: document.getElementById('bookingEmail').value.trim() || null,
+                // Informations client (noms de champs unifiés avec le Dashboard)
+                clientNom: document.getElementById('bookingName').value.trim() || null,
+                clientTelephone: phone,
+                clientEmail: document.getElementById('bookingEmail').value.trim() || null,
+                
+                // Informations de trajet
                 depart: document.getElementById('bookingFrom').value.trim(),
                 destination: document.getElementById('bookingTo').value.trim(),
-                date: document.getElementById('bookingDate').value,
-                heure: document.getElementById('bookingTime').value,
-                passagers: parseInt(document.getElementById('bookingPassengers').value),
-                typeVehicule: selectedVehicleType,
+                
+                // Date et heure (noms unifiés)
+                dateReservation: document.getElementById('bookingDate').value,
+                heureReservation: document.getElementById('bookingTime').value,
+                
+                // Détails de la réservation
+                nombrePassagers: parseInt(document.getElementById('bookingPassengers').value),
+                vehiculeType: selectedVehicleType,
                 prixBase: selectedVehiclePrice,
                 modePaiement: selectedPaymentMethod,
                 prixEstime: parseInt(document.getElementById('summaryTotal').textContent.replace(/\D/g, '')),
-                instructions: document.getElementById('bookingNotes').value.trim() || null,
+                instructionsSpeciales: document.getElementById('bookingNotes').value.trim() || null,
+                
+                // Informations système
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 statut: 'en_attente',
-                source: 'web'
+                source: 'web',
+                
+                // Champs pour l'assignation (initialement vides)
+                chauffeurAssigne: null,
+                nomChauffeur: null,
+                telephoneChauffeur: null,
+                modeAssignation: null,  // Sera rempli par le système (automatique/manuel)
+                dateAssignation: null
             };
 
             try {
                 showNotification('💾 Enregistrement en cours...', 'info');
+                
+                // Enregistrement dans Firebase
                 const docRef = await db.collection('reservations').add(bookingData);
+                
                 console.log('✅ Réservation enregistrée avec ID:', docRef.id);
+                console.log('📋 Données enregistrées:', bookingData);
+                
                 showNotification('🎉 Réservation confirmée! SMS envoyé.', 'success');
 
                 setTimeout(() => {
-                    const bookingDateTime = new Date(`${bookingData.date}T${bookingData.heure}`);
+                    const bookingDateTime = new Date(`${bookingData.dateReservation}T${bookingData.heureReservation}`);
                     const now = new Date();
                     const timeDiff = bookingDateTime - now;
                     const isImmediate = timeDiff < 3600000;
@@ -3193,6 +3272,7 @@
                     const confirmationMsg = `✅ RÉSERVATION CONFIRMÉE\n\n📱 Numéro: ${phone}\n🚗 Véhicule: ${document.getElementById('summaryVehicle').textContent}\n📍 Trajet: ${document.getElementById('summaryRoute').textContent}\n📅 ${document.getElementById('summaryDateTime').textContent}\n💰 Total: ${document.getElementById('summaryTotal').textContent}\n\n${contactMessage}\nCode de réservation: AB${docRef.id.substring(0, 8).toUpperCase()}`;
                     alert(confirmationMsg);
 
+                    // Réinitialisation du formulaire
                     document.getElementById('bookingForm').reset();
                     document.querySelectorAll('.vehicle-option, .payment-method').forEach(opt => {
                         opt.classList.remove('selected');
@@ -3201,6 +3281,7 @@
                     selectedVehicleType = null;
                     selectedPaymentMethod = null;
                     
+                    // Nettoyage des marqueurs
                     if (departureMarker) {
                         departureMarker.setMap(null);
                         departureMarker = null;
@@ -3262,18 +3343,71 @@
             }
         }
 
-        function sendChatbotMessage() {
+        async function sendChatbotMessage() {
             const input = document.getElementById('chatbotInput');
             const message = input.value.trim();
             if (!message) return;
 
+            const sendButton = document.getElementById('chatbotSend');
+            sendButton.disabled = true;
+            input.disabled = true;
+
             addChatMessage(message, 'user');
             input.value = '';
 
-            setTimeout(() => {
-                const response = getChatbotResponse(message);
-                addChatMessage(response, 'bot');
-            }, 1000);
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        sessionId: getSessionId(),
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur réseau');
+                }
+
+                const data = await response.json();
+                hideTypingIndicator();
+                
+                const botResponse = data.output || data.response || data.message || "Désolé, je n'ai pas compris votre question.";
+                addChatMessage(botResponse, 'bot');
+                
+            } catch (error) {
+                console.error('Erreur chatbot:', error);
+                hideTypingIndicator();
+                addChatMessage("Désolé, une erreur s'est produite. Veuillez réessayer.", 'bot');
+            } finally {
+                sendButton.disabled = false;
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        function getSessionId() {
+            let sessionId = localStorage.getItem('chatSessionId');
+            if (!sessionId) {
+                sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('chatSessionId', sessionId);
+            }
+            return sessionId;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('active');
+            const messagesContainer = document.getElementById('chatbotMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('active');
         }
 
         function addChatMessage(text, sender) {
@@ -3292,35 +3426,9 @@
                 </div>
             `;
 
-            messagesContainer.appendChild(messageDiv);
+            messagesContainer.insertBefore(messageDiv, document.getElementById('typingIndicator'));
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             chatHistory.push({ sender, text, time });
-        }
-
-        function getChatbotResponse(userMessage) {
-            const messageLower = userMessage.toLowerCase();
-
-            if (messageLower.match(/^(bonjour|salut|hello|hi)/)) {
-                return `Bonjour! 👋 Ravi de vous aider!\n\nJe peux vous renseigner sur:\n• 🚗 Réservation de courses\n• 💰 Tarifs et paiements\n• 📍 Zones desservies (118 quartiers)\n• 🗺️ Sélection sur la carte\n\nQue puis-je faire pour vous?`;
-            }
-
-            if (messageLower.includes('zone') || messageLower.includes('quartier') || messageLower.includes('où') || messageLower.includes('couverture')) {
-                return `📍 **Nos 118 Quartiers en 9 Zones:**\n\n🏙️ **Dakar Centre** (15 quartiers)\nPlateau, Médina, Point E, Sacré-Cœur...\n\n🌊 **Corniche & Ouest** (15 quartiers)\nAlmadies, Ngor, Ouakam, Yoff...\n\n🏘️ **Pikine** (13 quartiers)\nThiaroye, Yeumbeul, Keur Massar...\n\n🏘️ **Guédiawaye** (11 quartiers)\nGolf Nord, Sam Notaire, Ndiarème...\n\n🏘️ **Keur Massar** (11 quartiers)\nBoune, Jaxaay, Mbeubeuss...\n\n🌅 **Dakar Sud** (10 quartiers)\nRufisque, Bargny, Diamniadio...\n\n✈️ **Grand Yoff** (10 quartiers)\nAéroport LSS, Bopp, Soprim...\n\n🏭 **Hann Bel-Air** (10 quartiers)\nZone Industrielle, Port de Pêche...\n\n🏡 **Parcelles Assainies** (18 unités)\nUnités 1 à 18\n\nService 24/7 dans toutes les zones!`;
-            }
-
-            if (messageLower.includes('tarif') || messageLower.includes('prix')) {
-                return `💰 **Grille Tarifaire Al Bourakh:**\n\n🚗 Standard\n• Prise en charge: 1,500 FCFA\n• Par km: 200 FCFA\n\n✨ Confort\n• Prise en charge: 2,000 FCFA\n• Par km: 250 FCFA\n\n👑 Premium\n• Prise en charge: 3,500 FCFA\n• Par km: 400 FCFA\n\n🚐 Van (5-7 places)\n• Prise en charge: 2,500 FCFA\n• Par km: 300 FCFA`;
-            }
-
-            if (messageLower.includes('réserv') || messageLower.includes('course') || messageLower.includes('carte') || messageLower.includes('itinéraire')) {
-                return `📱 **Comment Réserver:**\n\n1. Remplissez le formulaire sur le site\n2. Utilisez les boutons "Carte" pour sélectionner vos points de départ et destination directement sur la carte\n3. 🧭 **L'itinéraire se calcule automatiquement** avec distance, durée et prix estimé\n4. ⏰ **Date et heure sont auto-remplies** dès que vous choisissez votre destination\n5. Choisissez votre véhicule\n6. Sélectionnez votre mode de paiement\n7. Confirmez!\n\n✨ **Nouveautés:** Dès que vous définissez vos deux points, l'itinéraire est tracé automatiquement sur la carte, et la date/heure actuelles sont renseignées!\n\nUn chauffeur vous contactera selon votre horaire de réservation.\n\n🆕 **Géolocalisation automatique:** Votre position est détectée automatiquement comme point de départ!\n\n📝 **Le nom est maintenant optionnel** - seul le numéro de téléphone est requis!\n\nVous pouvez aussi:\n• Utiliser la recherche intelligente\n• Activer la navigation GPS\n• Explorer les 118 quartiers par zone`;
-            }
-
-            if (messageLower.includes('navigation') || messageLower.includes('gps')) {
-                return `🧭 **Navigation GPS:**\n\n**"Navigation GPS"** vous permet de:\n• Voir votre position\n• Choisir une destination proche\n• Calculer l'itinéraire complet\n• Obtenir les instructions étape par étape\n\n**"Ma Position"** vous permet de:\n• Localiser simplement votre position\n• Voir les véhicules à proximité\n\nUtilisez aussi la recherche intelligente pour trouver n'importe quelle adresse!`;
-            }
-
-            return `Je suis désolé, je n'ai pas bien compris. 🤔\n\nPosez-moi une question sur:\n• Les tarifs\n• Comment réserver (avec sélection sur carte)\n• Les 118 quartiers\n• La navigation GPS`;
         }
 
         function showNotification(message, type = 'info') {
@@ -3334,21 +3442,36 @@
             }, 4000);
         }
 
+        // Exposer initMap globalement pour Google Maps API
         window.initMap = initMap;
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0S4bvgw9zQgqRiyW0vwxDi1lp9m35MI8&callback=initMap&libraries=places,geometry"></script>
-// ✅ CONFIGURATION FIREBASE UNIQUE (LA BONNE)
-const firebaseConfig = {
-    apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
-    authDomain: "albourakh-sn-ok.firebaseapp.com",
-    projectId: "albourakh-sn-ok",
-    storageBucket: "albourakh-sn-ok.firebasestorage.app",
-    messagingSenderId: "297875396274",
-    appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
-};
+    <script>
+        // Gestion d'erreur pour Google Maps
+        window.gm_authFailure = function() {
+            console.error('❌ Erreur d\'authentification Google Maps API');
+            document.getElementById('loadingOverlay').style.display = 'none';
+            showNotification('❌ Erreur d\'authentification Google Maps - Vérifiez vos restrictions', 'error');
+        };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-console.log('✅ Firebase connecté à Al Bourakh!');</body>
+        window.addEventListener('error', function(e) {
+            if (e.message && e.message.includes('Google')) {
+                console.error('Erreur Google Maps:', e);
+            }
+        });
+    </script>
+    
+    <script async defer 
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places,geometry"
+            onerror="handleMapLoadError()">
+    </script>
+    
+    <script>
+        function handleMapLoadError() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+            showNotification('❌ Impossible de charger Google Maps. Vérifiez votre connexion internet.', 'error');
+            console.error('Échec du chargement du script Google Maps');
+        }
+    </script>
+</body>
 </html>
