@@ -1,4 +1,3 @@
-Artifact 1 : Cloud Functions (index.js) - Version Parfaite
 <artifact identifier="index-js-perfect-sync" type="application/vnd.ant.code" language="javascript" title="index.js - Cloud Functions Al Bourakh (Synchronisation Parfaite)">
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
