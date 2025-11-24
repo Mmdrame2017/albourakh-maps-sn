@@ -103,6 +103,11 @@
         .driver-detail-value { font-size: 1.3em; font-weight: bold; }
         .driver-detail-label { font-size: 0.75em; opacity: 0.8; }
 
+        /* Live indicator */
+        .live-indicator { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.75em; margin-top: 10px; }
+        .live-dot { width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; animation: livePulse 1s infinite; }
+        @keyframes livePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+
         /* Status Timeline */
         .status-timeline { background: #f5f5f5; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .status-step { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #e0e0e0; }
@@ -396,6 +401,10 @@
                             <div class="driver-detail-label">Arrivée prévue</div>
                         </div>
                     </div>
+                    <div class="live-indicator" id="liveIndicator">
+                        <div class="live-dot"></div>
+                        <span>Suivi en direct</span>
+                    </div>
                 </div>
 
                 <!-- Status Timeline -->
@@ -544,7 +553,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v2.0 - Suivi Temps Réel');
+        console.log('🚕 Al Bourakh Client v2.1 - Suivi Temps Réel Amélioré');
 
         // ========== GLOBAL VARIABLES ==========
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
@@ -556,7 +565,9 @@
         let departureCoords = null, destinationCoords = null;
         let currentBooking = null;
         let reservationListener = null;
-        let driverListener = null;
+        let lastDriverPosition = null;
+        let lastUpdateTime = null;
+        let trackingUpdateCount = 0;
 
         // ========== GOOGLE MAPS INIT ==========
         function initMap() {
@@ -839,7 +850,7 @@
             }
 
             // Calculate price
-            let distance = 10; // Default
+            let distance = 10;
             if (departureCoords && destinationCoords) {
                 distance = calculateDistance(departureCoords, destinationCoords);
             }
@@ -894,7 +905,10 @@
                 statut: 'en_attente',
                 chauffeurAssigne: null,
                 nomChauffeur: null,
-                telephoneChauffeur: null
+                telephoneChauffeur: null,
+                // IMPORTANT: Champ pour la position du chauffeur (mis à jour par le chauffeur)
+                chauffeurPosition: null,
+                chauffeurPositionTimestamp: null
             };
 
             try {
@@ -911,7 +925,7 @@
                 // Open tracking modal
                 openTracking();
                 
-                // Start listening for updates
+                // Start listening for updates (position incluse dans la réservation)
                 startReservationListener(docRef.id);
 
             } catch (error) {
@@ -934,6 +948,11 @@
             // Set step 1 time
             document.getElementById('step1Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
+            // Reset tracking state
+            lastDriverPosition = null;
+            lastUpdateTime = null;
+            trackingUpdateCount = 0;
+
             // Initialize tracking map
             setTimeout(() => initTrackingMap(), 300);
         }
@@ -947,9 +966,19 @@
                 reservationListener();
                 reservationListener = null;
             }
-            if (driverListener) {
-                driverListener();
-                driverListener = null;
+            
+            // Clean up markers
+            if (driverMarker) {
+                driverMarker.setMap(null);
+                driverMarker = null;
+            }
+            if (clientPickupMarker) {
+                clientPickupMarker.setMap(null);
+                clientPickupMarker = null;
+            }
+            if (trackingDirectionsRenderer) {
+                trackingDirectionsRenderer.setMap(null);
+                trackingDirectionsRenderer = null;
             }
         }
 
@@ -1001,33 +1030,71 @@
                     title: 'Destination'
                 });
             }
+
+            console.log('✅ Tracking map initialized');
         }
 
+        // ========== ÉCOUTE EN TEMPS RÉEL DE LA RÉSERVATION ==========
         function startReservationListener(reservationId) {
-            console.log('👂 Écoute réservation:', reservationId);
+            console.log('👂 Démarrage écoute temps réel:', reservationId);
 
             reservationListener = db.collection('reservations').doc(reservationId)
                 .onSnapshot((doc) => {
-                    if (!doc.exists) return;
+                    if (!doc.exists) {
+                        console.log('⚠️ Document réservation non trouvé');
+                        return;
+                    }
 
                     const data = doc.data();
-                    console.log('📦 Mise à jour réservation:', data.statut);
+                    console.log('📦 Mise à jour réservation:', {
+                        statut: data.statut,
+                        chauffeur: data.nomChauffeur,
+                        position: data.chauffeurPosition ? 'OUI' : 'NON'
+                    });
 
                     currentBooking = { id: doc.id, ...data };
 
                     // Update status timeline
                     updateStatusTimeline(data.statut);
 
-                    // If driver assigned, start driver tracking
-                    if (data.chauffeurAssigne && !driverListener) {
+                    // If driver assigned
+                    if (data.chauffeurAssigne) {
                         updateStep2(data);
-                        startDriverTracking(data.chauffeurAssigne);
-                    }
-
-                    // Update driver card
-                    if (data.nomChauffeur) {
                         showDriverCard(data);
                     }
+
+                    // ========== SUIVI POSITION CHAUFFEUR EN TEMPS RÉEL ==========
+                    // La position est maintenant DANS le document de réservation
+                    if (data.chauffeurPosition) {
+                        const driverPos = {
+                            lat: data.chauffeurPosition.latitude || data.chauffeurPosition.lat,
+                            lng: data.chauffeurPosition.longitude || data.chauffeurPosition.lng
+                        };
+
+                        // Vérifier si la position a changé
+                        const positionChanged = !lastDriverPosition || 
+                            Math.abs(driverPos.lat - lastDriverPosition.lat) > 0.00001 ||
+                            Math.abs(driverPos.lng - lastDriverPosition.lng) > 0.00001;
+
+                        if (positionChanged) {
+                            trackingUpdateCount++;
+                            lastDriverPosition = driverPos;
+                            lastUpdateTime = new Date();
+
+                            console.log(`🚗 Position chauffeur #${trackingUpdateCount}:`, driverPos);
+
+                            // Mettre à jour le marqueur et l'itinéraire
+                            updateDriverMarker(driverPos);
+                            calculateApproachRoute(driverPos);
+
+                            // Mettre à jour l'indicateur live
+                            updateLiveIndicator();
+                        }
+                    }
+
+                }, (error) => {
+                    console.error('❌ Erreur listener réservation:', error);
+                    showNotification('⚠️ Erreur de connexion temps réel', 'error');
                 });
         }
 
@@ -1039,41 +1106,24 @@
             step2Icon.classList.add('active');
             step2Text.textContent = `${data.nomChauffeur || 'Chauffeur'} assigné`;
             step2Time.textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+            // Activer step 3
+            const step3Icon = document.getElementById('step3Icon');
+            step3Icon.classList.add('current');
         }
 
-        function startDriverTracking(driverId) {
-            console.log('🚗 Suivi chauffeur:', driverId);
-
-            driverListener = db.collection('drivers').doc(driverId)
-                .onSnapshot((doc) => {
-                    if (!doc.exists) return;
-
-                    const driverData = doc.data();
-                    
-                    // Update driver position on map
-                    if (driverData.position && driverData.position.latitude) {
-                        const driverPos = {
-                            lat: driverData.position.latitude,
-                            lng: driverData.position.longitude
-                        };
-
-                        updateDriverMarker(driverPos);
-                        calculateApproachRoute(driverPos);
-                    }
-
-                    // Check statut
-                    if (driverData.statut === 'en_course' && currentBooking) {
-                        updateStep3();
-                    }
-                });
-        }
-
+        // ========== MISE À JOUR DU MARQUEUR CHAUFFEUR ==========
         function updateDriverMarker(position) {
-            if (!trackingMap) return;
+            if (!trackingMap) {
+                console.log('⚠️ Tracking map non initialisée');
+                return;
+            }
 
             if (driverMarker) {
-                driverMarker.setPosition(position);
+                // Animation fluide du marqueur
+                animateMarker(driverMarker, driverMarker.getPosition(), position);
             } else {
+                // Créer le marqueur du chauffeur
                 driverMarker = new google.maps.Marker({
                     position: position,
                     map: trackingMap,
@@ -1089,19 +1139,61 @@
                     title: 'Votre chauffeur',
                     zIndex: 100
                 });
+                console.log('✅ Marqueur chauffeur créé');
             }
 
-            // Fit bounds to show both markers
+            // Ajuster la vue pour montrer les deux marqueurs
             const bounds = new google.maps.LatLngBounds();
             bounds.extend(position);
             if (currentBooking.departCoords) {
                 bounds.extend(currentBooking.departCoords);
             }
-            trackingMap.fitBounds(bounds, { padding: 50 });
+            trackingMap.fitBounds(bounds, { padding: 60 });
         }
 
+        // Animation fluide du marqueur
+        function animateMarker(marker, startPos, endPos) {
+            const frames = 30;
+            const duration = 1000; // 1 seconde
+            let frame = 0;
+
+            const startLat = startPos.lat();
+            const startLng = startPos.lng();
+            const deltaLat = endPos.lat - startLat;
+            const deltaLng = endPos.lng - startLng;
+
+            // Calculer l'angle de rotation
+            const angle = Math.atan2(deltaLng, deltaLat) * 180 / Math.PI;
+            
+            const animate = () => {
+                frame++;
+                const progress = frame / frames;
+                const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+
+                const newLat = startLat + (deltaLat * easeProgress);
+                const newLng = startLng + (deltaLng * easeProgress);
+
+                marker.setPosition({ lat: newLat, lng: newLng });
+
+                // Mettre à jour la rotation de l'icône
+                const icon = marker.getIcon();
+                icon.rotation = angle;
+                marker.setIcon(icon);
+
+                if (frame < frames) {
+                    requestAnimationFrame(animate);
+                }
+            };
+
+            animate();
+        }
+
+        // ========== CALCUL DE L'ITINÉRAIRE D'APPROCHE ==========
         function calculateApproachRoute(driverPos) {
-            if (!currentBooking.departCoords || !directionsService) return;
+            if (!currentBooking.departCoords || !directionsService) {
+                console.log('⚠️ Impossible de calculer l\'itinéraire');
+                return;
+            }
 
             directionsService.route({
                 origin: driverPos,
@@ -1109,7 +1201,9 @@
                 travelMode: google.maps.TravelMode.DRIVING
             }, (result, status) => {
                 if (status === 'OK') {
-                    trackingDirectionsRenderer.setDirections(result);
+                    if (trackingDirectionsRenderer) {
+                        trackingDirectionsRenderer.setDirections(result);
+                    }
 
                     const leg = result.routes[0].legs[0];
                     
@@ -1125,34 +1219,53 @@
 
                     // Show approaching box
                     document.getElementById('driverApproachingBox').style.display = 'block';
+
+                    console.log(`📍 ETA: ${durationMinutes} min, Distance: ${leg.distance.text}`);
+                } else {
+                    console.error('❌ Erreur calcul itinéraire:', status);
                 }
             });
         }
 
-        function updateStep3() {
-            const step3Icon = document.getElementById('step3Icon');
-            step3Icon.classList.remove('active');
-            step3Icon.classList.add('current');
-            document.getElementById('step3Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        // Indicateur de suivi en direct
+        function updateLiveIndicator() {
+            const indicator = document.getElementById('liveIndicator');
+            if (indicator) {
+                indicator.querySelector('span').textContent = `Suivi en direct • Màj ${trackingUpdateCount}`;
+            }
         }
 
         function updateStatusTimeline(statut) {
+            const step3Icon = document.getElementById('step3Icon');
             const step4Icon = document.getElementById('step4Icon');
             const step5Icon = document.getElementById('step5Icon');
 
             switch(statut) {
+                case 'acceptee':
+                case 'en_route':
+                    step3Icon.classList.remove('active');
+                    step3Icon.classList.add('current');
+                    document.getElementById('step3Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    break;
+
                 case 'arrive':
+                    step3Icon.classList.remove('current');
+                    step3Icon.classList.add('active');
                     step4Icon.classList.add('active');
-                    document.getElementById('step3Icon').classList.remove('current');
-                    document.getElementById('step3Icon').classList.add('active');
                     document.getElementById('step4Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                     
                     // Update approaching box
                     document.getElementById('driverApproachingBox').innerHTML = `
                         <div class="driver-approaching-title">✅ Chauffeur arrivé!</div>
                         <div class="driver-eta" style="font-size: 1.5em;">Rejoignez votre chauffeur</div>
+                        <div class="live-indicator" id="liveIndicator">
+                            <div class="live-dot" style="background: #4CAF50;"></div>
+                            <span>Sur place</span>
+                        </div>
                     `;
                     document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
+                    
+                    showNotification('🚗 Votre chauffeur est arrivé!', 'success');
                     break;
 
                 case 'en_cours':
@@ -1163,6 +1276,10 @@
                     document.getElementById('driverApproachingBox').innerHTML = `
                         <div class="driver-approaching-title">🚗 Course en cours</div>
                         <div class="driver-eta" style="font-size: 1.2em;">Direction: ${currentBooking.destination}</div>
+                        <div class="live-indicator" id="liveIndicator">
+                            <div class="live-dot"></div>
+                            <span>En route</span>
+                        </div>
                     `;
                     document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #00A854, #FECB00)';
                     break;
@@ -1177,10 +1294,11 @@
                     `;
                     document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #9C27B0, #E91E63)';
                     
+                    showNotification('🎉 Course terminée! Merci!', 'success');
+                    
                     setTimeout(() => {
                         closeTracking();
-                        showNotification('🎉 Course terminée! Merci!', 'success');
-                    }, 3000);
+                    }, 5000);
                     break;
 
                 case 'annulee':
@@ -1195,7 +1313,14 @@
             driverCard.style.display = 'block';
 
             document.getElementById('driverName').textContent = data.nomChauffeur || 'Chauffeur';
-            document.getElementById('driverRating').textContent = '4.9';
+            document.getElementById('driverRating').textContent = data.chauffeurRating || '4.9';
+            
+            if (data.vehiculeModele) {
+                document.getElementById('vehicleModel').textContent = data.vehiculeModele;
+            }
+            if (data.vehiculePlaque) {
+                document.getElementById('vehiclePlate').textContent = data.vehiculePlaque;
+            }
             
             // Store phone for call
             driverCard.dataset.phone = data.telephoneChauffeur || '';
@@ -1305,7 +1430,7 @@
                 return '📞 Appelez-nous au +221 77 123 45 67 (24h/24)';
             }
             if (msg.includes('suivi') || msg.includes('chauffeur')) {
-                return 'Après confirmation, vous pouvez suivre votre chauffeur en temps réel sur la carte!';
+                return 'Après confirmation, vous pouvez suivre votre chauffeur en temps réel sur la carte! La position est mise à jour automatiquement.';
             }
             return 'Je suis l\'assistant Al Bourakh. Posez-moi vos questions sur les tarifs, réservations ou le suivi!';
         }
