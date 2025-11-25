@@ -564,9 +564,16 @@ function toRad(valeur) {
 // ==========================================
 // 129 QUARTIERS DE DAKAR
 // ==========================================
+// ==========================================
+// COORDONNÉES COMPLÈTES - 174 QUARTIERS DE DAKAR
+// (129 quartiers de base + 45 quartiers de Keur Massar)
+// ==========================================
+
 function getDefaultCoordsForAddress(address) {
   const coords = {
+    // ====================================
     // ZONE 1: DAKAR PLATEAU (15 quartiers)
+    // ====================================
     'plateau': { lat: 14.6928, lng: -17.4467 },
     'place de l\'indépendance': { lat: 14.6928, lng: -17.4467 },
     'rebeuss': { lat: 14.6850, lng: -17.4450 },
@@ -583,7 +590,9 @@ function getDefaultCoordsForAddress(address) {
     'gueule tapée': { lat: 14.6800, lng: -17.4350 },
     'gueule tapee': { lat: 14.6800, lng: -17.4350 },
     
+    // ====================================
     // ZONE 2: MEDINA / FASS (12 quartiers)
+    // ====================================
     'fass': { lat: 14.6820, lng: -17.4500 },
     'fass delorme': { lat: 14.6850, lng: -17.4520 },
     'colobane': { lat: 14.6870, lng: -17.4550 },
@@ -597,7 +606,9 @@ function getDefaultCoordsForAddress(address) {
     'nim': { lat: 14.6795, lng: -17.4365 },
     'dalifort': { lat: 14.7200, lng: -17.4100 },
     
+    // ====================================
     // ZONE 3: FANN / POINT E / MERMOZ (18 quartiers)
+    // ====================================
     'fann': { lat: 14.6872, lng: -17.4535 },
     'fann résidence': { lat: 14.6890, lng: -17.4550 },
     'fann residence': { lat: 14.6890, lng: -17.4550 },
@@ -619,7 +630,9 @@ function getDefaultCoordsForAddress(address) {
     'cité keur gorgui': { lat: 14.7020, lng: -17.4620 },
     'cite keur gorgui': { lat: 14.7020, lng: -17.4620 },
     
+    // ====================================
     // ZONE 4: SICAP / HLM / GRAND YOFF (20 quartiers)
+    // ====================================
     'sicap': { lat: 14.7289, lng: -17.4594 },
     'hlm': { lat: 14.7306, lng: -17.4542 },
     'hlm grand yoff': { lat: 14.7350, lng: -17.4600 },
@@ -643,7 +656,9 @@ function getDefaultCoordsForAddress(address) {
     'camp penal': { lat: 14.7360, lng: -17.4580 },
     'castors': { lat: 14.7420, lng: -17.4720 },
     
+    // ====================================
     // ZONE 5: PARCELLES ASSAINIES (15 quartiers)
+    // ====================================
     'parcelles assainies': { lat: 14.7369, lng: -17.4731 },
     'parcelles': { lat: 14.7369, lng: -17.4731 },
     'unité 1': { lat: 14.7300, lng: -17.4650 },
@@ -671,7 +686,9 @@ function getDefaultCoordsForAddress(address) {
     'apecsy': { lat: 14.7350, lng: -17.4760 },
     'apix': { lat: 14.7370, lng: -17.4780 },
     
+    // ====================================
     // ZONE 6: OUEST (ALMADIES/NGOR/YOFF/OUAKAM) (18 quartiers)
+    // ====================================
     'almadies': { lat: 14.7247, lng: -17.5050 },
     'les almadies': { lat: 14.7247, lng: -17.5050 },
     'pointe des almadies': { lat: 14.7200, lng: -17.5300 },
@@ -693,7 +710,9 @@ function getDefaultCoordsForAddress(address) {
     'cité sonatel': { lat: 14.7250, lng: -17.4850 },
     'cite sonatel': { lat: 14.7250, lng: -17.4850 },
     
+    // ====================================
     // ZONE 7: LIBERTÉ / GRAND DAKAR / HANN (16 quartiers)
+    // ====================================
     'liberté': { lat: 14.7186, lng: -17.4697 },
     'liberte': { lat: 14.7186, lng: -17.4697 },
     'liberté 1': { lat: 14.7150, lng: -17.4650 },
@@ -722,7 +741,9 @@ function getDefaultCoordsForAddress(address) {
     'patte d\'oie': { lat: 14.7200, lng: -17.4500 },
     'patte d\'oie builders': { lat: 14.7220, lng: -17.4520 },
     
+    // ====================================
     // ZONE 8: PIKINE (10 quartiers)
+    // ====================================
     'pikine': { lat: 14.7549, lng: -17.3940 },
     'pikine nord': { lat: 14.7600, lng: -17.3950 },
     'pikine est': { lat: 14.7550, lng: -17.3850 },
@@ -735,7 +756,9 @@ function getDefaultCoordsForAddress(address) {
     'icotaf': { lat: 14.7650, lng: -17.3700 },
     'guinaw rail': { lat: 14.7520, lng: -17.3880 },
     
+    // ====================================
     // ZONE 9: GUÉDIAWAYE (10 quartiers)
+    // ====================================
     'guédiawaye': { lat: 14.7690, lng: -17.3990 },
     'guediawaye': { lat: 14.7690, lng: -17.3990 },
     'sam notaire': { lat: 14.7700, lng: -17.4100 },
@@ -751,27 +774,116 @@ function getDefaultCoordsForAddress(address) {
     'ndiarème': { lat: 14.7720, lng: -17.4050 },
     'ndiarem': { lat: 14.7720, lng: -17.4050 },
     
+    // ====================================
+    // ZONE 10: KEUR MASSAR (45+ quartiers) ⭐ NOUVEAU ⭐
+    // ====================================
+    
+    // Zone Centrale
+    'keur massar': { lat: 14.7833, lng: -17.3167 },
+    'keurmassar': { lat: 14.7833, lng: -17.3167 },
+    'keur massar centre': { lat: 14.7833, lng: -17.3167 },
+    'keur massar ville': { lat: 14.7850, lng: -17.3150 },
+    'keur massar marché': { lat: 14.7820, lng: -17.3180 },
+    'keur massar marche': { lat: 14.7820, lng: -17.3180 },
+    
+    // Boune
+    'boune': { lat: 14.7950, lng: -17.3250 },
+    'boune 1': { lat: 14.7960, lng: -17.3240 },
+    'boune 2': { lat: 14.7970, lng: -17.3260 },
+    'boune 3': { lat: 14.7980, lng: -17.3280 },
+    'boune cité darou salam': { lat: 14.7940, lng: -17.3230 },
+    'boune cite darou salam': { lat: 14.7940, lng: -17.3230 },
+    'boune extension': { lat: 14.8000, lng: -17.3270 },
+    
+    // Tivaouane Peulh
+    'tivaouane peulh': { lat: 14.8050, lng: -17.3300 },
+    'tivaouane peul': { lat: 14.8050, lng: -17.3300 },
+    'tivaoune peul': { lat: 14.8050, lng: -17.3300 },
+    'tivaouane peulh niaga': { lat: 14.8070, lng: -17.3280 },
+    'tivaouane peulh comico': { lat: 14.8060, lng: -17.3320 },
+    'tivaouane peulh 1': { lat: 14.8040, lng: -17.3290 },
+    'tivaouane peulh 2': { lat: 14.8080, lng: -17.3310 },
+    'tivaouane diacksao': { lat: 14.8100, lng: -17.3350 },
+    'tivaouane peulh baraque': { lat: 14.8120, lng: -17.3370 },
+    
+    // Jaxaay
+    'jaxaay': { lat: 14.7800, lng: -17.2950 },
+    'djaxaay': { lat: 14.7800, lng: -17.2950 },
+    'jaxaye': { lat: 14.7800, lng: -17.2950 },
+    'jaxaay parcelles': { lat: 14.7820, lng: -17.2920 },
+    'jaxaay deggo': { lat: 14.7790, lng: -17.2970 },
+    'jaxaay bambilor': { lat: 14.7780, lng: -17.2900 },
+    'bambilor': { lat: 14.7780, lng: -17.2900 },
+    'jaxaay extension': { lat: 14.7840, lng: -17.2940 },
+    
+    // Yeumbeul
+    'yeumbeul': { lat: 14.7720, lng: -17.3420 },
+    'yembeul': { lat: 14.7720, lng: -17.3420 },
+    'yeumbeul nord': { lat: 14.7750, lng: -17.3400 },
+    'yeumbeul sud': { lat: 14.7700, lng: -17.3450 },
+    'yeumbeul centre': { lat: 14.7720, lng: -17.3420 },
+    'yeumbeul comico': { lat: 14.7740, lng: -17.3440 },
+    'yeumbeul soprim': { lat: 14.7760, lng: -17.3380 },
+    'arafat yeumbeul': { lat: 14.7730, lng: -17.3460 },
+    
+    // Malika
+    'malika': { lat: 14.7800, lng: -17.3600 },
+    'malika centre': { lat: 14.7800, lng: -17.3600 },
+    'malika plateau': { lat: 14.7820, lng: -17.3620 },
+    'malika gare': { lat: 14.7780, lng: -17.3580 },
+    'malika stade': { lat: 14.7810, lng: -17.3640 },
+    
+    // Mbeubeuss
+    'mbeubeuss': { lat: 14.7750, lng: -17.3000 },
+    'mbeubeus': { lat: 14.7750, lng: -17.3000 },
+    'mbeubeuss centre': { lat: 14.7750, lng: -17.3000 },
+    'mbeubeuss extension': { lat: 14.7770, lng: -17.2980 },
+    'mbeubeuss décharge': { lat: 14.7730, lng: -17.3020 },
+    'mbeubeuss decharge': { lat: 14.7730, lng: -17.3020 },
+    
+    // Ndiaganiao
+    'ndiaganiao': { lat: 14.7900, lng: -17.3050 },
+    'ndiagagnao': { lat: 14.7900, lng: -17.3050 },
+    'ndiaganiao centre': { lat: 14.7900, lng: -17.3050 },
+    'ndiaganiao extension': { lat: 14.7920, lng: -17.3030 },
+    
+    // Cités et Lotissements
+    'cité keur damel': { lat: 14.7860, lng: -17.3200 },
+    'cite keur damel': { lat: 14.7860, lng: -17.3200 },
+    'cité keur mandione': { lat: 14.7880, lng: -17.3220 },
+    'cite keur mandione': { lat: 14.7880, lng: -17.3220 },
+    'cité mbaye dione': { lat: 14.7870, lng: -17.3180 },
+    'cite mbaye dione': { lat: 14.7870, lng: -17.3180 },
+    'cité serigne mbaye sy': { lat: 14.7840, lng: -17.3140 },
+    'cite serigne mbaye sy': { lat: 14.7840, lng: -17.3140 },
+    
+    // Zones Connexes
+    'diamaguène sicap mbao': { lat: 14.7650, lng: -17.3100 },
+    'diamaguene sicap mbao': { lat: 14.7650, lng: -17.3100 },
+    'mbao': { lat: 14.7300, lng: -17.3200 },
+    
+    // ====================================
     // ZONES PÉRIPHÉRIQUES
+    // ====================================
     'rufisque': { lat: 14.7167, lng: -17.2667 },
     'bargny': { lat: 14.7000, lng: -17.2167 },
-    'keur massar': { lat: 14.7833, lng: -17.3167 },
-    'mbao': { lat: 14.7300, lng: -17.3200 },
-    'malika': { lat: 14.7800, lng: -17.3800 },
-    'yeumbeul': { lat: 14.7650, lng: -17.3500 },
-    'tivaouane diacksao': { lat: 14.7900, lng: -17.3600 },
-    'boune': { lat: 14.7850, lng: -17.3750 },
     'sangalkam': { lat: 14.8000, lng: -17.2500 }
   };
   
   const addressLower = address.toLowerCase();
   
+  // Recherche exacte
   for (const [quartier, coordonnees] of Object.entries(coords)) {
     if (addressLower.includes(quartier)) {
-      console.log(`✅ Quartier: "${quartier}"`);
+      console.log(`✅ Quartier: "${quartier}" → [${coordonnees.lat}, ${coordonnees.lng}]`);
       return coordonnees;
     }
   }
   
-  console.warn(`⚠️ Adresse non reconnue: "${address}"`);
+  // Fallback
+  console.warn(`⚠️ Adresse non reconnue: "${address}" - Utilisation Plateau par défaut`);
   return { lat: 14.6928, lng: -17.4467 };
 }
+
+// Export pour utilisation dans d'autres modules
+module.exports = { getDefaultCoordsForAddress };
