@@ -30,7 +30,7 @@ async function getSystemParams() {
 }
 
 // ==========================================
-// 1. ASSIGNATION AUTOMATIQUE (AMÉLIORÉE)
+// 1. ASSIGNATION AUTOMATIQUE
 // ==========================================
 exports.assignerChauffeurAutomatique = functions.firestore
   .document('reservations/{reservationId}')
@@ -48,7 +48,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
     const params = await getSystemParams();
 
     if (!params.assignationAutomatique) {
-      console.log('🔴 MODE MANUEL activé - Pas d\'assignation automatique');
+      console.log('🔴 MODE MANUEL activé');
       
       await db.collection('notifications_admin').add({
         type: 'nouvelle_reservation_manuelle',
@@ -64,7 +64,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
       return null;
     }
 
-    console.log('🟢 MODE AUTO activé - Assignation automatique en cours...');
+    console.log('🟢 MODE AUTO activé');
 
     try {
       const chauffeursSnapshot = await db.collection('drivers')
@@ -77,7 +77,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
         await db.collection('notifications_admin').add({
           type: 'aucun_chauffeur',
           reservationId: reservationId,
-          message: `Aucun chauffeur disponible - Assignation manuelle requise`,
+          message: `Aucun chauffeur disponible`,
           clientNom: reservation.clientNom,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           lu: false
@@ -86,18 +86,16 @@ exports.assignerChauffeurAutomatique = functions.firestore
         return null;
       }
       
-      // ✅ AMÉLIORATION: Gérer les coordonnées manquantes
       let departCoords = null;
       let coordonneesApproximatives = false;
       
       if (reservation.departCoords && reservation.departCoords.lat && reservation.departCoords.lng) {
         departCoords = reservation.departCoords;
       } else {
-        console.log(`⚠️ Coordonnées manquantes, utilisation approximation pour: ${reservation.depart}`);
+        console.log(`⚠️ Coordonnées manquantes pour: ${reservation.depart}`);
         departCoords = getDefaultCoordsForAddress(reservation.depart);
         coordonneesApproximatives = true;
         
-        // Mettre à jour la réservation avec les coordonnées approximatives
         await snap.ref.update({
           departCoords: departCoords,
           coordonneesApproximatives: true
@@ -110,13 +108,12 @@ exports.assignerChauffeurAutomatique = functions.firestore
         const chauffeur = doc.data();
         
         if (!chauffeur.position || !chauffeur.position.latitude) {
-          console.log(`⚠️ Chauffeur ${doc.id} (${chauffeur.prenom} ${chauffeur.nom}) sans position GPS`);
+          console.log(`⚠️ ${doc.id}: pas de GPS`);
           return;
         }
         
-        // Vérifier qu'il n'a pas déjà de course
         if (chauffeur.reservationEnCours || chauffeur.currentBookingId) {
-          console.log(`⚠️ Chauffeur ${doc.id} a déjà une course`);
+          console.log(`⚠️ ${doc.id}: déjà en course`);
           return;
         }
         
@@ -139,13 +136,12 @@ exports.assignerChauffeurAutomatique = functions.firestore
       });
       
       if (chauffeurs.length === 0) {
-        console.log(`❌ Aucun chauffeur disponible dans ${params.rayonRecherche} km`);
+        console.log(`❌ Aucun chauffeur dans ${params.rayonRecherche} km`);
         
         await db.collection('notifications_admin').add({
           type: 'aucun_chauffeur_proximite',
           reservationId: reservationId,
-          message: `Aucun chauffeur trouvé dans un rayon de ${params.rayonRecherche} km`,
-          clientNom: reservation.clientNom,
+          message: `Aucun chauffeur dans ${params.rayonRecherche} km`,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           lu: false
         });
@@ -153,15 +149,12 @@ exports.assignerChauffeurAutomatique = functions.firestore
         return null;
       }
       
-      // Trier par distance
       chauffeurs.sort((a, b) => a.distance - b.distance);
       const chauffeurChoisi = chauffeurs[0];
       
-      console.log(`✅ Chauffeur sélectionné: ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km)`);
+      console.log(`✅ Sélectionné: ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km)`);
       
-      // ✅✅✅ TRANSACTION ATOMIQUE pour éviter les race conditions ✅✅✅
       await db.runTransaction(async (transaction) => {
-        // Vérifier à nouveau que le chauffeur est disponible
         const chauffeurRef = db.collection('drivers').doc(chauffeurChoisi.id);
         const chauffeurDoc = await transaction.get(chauffeurRef);
         const chauffeurData = chauffeurDoc.data();
@@ -172,7 +165,6 @@ exports.assignerChauffeurAutomatique = functions.firestore
           throw new Error('Chauffeur plus disponible');
         }
         
-        // Mettre à jour la réservation
         transaction.update(snap.ref, {
           chauffeurAssigne: chauffeurChoisi.id,
           nomChauffeur: `${chauffeurChoisi.prenom} ${chauffeurChoisi.nom}`,
@@ -184,7 +176,6 @@ exports.assignerChauffeurAutomatique = functions.firestore
           modeAssignation: 'automatique'
         });
         
-        // Mettre à jour le chauffeur
         transaction.update(chauffeurRef, {
           statut: 'en_course',
           currentBookingId: reservationId,
@@ -193,9 +184,8 @@ exports.assignerChauffeurAutomatique = functions.firestore
         });
       });
       
-      console.log('✅ TRANSACTION RÉUSSIE - Assignation + Synchronisation complètes');
+      console.log('✅ TRANSACTION RÉUSSIE');
       
-      // Notifications (hors transaction)
       await db.collection('notifications').add({
         destinataire: chauffeurChoisi.telephone,
         chauffeurId: chauffeurChoisi.id,
@@ -213,7 +203,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
       await db.collection('notifications_admin').add({
         type: 'assignation_reussie',
         reservationId: reservationId,
-        message: `✅ ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assigné automatiquement (${chauffeurChoisi.distance.toFixed(1)} km)${coordonneesApproximatives ? ' - Coordonnées approximatives' : ''}`,
+        message: `✅ ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assigné (${chauffeurChoisi.distance.toFixed(1)} km)${coordonneesApproximatives ? ' - Coords approx.' : ''}`,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         lu: false
       });
@@ -237,18 +227,17 @@ exports.assignerChauffeurAutomatique = functions.firestore
   });
 
 // ==========================================
-// 2. ASSIGNATION MANUELLE (AMÉLIORÉE)
+// 2. ASSIGNATION MANUELLE
 // ==========================================
 exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) => {
-  // ✅ AMÉLIORATION: Permettre auth Firebase OU token admin
   if (!context.auth && !data.adminToken) {
-    throw new functions.https.HttpsError('unauthenticated', 'Utilisateur non authentifié');
+    throw new functions.https.HttpsError('unauthenticated', 'Non authentifié');
   }
   
   const { reservationId, chauffeurId } = data;
   
   if (!reservationId || !chauffeurId) {
-    throw new functions.https.HttpsError('invalid-argument', 'reservationId et chauffeurId requis');
+    throw new functions.https.HttpsError('invalid-argument', 'Paramètres manquants');
   }
   
   try {
@@ -260,9 +249,8 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
     
     const reservation = reservationDoc.data();
 
-    // Libérer l'ancien chauffeur si nécessaire
     if (reservation.chauffeurAssigne && reservation.chauffeurAssigne !== chauffeurId) {
-      console.log('🔄 Libération de l\'ancien chauffeur:', reservation.chauffeurAssigne);
+      console.log('🔄 Libération ancien chauffeur');
       
       try {
         await db.collection('drivers').doc(reservation.chauffeurAssigne).update({
@@ -271,7 +259,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
           reservationEnCours: null
         });
       } catch (err) {
-        console.warn('⚠️ Impossible de libérer l\'ancien chauffeur:', err.message);
+        console.warn('⚠️ Impossible de libérer:', err.message);
       }
     }
 
@@ -283,11 +271,10 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
 
     const chauffeur = chauffeurDoc.data();
 
-    // Vérifier que le nouveau chauffeur n'a pas déjà de course
     if (chauffeur.reservationEnCours || chauffeur.currentBookingId) {
       throw new functions.https.HttpsError(
         'failed-precondition', 
-        `Le chauffeur a déjà une course en cours (ID: ${chauffeur.reservationEnCours || chauffeur.currentBookingId})`
+        `Chauffeur déjà en course`
       );
     }
 
@@ -301,7 +288,6 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       );
     }
 
-    // ✅✅✅ TRANSACTION ATOMIQUE ✅✅✅
     await db.runTransaction(async (transaction) => {
       const chauffeurRef = db.collection('drivers').doc(chauffeurId);
       const chauffeurCheck = await transaction.get(chauffeurRef);
@@ -331,9 +317,8 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       });
     });
 
-    console.log('✅ TRANSACTION RÉUSSIE');
+    console.log('✅ Assignation manuelle réussie');
 
-    // Notification
     await db.collection('notifications').add({
       chauffeurId: chauffeurId,
       destinataire: chauffeur.telephone,
@@ -348,11 +333,9 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       lu: false
     });
 
-    console.log(`✅ Assignation manuelle réussie: ${chauffeur.prenom} ${chauffeur.nom}`);
-
     return { 
       success: true, 
-      message: `Chauffeur ${chauffeur.prenom} ${chauffeur.nom} assigné avec succès`,
+      message: `${chauffeur.prenom} ${chauffeur.nom} assigné`,
       chauffeur: {
         nom: `${chauffeur.prenom} ${chauffeur.nom}`,
         telephone: chauffeur.telephone,
@@ -360,18 +343,18 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       }
     };
   } catch (error) {
-    console.error('❌ Erreur assignation manuelle:', error);
+    console.error('❌ Erreur:', error);
     throw new functions.https.HttpsError('internal', error.message);
   }
 });
 
 // ==========================================
-// 3. SYSTÈME DE FALLBACK (Réassignation)
+// 3. SYSTÈME DE FALLBACK
 // ==========================================
 exports.verifierAssignationTimeout = functions.pubsub
   .schedule('every 5 minutes')
   .onRun(async (context) => {
-    console.log('🔍 Vérification des réservations non acceptées...');
+    console.log('🔍 Vérification timeouts...');
     const params = await getSystemParams();
     const maintenant = Date.now();
     const timeout = params.delaiReassignation * 60 * 1000;
@@ -390,7 +373,7 @@ exports.verifierAssignationTimeout = functions.pubsub
           const tempsEcoule = maintenant - reservation.dateAssignation.toMillis();
           
           if (tempsEcoule > timeout) {
-            console.log(`⚠️ Timeout détecté pour réservation ${doc.id} (${Math.round(tempsEcoule / 60000)} min écoulées)`);
+            console.log(`⚠️ Timeout: ${doc.id}`);
             promesses.push(reassignerChauffeur(doc.id, reservation));
           }
         }
@@ -399,42 +382,30 @@ exports.verifierAssignationTimeout = functions.pubsub
       await Promise.all(promesses);
       
       if (promesses.length > 0) {
-        console.log(`✅ ${promesses.length} réassignations effectuées`);
-        
-        await db.collection('notifications_admin').add({
-          type: 'reassignations_automatiques',
-          message: `${promesses.length} réservation(s) réassignée(s) automatiquement`,
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          lu: false
-        });
+        console.log(`✅ ${promesses.length} réassignations`);
       }
       
     } catch (error) {
-      console.error('❌ Erreur vérification timeout:', error);
+      console.error('❌ Erreur timeout:', error);
     }
 
     return null;
   });
 
-// ✅ CORRECTION: Guillemets ajoutés
 async function reassignerChauffeur(reservationId, reservation) {
   try {
     if (reservation.chauffeurAssigne) {
-      console.log('🔄 SYNCHRONISATION: Libération complète du chauffeur (timeout)');
-      
       await db.collection('drivers').doc(reservation.chauffeurAssigne).update({
         statut: 'disponible',
         currentBookingId: null,
         reservationEnCours: null
       });
       
-      console.log('✅ SYNCHRONISATION RÉUSSIE!');
-      
       await db.collection('notifications').add({
         chauffeurId: reservation.chauffeurAssigne,
         type: 'course_retiree',
         reservationId: reservationId,
-        message: 'Course retirée suite à un délai d\'acceptation dépassé',
+        message: 'Course retirée (timeout)',
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         lu: false
       });
@@ -450,9 +421,8 @@ async function reassignerChauffeur(reservationId, reservation) {
       tentativesAssignation: admin.firestore.FieldValue.increment(1)
     });
 
-    console.log(`✅ Réservation ${reservationId} réinitialisée et prête pour réassignation`);
+    console.log(`✅ Réservation ${reservationId} réinitialisée`);
   } catch (error) {
-    // ✅ CORRECTION: Guillemets ajoutés
     console.error(`❌ Erreur réassignation ${reservationId}:`, error);
   }
 }
@@ -480,9 +450,7 @@ exports.terminerCourse = functions.https.onCall(async (data, context) => {
       coursesCompletees: admin.firestore.FieldValue.increment(1)
     });
 
-    console.log('✅ Course terminée avec succès');
-
-    return { success: true, message: 'Course terminée avec succès' };
+    return { success: true, message: 'Course terminée' };
   } catch (error) {
     throw new functions.https.HttpsError('internal', error.message);
   }
@@ -503,8 +471,6 @@ exports.annulerReservation = functions.https.onCall(async (data, context) => {
     const reservation = reservationDoc.data();
     
     if (reservation.chauffeurAssigne) {
-      console.log('🔄 Libération du chauffeur');
-      
       await db.collection('drivers').doc(reservation.chauffeurAssigne).update({
         statut: 'disponible',
         currentBookingId: null,
@@ -531,7 +497,7 @@ exports.annulerReservation = functions.https.onCall(async (data, context) => {
 exports.verifierCoherenceChauffeurs = functions.pubsub
   .schedule('every 1 hours')
   .onRun(async (context) => {
-    console.log('🔍 Vérification de cohérence des chauffeurs...');
+    console.log('🔍 Vérification cohérence...');
     
     try {
       const snapshot = await db.collection('drivers').get();
@@ -540,10 +506,7 @@ exports.verifierCoherenceChauffeurs = functions.pubsub
       snapshot.forEach(doc => {
         const data = doc.data();
         
-        // Vérifier l'incohérence
         if (data.currentBookingId !== data.reservationEnCours) {
-          console.log(`⚠️ INCOHÉRENCE détectée pour ${doc.id}`);
-          
           let valeurCorrecte = null;
           
           if (data.currentBookingId && !data.reservationEnCours) {
@@ -556,7 +519,7 @@ exports.verifierCoherenceChauffeurs = functions.pubsub
             return;
           }
           
-          console.log(`🔧 Correction automatique: ${valeurCorrecte}`);
+          console.log(`🔧 Correction: ${doc.id}`);
           
           corrections.push(
             db.collection('drivers').doc(doc.id).update({
@@ -569,20 +532,11 @@ exports.verifierCoherenceChauffeurs = functions.pubsub
       
       if (corrections.length > 0) {
         await Promise.all(corrections);
-        console.log(`✅ ${corrections.length} incohérence(s) corrigée(s)`);
-        
-        await db.collection('notifications_admin').add({
-          type: 'coherence_corrigee',
-          message: `${corrections.length} chauffeur(s) synchronisé(s) automatiquement`,
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          lu: false
-        });
-      } else {
-        console.log('✅ Tous les chauffeurs sont cohérents');
+        console.log(`✅ ${corrections.length} corrections`);
       }
       
     } catch (error) {
-      console.error('❌ Erreur vérification cohérence:', error);
+      console.error('❌ Erreur cohérence:', error);
     }
 
     return null;
@@ -607,83 +561,217 @@ function toRad(valeur) {
   return valeur * Math.PI / 180;
 }
 
-// ✅ AMÉLIORATION: Plus de quartiers ajoutés
+// ==========================================
+// 129 QUARTIERS DE DAKAR
+// ==========================================
 function getDefaultCoordsForAddress(address) {
   const coords = {
-    // Centre Dakar
+    // ZONE 1: DAKAR PLATEAU (15 quartiers)
     'plateau': { lat: 14.6928, lng: -17.4467 },
     'place de l\'indépendance': { lat: 14.6928, lng: -17.4467 },
+    'rebeuss': { lat: 14.6850, lng: -17.4450 },
+    'port': { lat: 14.6800, lng: -17.4150 },
+    'petersen': { lat: 14.6890, lng: -17.4380 },
+    'sandaga': { lat: 14.6750, lng: -17.4300 },
+    'tilene': { lat: 14.6800, lng: -17.4200 },
+    'kermel': { lat: 14.6700, lng: -17.4350 },
+    'marché sandaga': { lat: 14.6750, lng: -17.4300 },
+    'marché kermel': { lat: 14.6700, lng: -17.4350 },
+    'gare routière': { lat: 14.6780, lng: -17.4400 },
+    'dieuppeul': { lat: 14.6900, lng: -17.4600 },
     'medina': { lat: 14.6738, lng: -17.4387 },
+    'gueule tapée': { lat: 14.6800, lng: -17.4350 },
     'gueule tapee': { lat: 14.6800, lng: -17.4350 },
+    
+    // ZONE 2: MEDINA / FASS (12 quartiers)
+    'fass': { lat: 14.6820, lng: -17.4500 },
+    'fass delorme': { lat: 14.6850, lng: -17.4520 },
+    'colobane': { lat: 14.6870, lng: -17.4550 },
+    'gueule tapée fass colobane': { lat: 14.6830, lng: -17.4480 },
+    'ndiolofene': { lat: 14.6760, lng: -17.4420 },
+    'derklé': { lat: 14.6790, lng: -17.4460 },
+    'derkle': { lat: 14.6790, lng: -17.4460 },
+    'reubeuss': { lat: 14.6850, lng: -17.4450 },
+    'somba gueladio': { lat: 14.6880, lng: -17.4380 },
+    'scat urbam': { lat: 14.6810, lng: -17.4490 },
+    'nim': { lat: 14.6795, lng: -17.4365 },
+    'dalifort': { lat: 14.7200, lng: -17.4100 },
+    
+    // ZONE 3: FANN / POINT E / MERMOZ (18 quartiers)
     'fann': { lat: 14.6872, lng: -17.4535 },
+    'fann résidence': { lat: 14.6890, lng: -17.4550 },
+    'fann residence': { lat: 14.6890, lng: -17.4550 },
     'point e': { lat: 14.6953, lng: -17.4614 },
     'point-e': { lat: 14.6953, lng: -17.4614 },
+    'amitié': { lat: 14.7014, lng: -17.4647 },
+    'amitie': { lat: 14.7014, lng: -17.4647 },
+    'sacré-coeur': { lat: 14.6937, lng: -17.4441 },
     'sacre-coeur': { lat: 14.6937, lng: -17.4441 },
     'sacre coeur': { lat: 14.6937, lng: -17.4441 },
-    
-    // Zone Ouest
-    'almadies': { lat: 14.7247, lng: -17.5050 },
-    'ngor': { lat: 14.7517, lng: -17.5192 },
-    'yoff': { lat: 14.7500, lng: -17.4833 },
-    'ouakam': { lat: 14.7200, lng: -17.4900 },
     'mermoz': { lat: 14.7108, lng: -17.4682 },
+    'pyrotechnie': { lat: 14.6920, lng: -17.4580 },
+    'cité asecna': { lat: 14.7050, lng: -17.4700 },
+    'cite asecna': { lat: 14.7050, lng: -17.4700 },
+    'sicap baobabs': { lat: 14.7100, lng: -17.4650 },
+    'keur gorgui': { lat: 14.7020, lng: -17.4620 },
+    'fann bel air': { lat: 14.6900, lng: -17.4560 },
+    'fann bel-air': { lat: 14.6900, lng: -17.4560 },
+    'cité keur gorgui': { lat: 14.7020, lng: -17.4620 },
+    'cite keur gorgui': { lat: 14.7020, lng: -17.4620 },
     
-    // Zone Nord
+    // ZONE 4: SICAP / HLM / GRAND YOFF (20 quartiers)
+    'sicap': { lat: 14.7289, lng: -17.4594 },
     'hlm': { lat: 14.7306, lng: -17.4542 },
+    'hlm grand yoff': { lat: 14.7350, lng: -17.4600 },
+    'hlm grand-yoff': { lat: 14.7350, lng: -17.4600 },
     'grand yoff': { lat: 14.7400, lng: -17.4700 },
     'grand-yoff': { lat: 14.7400, lng: -17.4700 },
+    'village grand yoff': { lat: 14.7450, lng: -17.4750 },
+    'arafat': { lat: 14.7380, lng: -17.4650 },
+    'cité millionnaire': { lat: 14.7320, lng: -17.4570 },
+    'cite millionnaire': { lat: 14.7320, lng: -17.4570 },
+    'sipres': { lat: 14.7340, lng: -17.4610 },
+    'sicap rue 10': { lat: 14.7270, lng: -17.4580 },
+    'sicap amitié': { lat: 14.7280, lng: -17.4600 },
+    'sicap amitie': { lat: 14.7280, lng: -17.4600 },
+    'sicap baobab': { lat: 14.7290, lng: -17.4620 },
+    'sicap mbao': { lat: 14.7300, lng: -17.4560 },
+    'sicap foire': { lat: 14.7250, lng: -17.4550 },
+    'dieuppeul derklé': { lat: 14.7150, lng: -17.4650 },
+    'dieuppeul derkle': { lat: 14.7150, lng: -17.4650 },
+    'camp pénal': { lat: 14.7360, lng: -17.4580 },
+    'camp penal': { lat: 14.7360, lng: -17.4580 },
+    'castors': { lat: 14.7420, lng: -17.4720 },
+    
+    // ZONE 5: PARCELLES ASSAINIES (15 quartiers)
     'parcelles assainies': { lat: 14.7369, lng: -17.4731 },
     'parcelles': { lat: 14.7369, lng: -17.4731 },
+    'unité 1': { lat: 14.7300, lng: -17.4650 },
     'unite 1': { lat: 14.7300, lng: -17.4650 },
+    'unité 2': { lat: 14.7320, lng: -17.4680 },
     'unite 2': { lat: 14.7320, lng: -17.4680 },
+    'unité 3': { lat: 14.7340, lng: -17.4710 },
     'unite 3': { lat: 14.7340, lng: -17.4710 },
+    'unité 4': { lat: 14.7360, lng: -17.4740 },
+    'unite 4': { lat: 14.7360, lng: -17.4740 },
+    'unité 5': { lat: 14.7380, lng: -17.4770 },
+    'unite 5': { lat: 14.7380, lng: -17.4770 },
+    'unité 6': { lat: 14.7400, lng: -17.4800 },
+    'unite 6': { lat: 14.7400, lng: -17.4800 },
+    'unité 7': { lat: 14.7420, lng: -17.4830 },
+    'unite 7': { lat: 14.7420, lng: -17.4830 },
+    'unité 8': { lat: 14.7440, lng: -17.4860 },
+    'unite 8': { lat: 14.7440, lng: -17.4860 },
+    'unité 9': { lat: 14.7460, lng: -17.4890 },
+    'unite 9': { lat: 14.7460, lng: -17.4890 },
+    'unité 10': { lat: 14.7480, lng: -17.4920 },
+    'unite 10': { lat: 14.7480, lng: -17.4920 },
+    'cambérène': { lat: 14.7500, lng: -17.4950 },
+    'camberene': { lat: 14.7500, lng: -17.4950 },
+    'apecsy': { lat: 14.7350, lng: -17.4760 },
+    'apix': { lat: 14.7370, lng: -17.4780 },
     
-    // Zone Est
+    // ZONE 6: OUEST (ALMADIES/NGOR/YOFF/OUAKAM) (18 quartiers)
+    'almadies': { lat: 14.7247, lng: -17.5050 },
+    'les almadies': { lat: 14.7247, lng: -17.5050 },
+    'pointe des almadies': { lat: 14.7200, lng: -17.5300 },
+    'ngor': { lat: 14.7517, lng: -17.5192 },
+    'virage ngor': { lat: 14.7500, lng: -17.5150 },
+    'village ngor': { lat: 14.7550, lng: -17.5250 },
+    'ile de ngor': { lat: 14.7600, lng: -17.5350 },
+    'yoff': { lat: 14.7500, lng: -17.4833 },
+    'village yoff': { lat: 14.7550, lng: -17.4900 },
+    'tonghor': { lat: 14.7530, lng: -17.4850 },
+    'aeroport yoff': { lat: 14.7400, lng: -17.4900 },
+    'aéroport yoff': { lat: 14.7400, lng: -17.4900 },
+    'ouakam': { lat: 14.7200, lng: -17.4900 },
+    'cité des eaux': { lat: 14.7150, lng: -17.4950 },
+    'cite des eaux': { lat: 14.7150, lng: -17.4950 },
+    'mamelles': { lat: 14.7100, lng: -17.5000 },
+    'les mamelles': { lat: 14.7100, lng: -17.5000 },
+    'virage': { lat: 14.7314, lng: -17.4636 },
+    'cité sonatel': { lat: 14.7250, lng: -17.4850 },
+    'cite sonatel': { lat: 14.7250, lng: -17.4850 },
+    
+    // ZONE 7: LIBERTÉ / GRAND DAKAR / HANN (16 quartiers)
+    'liberté': { lat: 14.7186, lng: -17.4697 },
+    'liberte': { lat: 14.7186, lng: -17.4697 },
+    'liberté 1': { lat: 14.7150, lng: -17.4650 },
+    'liberte 1': { lat: 14.7150, lng: -17.4650 },
+    'liberté 2': { lat: 14.7170, lng: -17.4680 },
+    'liberte 2': { lat: 14.7170, lng: -17.4680 },
+    'liberté 3': { lat: 14.7190, lng: -17.4710 },
+    'liberte 3': { lat: 14.7190, lng: -17.4710 },
+    'liberté 4': { lat: 14.7210, lng: -17.4740 },
+    'liberte 4': { lat: 14.7210, lng: -17.4740 },
+    'liberté 5': { lat: 14.7230, lng: -17.4770 },
+    'liberte 5': { lat: 14.7230, lng: -17.4770 },
+    'liberté 6': { lat: 14.7250, lng: -17.4800 },
+    'liberte 6': { lat: 14.7250, lng: -17.4800 },
     'grand dakar': { lat: 14.6928, lng: -17.4580 },
     'grand-dakar': { lat: 14.6928, lng: -17.4580 },
     'hann': { lat: 14.7150, lng: -17.4380 },
-    'halte de hann': { lat: 14.7150, lng: -17.4380 },
     'bel air': { lat: 14.7100, lng: -17.4400 },
     'bel-air': { lat: 14.7100, lng: -17.4400 },
+    'halte de hann': { lat: 14.7150, lng: -17.4380 },
+    'marché hann': { lat: 14.7130, lng: -17.4350 },
+    'marche hann': { lat: 14.7130, lng: -17.4350 },
+    'hann bel air': { lat: 14.7120, lng: -17.4390 },
+    'hann bel-air': { lat: 14.7120, lng: -17.4390 },
+    'hann maristes': { lat: 14.7140, lng: -17.4360 },
+    'patte d\'oie': { lat: 14.7200, lng: -17.4500 },
+    'patte d\'oie builders': { lat: 14.7220, lng: -17.4520 },
     
-    // Banlieue Dakar
-    'liberte': { lat: 14.7186, lng: -17.4697 },
-    'liberté': { lat: 14.7186, lng: -17.4697 },
-    'amitie': { lat: 14.7014, lng: -17.4647 },
-    'amitié': { lat: 14.7014, lng: -17.4647 },
-    'sicap': { lat: 14.7289, lng: -17.4594 },
-    'virage': { lat: 14.7314, lng: -17.4636 },
-    
-    // Pikine
+    // ZONE 8: PIKINE (10 quartiers)
     'pikine': { lat: 14.7549, lng: -17.3940 },
+    'pikine nord': { lat: 14.7600, lng: -17.3950 },
+    'pikine est': { lat: 14.7550, lng: -17.3850 },
+    'pikine ouest': { lat: 14.7500, lng: -17.4000 },
+    'pikine sud': { lat: 14.7480, lng: -17.3900 },
     'thiaroye': { lat: 14.7730, lng: -17.3610 },
+    'thiaroye sur mer': { lat: 14.7750, lng: -17.3550 },
+    'diamaguène': { lat: 14.7600, lng: -17.3800 },
     'diamaguene': { lat: 14.7600, lng: -17.3800 },
     'icotaf': { lat: 14.7650, lng: -17.3700 },
+    'guinaw rail': { lat: 14.7520, lng: -17.3880 },
     
-    // Guédiawaye
-    'guediawaye': { lat: 14.7690, lng: -17.3990 },
+    // ZONE 9: GUÉDIAWAYE (10 quartiers)
     'guédiawaye': { lat: 14.7690, lng: -17.3990 },
+    'guediawaye': { lat: 14.7690, lng: -17.3990 },
     'sam notaire': { lat: 14.7700, lng: -17.4100 },
+    'sam': { lat: 14.7700, lng: -17.4100 },
+    'ndiarème limamoulaye': { lat: 14.7720, lng: -17.4050 },
+    'ndiarem limamoulaye': { lat: 14.7720, lng: -17.4050 },
     'golf sud': { lat: 14.7750, lng: -17.4200 },
+    'hamo': { lat: 14.7770, lng: -17.4150 },
+    'médina gounass': { lat: 14.7680, lng: -17.3950 },
+    'medina gounass': { lat: 14.7680, lng: -17.3950 },
+    'wakhinane': { lat: 14.7730, lng: -17.4000 },
+    'golf': { lat: 14.7750, lng: -17.4200 },
+    'ndiarème': { lat: 14.7720, lng: -17.4050 },
+    'ndiarem': { lat: 14.7720, lng: -17.4050 },
     
-    // Rufisque
+    // ZONES PÉRIPHÉRIQUES
     'rufisque': { lat: 14.7167, lng: -17.2667 },
     'bargny': { lat: 14.7000, lng: -17.2167 },
-    
-    // Autres
     'keur massar': { lat: 14.7833, lng: -17.3167 },
-    'mbao': { lat: 14.7300, lng: -17.3200 }
+    'mbao': { lat: 14.7300, lng: -17.3200 },
+    'malika': { lat: 14.7800, lng: -17.3800 },
+    'yeumbeul': { lat: 14.7650, lng: -17.3500 },
+    'tivaouane diacksao': { lat: 14.7900, lng: -17.3600 },
+    'boune': { lat: 14.7850, lng: -17.3750 },
+    'sangalkam': { lat: 14.8000, lng: -17.2500 }
   };
   
   const addressLower = address.toLowerCase();
   
   for (const [quartier, coordonnees] of Object.entries(coords)) {
     if (addressLower.includes(quartier)) {
+      console.log(`✅ Quartier: "${quartier}"`);
       return coordonnees;
     }
   }
   
-  // Par défaut: Plateau (centre de Dakar)
-  console.warn(`⚠️ Adresse non reconnue: "${address}" - Utilisation coordonnées Plateau par défaut`);
+  console.warn(`⚠️ Adresse non reconnue: "${address}"`);
   return { lat: 14.6928, lng: -17.4467 };
 }
