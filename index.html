@@ -5,1806 +5,276 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Al Bourakh Maps - Navigation GPS & Réservation</title>
+    <title>Al Bourakh - Réservation & Suivi en Temps Réel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        button, a {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        /* LOGO STYLES */
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .brand-logo-img {
-            width: 80px;
-            height: 60px;
-            object-fit: contain;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-            border-radius: 8px;
-        }
-
-        .hero-logo {
-            width: 200px;
-            height: 150px;
-            margin-bottom: 20px;
-            filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.4));
-            object-fit: contain;
-            border-radius: 12px;
-        }
-
-        .section-logo {
-            width: 120px;
-            height: 90px;
-            margin: 0 auto 20px;
-            display: block;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-
-        @media (min-width: 769px) {
-            .brand-logo-img {
-                animation: logoFloat 3s ease-in-out infinite;
-            }
-            
-            @keyframes logoFloat {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
-            }
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; min-height: 100vh; }
+        
         /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #00A854, #FECB00, #E30613);
-            padding: 80px 20px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .hero-title {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            animation: fadeInDown 1s ease;
-        }
-
-        .hero-subtitle {
-            font-size: 1.5em;
-            opacity: 0.95;
-            animation: fadeInUp 1s ease 0.3s both;
-        }
-
-        .hero-cta-button {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 20px 40px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-            color: #00A854;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            animation: fadeInUp 1s ease 0.6s both;
-        }
-
-        .hero-cta-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-
-        .hero-cta-button i {
-            margin-right: 10px;
-        }
+        .hero-section { background: linear-gradient(135deg, #00A854, #FECB00, #E30613); padding: 60px 20px; text-align: center; color: white; }
+        .hero-logo { width: 120px; height: 90px; margin-bottom: 15px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
+        .hero-title { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero-subtitle { font-size: 1.2em; opacity: 0.95; }
+        .hero-cta { display: inline-block; margin-top: 25px; padding: 15px 35px; font-size: 1.1em; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: white; color: #00A854; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .hero-cta:hover { transform: scale(1.05); }
 
         /* Map Container */
-        .map-container {
-            max-width: 1400px;
-            margin: 40px auto;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .map-header {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .map-logo {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .search-container {
-            position: relative;
-            flex: 1;
-            min-width: 300px;
-            max-width: 500px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 45px 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            outline: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-            transform: scale(1.02);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #00A854;
-            font-size: 1.2em;
-            pointer-events: none;
-        }
-
-        .search-clear {
-            position: absolute;
-            right: 45px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #E30613;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
-        }
-
-        .search-clear:hover {
-            background: #c00;
-        }
-
-        .map-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .map-btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95em;
-        }
-
-        .map-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-
-        .map-btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-primary {
-            background: #00A854;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #2196F3;
-            color: white;
-        }
-
-        .btn-danger {
-            background: #E30613;
-            color: white;
-        }
-
-        .btn-outline {
-            background: white;
-            color: #333;
-            border: 2px solid #ddd;
-        }
-
-        .map-wrapper {
-            position: relative;
-            display: flex;
-        }
-
-        #map {
-            flex: 1;
-            height: 600px;
-            position: relative;
-            touch-action: none;
-        }
-
-        #map.selection-mode {
-            cursor: crosshair !important;
-        }
-
-        .gm-style {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-        }
-
-        .gm-style img {
-            max-width: none !important;
-        }
-
-        .gm-style-iw {
-            max-width: 90vw !important;
-        }
-
-        .gm-style-iw-d {
-            overflow: auto !important;
-            max-height: 300px !important;
-        }
-
-        .gm-bundled-control {
-            margin: 10px !important;
-        }
-
-        .gm-svpc {
-            display: block !important;
-        }
-
-        .map-active {
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-        }
-
-        .side-panel {
-            width: 380px;
-            background: white;
-            padding: 20px;
-            overflow-y: auto;
-            border-left: 3px solid #00A854;
-            display: none;
-            max-height: 600px;
-        }
-
-        .side-panel.active {
-            display: block;
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-        }
-
-        .panel-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #00A854;
-        }
-
-        .panel-close {
-            background: #E30613;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2em;
-        }
-
-        .chatbot-button {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.8em;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            z-index: 9999;
-            transition: all 0.3s;
-            animation: bounce 2s infinite;
-        }
-
-        .chatbot-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
-        }
-
-        .chatbot-window {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 400px;
-            height: 600px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chatbot-window.active {
-            display: flex;
-            animation: slideInUp 0.3s ease;
-        }
-
-        .chatbot-header {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            padding: 20px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chatbot-header-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chatbot-close {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .chatbot-close:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(90deg);
-        }
-
-        .chatbot-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-
-        .chatbot-message {
-            margin-bottom: 15px;
-            animation: fadeInUp 0.3s ease;
-        }
-
-        .message-bot {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-        }
-
-        .message-user {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            flex-direction: row-reverse;
-        }
-
-        .message-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2em;
-            flex-shrink: 0;
-        }
-
-        .avatar-bot {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-        }
-
-        .avatar-user {
-            background: #667eea;
-            color: white;
-        }
-
-        .message-content {
-            max-width: 75%;
-            padding: 12px 16px;
-            border-radius: 15px;
-            line-height: 1.5;
-        }
-
-        .content-bot {
-            background: white;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .content-user {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .message-time {
-            font-size: 0.75em;
-            opacity: 0.6;
-            margin-top: 5px;
-        }
-
-        /* Typing indicator */
-        .typing-indicator {
-            display: none;
-            gap: 10px;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .typing-indicator.active {
-            display: flex;
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 4px;
-            padding: 12px 16px;
-            background: white;
-            border-radius: 15px;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #999;
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.7;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
-
-        .chatbot-input-container {
-            padding: 15px 20px;
-            background: white;
-            border-top: 2px solid #eee;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chatbot-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            font-size: 1em;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .chatbot-input:focus {
-            border-color: #00A854;
-        }
-
-        .chatbot-input:disabled {
-            background: #f5f5f5;
-            cursor: not-allowed;
-        }
-
-        .chatbot-send {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2em;
-            transition: all 0.3s;
-        }
-
-        .chatbot-send:hover:not(:disabled) {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(0,168,84,0.3);
-        }
-
-        .chatbot-send:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 20px 30px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-
-        .notification.success {
-            background: #4CAF50;
-        }
-
-        .notification.error {
-            background: #E30613;
-        }
-
-        .notification.info {
-            background: #2196F3;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .loading-spinner {
-            width: 80px;
-            height: 80px;
-            border: 8px solid rgba(255,255,255,0.2);
-            border-top-color: #FECB00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .loading-text {
-            color: white;
-            font-size: 1.5em;
-            margin-top: 30px;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .map-selection-banner {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            gap: 20px;
-            font-weight: bold;
-            font-size: 1.1em;
-            animation: slideInDown 0.5s ease;
-        }
-
-        .map-selection-banner.active {
-            display: flex;
-        }
-
-        .map-selection-banner button {
-            background: white;
-            color: #00A854;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .map-selection-banner button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50px);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
-            }
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .features-section, .booking-section, .cta-section {
-            max-width: 1400px;
-            margin: 60px auto;
-            padding: 0 20px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5em;
-            color: white;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .section-subtitle {
-            text-align: center;
-            font-size: 1.3em;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 50px;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 35px;
-            border-radius: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border: 3px solid transparent;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-            border-color: currentColor;
-        }
-
-        .feature-icon {
-            font-size: 3em;
-            color: #00A854;
-            margin-bottom: 20px;
-        }
-
-        .feature-title {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .feature-desc {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .booking-container {
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-        }
-
-        .booking-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .booking-header h2 {
-            font-size: 2.5em;
-            color: #00A854;
-            margin-bottom: 15px;
-        }
-
-        .booking-header p {
-            font-size: 1.2em;
-            color: #666;
-        }
-
-        .booking-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.05em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: all 0.3s;
-            font-family: inherit;
-        }
-
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #00A854;
-            box-shadow: 0 0 15px rgba(0,168,84,0.2);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .input-with-button {
-            display: flex;
-            gap: 10px;
-        }
-
-        .input-with-button input {
-            flex: 1;
-        }
-
-        .btn-map-select {
-            padding: 15px 20px;
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-map-select:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,168,84,0.3);
-        }
-
-        .datetime-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            grid-column: 1 / -1;
-        }
-
-        .vehicle-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .vehicle-option {
-            border: 3px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f9f9f9;
-        }
-
-        .vehicle-option:hover {
-            border-color: #FECB00;
-            background: #fffef7;
-            transform: scale(1.05);
-        }
-
-        .vehicle-option.selected {
-            border-color: #00A854;
-            background: #e8f5e9;
-            box-shadow: 0 8px 20px rgba(0,168,84,0.2);
-        }
-
-        .vehicle-option-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        .vehicle-option-name {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .vehicle-option-capacity {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        .vehicle-option-price {
-            font-size: 1.1em;
-            color: #00A854;
-            font-weight: bold;
-        }
-
-        .payment-methods {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .payment-method {
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f9f9f9;
-        }
-
-        .payment-method:hover {
-            border-color: #FECB00;
-            background: #fffef7;
-        }
-
-        .payment-method.selected {
-            border-color: #00A854;
-            background: #e8f5e9;
-        }
-
-        .payment-method-icon {
-            font-size: 2em;
-            margin-bottom: 8px;
-        }
-
-        .payment-method-name {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .booking-summary {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            padding: 30px;
-            border-radius: 15px;
-            color: white;
-            margin-top: 30px;
-        }
-
-        .summary-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .summary-items {
-            background: rgba(255,255,255,0.2);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 1.05em;
-        }
-
-        .summary-total {
-            background: rgba(255,255,255,0.3);
-            padding: 15px 20px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-
-        .booking-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn-book {
-            flex: 1;
-            padding: 18px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-book-primary {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
-        }
-
-        .btn-book-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(0,168,84,0.3);
-        }
-
-        .btn-book-secondary {
-            background: white;
-            color: #00A854;
-            border: 3px solid #00A854;
-        }
-
-        .btn-book-secondary:hover {
-            background: #e8f5e9;
-            transform: scale(1.05);
-        }
-
-        .cta-section {
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            padding: 80px 20px;
-            text-align: center;
-            margin-top: 60px;
-        }
-
-        .cta-title {
-            font-size: 3em;
-            color: white;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .cta-text {
-            font-size: 1.5em;
-            color: white;
-            margin-bottom: 40px;
-            opacity: 0.95;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn-cta {
-            padding: 20px 40px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        }
-
-        .btn-cta:hover {
-            transform: scale(1.1);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-
-        .btn-white {
-            background: white;
-            color: #00A854;
-        }
-
+        .map-container { max-width: 1200px; margin: 30px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .map-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .map-logo { font-size: 1.3em; font-weight: bold; color: white; display: flex; align-items: center; gap: 10px; }
+        .search-container { position: relative; flex: 1; min-width: 250px; max-width: 400px; }
+        .search-input { width: 100%; padding: 12px 40px 12px 15px; border: none; border-radius: 10px; font-size: 1em; }
+        .search-input:focus { outline: none; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #00A854; }
+        .map-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .map-btn { padding: 10px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9em; transition: all 0.3s; }
+        .map-btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: #00A854; color: white; }
+        .btn-secondary { background: #2196F3; color: white; }
+        .btn-outline { background: white; color: #333; }
+        #map { height: 450px; width: 100%; }
+
+        /* Booking Section */
+        .booking-section { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .booking-container { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .booking-header { text-align: center; margin-bottom: 30px; }
+        .booking-header h2 { font-size: 2em; color: #00A854; margin-bottom: 10px; }
+        .booking-header p { color: #666; }
+        .booking-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; color: #333; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 1em; transition: all 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #00A854; }
+        .input-with-button { display: flex; gap: 8px; }
+        .input-with-button input { flex: 1; }
+        .btn-map-select { padding: 12px 15px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+        .btn-map-select:hover { transform: scale(1.02); }
+        .datetime-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; grid-column: 1 / -1; }
+
+        /* Vehicle Options */
+        .vehicle-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 8px; }
+        .vehicle-option { border: 2px solid #ddd; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
+        .vehicle-option:hover { border-color: #FECB00; }
+        .vehicle-option.selected { border-color: #00A854; background: #e8f5e9; }
+        .vehicle-option-icon { font-size: 2em; margin-bottom: 8px; }
+        .vehicle-option-name { font-weight: bold; font-size: 0.9em; }
+        .vehicle-option-price { color: #00A854; font-weight: bold; font-size: 0.85em; margin-top: 5px; }
+
+        /* Payment Methods */
+        .payment-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 8px; }
+        .payment-method { padding: 12px; border: 2px solid #ddd; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
+        .payment-method:hover { border-color: #FECB00; }
+        .payment-method.selected { border-color: #00A854; background: #e8f5e9; }
+        .payment-method-icon { font-size: 1.5em; margin-bottom: 5px; }
+        .payment-method-name { font-size: 0.8em; font-weight: 600; }
+
+        /* Booking Summary */
+        .booking-summary { background: linear-gradient(135deg, #00A854, #FECB00); padding: 25px; border-radius: 15px; color: white; margin-top: 25px; display: none; }
+        .summary-title { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; text-align: center; }
+        .summary-items { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95em; }
+        .summary-total { background: rgba(255,255,255,0.3); padding: 12px 15px; border-radius: 10px; display: flex; justify-content: space-between; font-size: 1.2em; font-weight: bold; }
+        .booking-actions { display: flex; gap: 12px; margin-top: 25px; }
+        .btn-book { flex: 1; padding: 15px; font-size: 1.1em; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
+        .btn-book:hover { transform: scale(1.02); }
+        .btn-book-primary { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
+        .btn-book-secondary { background: white; color: #00A854; border: 2px solid #00A854; }
+
+        /* ============ TRACKING MODAL ============ */
+        .tracking-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; overflow-y: auto; }
+        .tracking-modal.active { display: block; }
+        .tracking-container { max-width: 500px; margin: 20px auto; background: white; border-radius: 20px; overflow: hidden; min-height: calc(100vh - 40px); }
+        .tracking-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .tracking-header h2 { font-size: 1.3em; display: flex; align-items: center; gap: 10px; }
+        .tracking-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em; }
+        
+        #trackingMap { height: 300px; width: 100%; }
+        
+        .tracking-info { padding: 20px; }
+        
+        /* Driver Approaching Box */
+        .driver-approaching-box { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 20px; border-radius: 15px; color: white; margin-bottom: 20px; text-align: center; }
+        .driver-approaching-title { font-size: 1em; opacity: 0.9; margin-bottom: 10px; }
+        .driver-eta { font-size: 2.5em; font-weight: bold; margin-bottom: 5px; }
+        .driver-eta-label { font-size: 0.9em; opacity: 0.9; }
+        .driver-details-row { display: flex; justify-content: space-around; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); }
+        .driver-detail { text-align: center; }
+        .driver-detail-value { font-size: 1.3em; font-weight: bold; }
+        .driver-detail-label { font-size: 0.75em; opacity: 0.8; }
+
+        /* Status Timeline */
+        .status-timeline { background: #f5f5f5; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .status-step { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #e0e0e0; }
+        .status-step:last-child { border-bottom: none; }
+        .status-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em; background: #e0e0e0; color: #999; }
+        .status-icon.active { background: #00A854; color: white; }
+        .status-icon.current { background: #2196F3; color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .status-text { flex: 1; }
+        .status-text h4 { font-size: 0.95em; color: #333; margin-bottom: 3px; }
+        .status-text p { font-size: 0.8em; color: #666; }
+        .status-time { font-size: 0.8em; color: #999; }
+
+        /* Driver Card */
+        .driver-card { background: white; border: 2px solid #e0e0e0; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .driver-card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .driver-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8em; color: white; }
+        .driver-info h3 { font-size: 1.1em; color: #333; margin-bottom: 5px; }
+        .driver-info p { font-size: 0.9em; color: #666; }
+        .driver-rating { color: #FFC107; }
+        .driver-vehicle { background: #f5f5f5; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .vehicle-info { display: flex; align-items: center; gap: 10px; }
+        .vehicle-icon { font-size: 1.5em; }
+        
+        .driver-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .driver-action-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; }
+        .btn-call { background: #00A854; color: white; }
+        .btn-message { background: #2196F3; color: white; }
+
+        /* Trip Details */
+        .trip-details { background: #f5f5f5; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .trip-details h3 { font-size: 1em; color: #333; margin-bottom: 15px; }
+        .trip-route { display: flex; flex-direction: column; gap: 15px; }
+        .trip-point { display: flex; align-items: flex-start; gap: 12px; }
+        .trip-point-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; color: white; flex-shrink: 0; }
+        .trip-point-icon.start { background: #4CAF50; }
+        .trip-point-icon.end { background: #E30613; }
+        .trip-point-text { flex: 1; }
+        .trip-point-label { font-size: 0.75em; color: #666; text-transform: uppercase; }
+        .trip-point-address { font-size: 0.95em; color: #333; font-weight: 500; }
+        .trip-connector { width: 2px; height: 25px; background: #ddd; margin-left: 14px; }
+        .trip-price { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ddd; }
+        .trip-price-label { font-size: 0.9em; color: #666; }
+        .trip-price-value { font-size: 1.4em; font-weight: bold; color: #00A854; }
+
+        /* Cancel Button */
+        .cancel-booking-btn { width: 100%; padding: 15px; background: #f5f5f5; border: 2px solid #E30613; color: #E30613; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .cancel-booking-btn:hover { background: #E30613; color: white; }
+
+        /* Notifications */
+        .notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 12px; color: white; font-weight: 600; z-index: 10001; animation: slideIn 0.3s; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+        .notification.success { background: #4CAF50; }
+        .notification.error { background: #E30613; }
+        .notification.info { background: #2196F3; }
+
+        /* Loading */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
+        .loading-spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top-color: #FECB00; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: white; font-size: 1.2em; margin-top: 20px; }
+
+        /* Chatbot */
+        .chatbot-button { position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em; cursor: pointer; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .chatbot-window { position: fixed; bottom: 90px; right: 25px; width: 350px; height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 9999; display: none; flex-direction: column; overflow: hidden; }
+        .chatbot-window.active { display: flex; }
+        .chatbot-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .chatbot-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+        .chatbot-messages { flex: 1; overflow-y: auto; padding: 15px; background: #f5f5f5; }
+        .chatbot-message { margin-bottom: 12px; }
+        .message-bot, .message-user { display: flex; gap: 10px; align-items: flex-start; }
+        .message-user { flex-direction: row-reverse; }
+        .message-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .avatar-bot { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
+        .avatar-user { background: #667eea; color: white; }
+        .message-content { max-width: 70%; padding: 10px 14px; border-radius: 15px; line-height: 1.4; font-size: 0.9em; }
+        .content-bot { background: white; border-bottom-left-radius: 5px; }
+        .content-user { background: linear-gradient(135deg, #00A854, #FECB00); color: white; border-bottom-right-radius: 5px; }
+        .chatbot-input-container { padding: 12px; background: white; display: flex; gap: 10px; }
+        .chatbot-input { flex: 1; padding: 10px 15px; border: 2px solid #ddd; border-radius: 20px; font-size: 0.95em; }
+        .chatbot-input:focus { outline: none; border-color: #00A854; }
+        .chatbot-send { width: 40px; height: 40px; background: #00A854; color: white; border: none; border-radius: 50%; cursor: pointer; }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2em;
-            }
-            .hero-subtitle {
-                font-size: 1em;
-            }
-            .hero-logo {
-                width: 100px;
-                height: 75px;
-            }
-            .hero-cta-button {
-                padding: 16px 32px;
-                font-size: 1em;
-            }
-            .brand-logo-img {
-                width: 40px;
-                height: 30px;
-            }
-            .map-header {
-                flex-direction: column;
-            }
-            .search-container {
-                width: 100%;
-                min-width: auto;
-            }
-            
-            .map-controls {
-                width: 100%;
-                display: flex;
-                flex-wrap: nowrap;
-                gap: 4px;
-                justify-content: space-between;
-            }
-            
-            .map-btn {
-                flex: 1;
-                min-width: 0;
-                padding: 10px 6px;
-                font-size: 0.7em;
-                gap: 3px;
-                white-space: nowrap;
-                justify-content: center;
-            }
-            
-            .map-btn i {
-                font-size: 1em;
-            }
-            
-            .map-wrapper {
-                flex-direction: column;
-            }
-            .side-panel {
-                width: 100%;
-                max-height: 400px;
-                border-left: none;
-                border-top: 3px solid #00A854;
-            }
-            
-            #map {
-                height: 400px;
-                min-height: 400px;
-                width: 100% !important;
-                touch-action: pan-x pan-y;
-            }
-
-            .chatbot-window {
-                width: calc(100% - 20px);
-                height: calc(100% - 120px);
-                right: 10px;
-                bottom: 90px;
-            }
-
-            .map-selection-banner {
-                width: calc(100% - 40px);
-                padding: 12px 20px;
-                font-size: 0.95em;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .btn-map-select {
-                padding: 8px 12px;
-                font-size: 0.75em;
-                gap: 4px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                white-space: nowrap;
-            }
-
-            .btn-map-select i {
-                font-size: 0.9em;
-            }
-
-            .input-with-button {
-                flex-direction: row;
-                gap: 8px;
-            }
-
-            .input-with-button input {
-                flex: 1;
-                min-width: 0;
-            }
-
-            .btn-cta {
-                padding: 12px 20px;
-                font-size: 0.95em;
-                height: auto;
-                min-height: 44px;
-            }
-
-            .cta-title {
-                font-size: 1.8em;
-            }
-
-            .cta-text {
-                font-size: 1.1em;
-            }
-
-            .chatbot-button {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5em;
-                bottom: 20px;
-                right: 20px;
-            }
-
-            .booking-container {
-                padding: 30px 20px;
-            }
-
-            .booking-header h2 {
-                font-size: 1.8em;
-            }
-
-            .booking-header p {
-                font-size: 1em;
-            }
-
-            .booking-form {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .form-group label {
-                font-size: 0.95em;
-            }
-
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                padding: 12px;
-                font-size: 0.95em;
-            }
-
-            .datetime-group {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .features-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                padding: 0 5px;
-            }
-
-            .feature-card {
-                padding: 10px 6px;
-                border-radius: 10px;
-            }
-
-            .feature-card:last-child {
-                grid-column: 1 / -1;
-                padding: 14px 20px;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                border-radius: 12px;
-                min-height: 50px;
-            }
-
-            .feature-card:last-child .feature-icon {
-                font-size: 1.5em;
-                margin-bottom: 0;
-            }
-
-            .feature-card:last-child .feature-title {
-                font-size: 1em;
-                margin-bottom: 0;
-                line-height: 1.2;
-            }
-
-            .feature-card:last-child .feature-desc {
-                display: none;
-            }
-
-            .feature-icon {
-                font-size: 1.5em;
-                margin-bottom: 5px;
-            }
-
-            .feature-title {
-                font-size: 0.75em;
-                margin-bottom: 4px;
-                line-height: 1.2;
-            }
-
-            .feature-desc {
-                font-size: 0.65em;
-                line-height: 1.3;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .vehicle-options {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .vehicle-option {
-                padding: 12px 8px;
-            }
-
-            .vehicle-option-icon {
-                font-size: 2em;
-                margin-bottom: 6px;
-            }
-
-            .vehicle-option-name {
-                font-size: 0.9em;
-                margin-bottom: 4px;
-            }
-
-            .vehicle-option-capacity {
-                font-size: 0.75em;
-                margin-bottom: 4px;
-            }
-
-            .vehicle-option-price {
-                font-size: 0.9em;
-            }
-
-            .payment-methods {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-
-            .payment-method {
-                padding: 10px 8px;
-                min-height: 85px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .payment-method-icon {
-                font-size: 1.8em;
-                margin-bottom: 6px;
-            }
-
-            .payment-method-name {
-                font-size: 0.85em;
-                line-height: 1.2;
-                text-align: center;
-            }
-
-            .booking-summary {
-                padding: 20px;
-                margin-top: 20px;
-            }
-
-            .summary-title {
-                font-size: 1.2em;
-            }
-
-            .summary-items {
-                padding: 15px;
-            }
-
-            .summary-item {
-                font-size: 0.95em;
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-
-            .summary-total {
-                font-size: 1.1em;
-                padding: 12px 15px;
-            }
-
-            .booking-actions {
-                flex-direction: column;
-                gap: 12px;
-                margin-top: 20px;
-            }
-
-            .btn-book {
-                padding: 14px;
-                font-size: 1em;
-            }
-
-            .section-title {
-                font-size: 1.8em;
-            }
-
-            .section-subtitle {
-                font-size: 1em;
-            }
-
-            .section-logo {
-                width: 90px;
-                height: 68px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #map {
-                height: 350px;
-                min-height: 350px;
-            }
-            
-            .map-controls {
-                width: 100%;
-                gap: 3px;
-            }
-            
-            .map-btn {
-                padding: 8px 4px;
-                font-size: 0.65em;
-                gap: 2px;
-            }
-            
-            .map-btn i {
-                font-size: 0.9em;
-            }
-
-            .hero-title {
-                font-size: 1.5em;
-            }
-
-            .hero-subtitle {
-                font-size: 0.9em;
-            }
-
-            .hero-logo {
-                width: 80px;
-                height: 60px;
-            }
-
-            .hero-cta-button {
-                padding: 12px 24px;
-                font-size: 0.9em;
-            }
-
-            .btn-map-select {
-                padding: 6px 10px;
-                font-size: 0.7em;
-                height: 36px;
-            }
-
-            .btn-cta {
-                padding: 10px 16px;
-                font-size: 0.85em;
-            }
-
-            .booking-header h2 {
-                font-size: 1.5em;
-            }
-
-            .datetime-group {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-
-            .features-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 6px;
-                padding: 0 3px;
-            }
-
-            .feature-card {
-                padding: 8px 4px;
-                border-radius: 8px;
-            }
-
-            .feature-card:last-child {
-                padding: 12px 16px;
-                min-height: 45px;
-            }
-
-            .feature-card:last-child .feature-icon {
-                font-size: 1.3em;
-            }
-
-            .feature-card:last-child .feature-title {
-                font-size: 0.9em;
-            }
-
-            .feature-icon {
-                font-size: 1.3em;
-                margin-bottom: 3px;
-            }
-
-            .feature-title {
-                font-size: 0.68em;
-                margin-bottom: 3px;
-                line-height: 1.1;
-            }
-
-            .feature-desc {
-                font-size: 0.6em;
-                line-height: 1.2;
-                -webkit-line-clamp: 2;
-            }
-
-            .vehicle-options {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-
-            .vehicle-option {
-                padding: 10px 6px;
-            }
-
-            .vehicle-option-icon {
-                font-size: 1.6em;
-                margin-bottom: 4px;
-            }
-
-            .vehicle-option-name {
-                font-size: 0.85em;
-                margin-bottom: 3px;
-            }
-
-            .vehicle-option-capacity {
-                font-size: 0.7em;
-                margin-bottom: 3px;
-            }
-
-            .vehicle-option-price {
-                font-size: 0.85em;
-            }
-
-            .payment-methods {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            .payment-method {
-                padding: 8px 6px;
-                min-height: 75px;
-            }
-
-            .payment-method-icon {
-                font-size: 1.6em;
-                margin-bottom: 5px;
-            }
-
-            .payment-method-name {
-                font-size: 0.8em;
-                line-height: 1.15;
-            }
-
-            .chatbot-button {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3em;
-            }
-
-            .section-logo {
-                width: 70px;
-                height: 53px;
-            }
-
-            .brand-logo-img {
-                width: 35px;
-                height: 26px;
-            }
+            .hero-title { font-size: 1.8em; }
+            .hero-subtitle { font-size: 1em; }
+            .map-header { flex-direction: column; }
+            .search-container { width: 100%; max-width: none; }
+            .map-controls { width: 100%; justify-content: center; }
+            #map { height: 350px; }
+            .booking-container { padding: 25px 15px; }
+            .booking-form { grid-template-columns: 1fr; }
+            .datetime-group { grid-template-columns: 1fr 1fr; }
+            .vehicle-options { grid-template-columns: repeat(2, 1fr); }
+            .payment-methods { grid-template-columns: repeat(3, 1fr); }
+            .booking-actions { flex-direction: column; }
+            .chatbot-window { width: calc(100% - 30px); right: 15px; bottom: 85px; height: 450px; }
+            .tracking-container { margin: 10px; min-height: calc(100vh - 20px); }
+            #trackingMap { height: 250px; }
         }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay" class="loading-overlay">
-        <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="hero-logo" onerror="this.style.display='none'">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div class="loading-spinner"></div>
-        <div class="loading-text">🚕 Chargement d'Al Bourakh Maps GPS...</div>
+        <div class="loading-text">Chargement...</div>
     </div>
 
-    <div id="mapSelectionBanner" class="map-selection-banner">
-        <span id="selectionText">🗺️ Cliquez sur la carte pour choisir le point de départ</span>
-        <button onclick="cancelMapSelection()">Annuler</button>
-    </div>
-
+    <!-- Hero Section -->
     <section class="hero-section">
-        <div class="hero-content">
-            <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" class="hero-logo" onerror="this.style.display='none'">
-            <button class="hero-cta-button" onclick="scrollToBooking()">
-                <i class="fas fa-car"></i> Réserver une course
-            </button>
-            <h1 class="hero-title">
-                <i class="fas fa-route"></i> Al Bourakh Maps GPS
-            </h1>
-            <p class="hero-subtitle">
-                🧭 Navigation GPS en Temps Réel • 129 Zones à Dakar • Service 24/7
-            </p>
-        </div>
+        <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="hero-logo" onerror="this.style.display='none'">
+        <h1 class="hero-title"><i class="fas fa-route"></i> Al Bourakh</h1>
+        <p class="hero-subtitle">🚕 Transport VTC • Suivi en Temps Réel • 24/7</p>
+        <button class="hero-cta" onclick="scrollToBooking()">
+            <i class="fas fa-car"></i> Réserver une course
+        </button>
     </section>
 
+    <!-- Map Container -->
     <div class="map-container">
         <div class="map-header">
-            <div class="map-logo">
-                <div class="brand-logo">
-                    <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="brand-logo-img" onerror="this.style.display='none'">
-                    <span>Al Bourakh GPS Navigation</span>
-                </div>
-            </div>
-            
+            <div class="map-logo">🚕 Al Bourakh GPS</div>
             <div class="search-container">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input" 
-                    placeholder="🔍 Rechercher une adresse à Dakar..."
-                    autocomplete="off"
-                >
-                <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Rechercher une adresse...">
                 <i class="fas fa-search search-icon"></i>
             </div>
-            
             <div class="map-controls">
-                <button class="map-btn btn-primary" onclick="activateGPSNavigation()">
-                    <i class="fas fa-route"></i> <span>Navigation GPS</span>
-                </button>
                 <button class="map-btn btn-secondary" onclick="findMyLocation()">
-                    <i class="fas fa-location-arrow"></i> <span>Ma Position</span>
-                </button>
-                <button class="map-btn btn-outline" onclick="centerMap()">
-                    <i class="fas fa-crosshairs"></i> <span>Centrer</span>
+                    <i class="fas fa-location-arrow"></i> Ma Position
                 </button>
                 <button class="map-btn btn-outline" onclick="toggleTraffic()">
-                    <i class="fas fa-traffic-light"></i> <span>Trafic</span>
+                    <i class="fas fa-traffic-light"></i> Trafic
                 </button>
             </div>
         </div>
-        
-        <div class="map-wrapper">
-            <div id="map"></div>
-        </div>
+        <div id="map"></div>
     </div>
 
-    <section class="features-section">
-        <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="section-logo" onerror="this.style.display='none'">
-        <h2 class="section-title">129 Quartiers en 9 Zones</h2>
-        <p class="section-subtitle">Couverture complète de Dakar et sa banlieue - Cliquez pour explorer</p>
-        
-        <div class="features-grid">
-            <div class="feature-card" onclick="exploreZone('centre')">
-                <div class="feature-icon" style="color: #00A854;">🏙️</div>
-                <h3 class="feature-title">Dakar Centre</h3>
-                <p class="feature-desc">15 quartiers incluant Plateau, Médina, Point E, Sacré-Cœur</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('ouest')">
-                <div class="feature-icon" style="color: #2196F3;">🌊</div>
-                <h3 class="feature-title">Corniche & Ouest</h3>
-                <p class="feature-desc">15 quartiers incluant Almadies, Ngor, Ouakam, Yoff</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('pikine')">
-                <div class="feature-icon" style="color: #FF9800;">🏘️</div>
-                <h3 class="feature-title">Pikine</h3>
-                <p class="feature-desc">13 quartiers incluant Thiaroye, Yeumbeul, Malika</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('guediawaye')">
-                <div class="feature-icon" style="color: #9C27B0;">🏘️</div>
-                <h3 class="feature-title">Guédiawaye</h3>
-                <p class="feature-desc">11 quartiers incluant Golf Nord, Sam Notaire, Ndiarème</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('keur_massar')">
-                <div class="feature-icon" style="color: #FF5722;">🏘️</div>
-                <h3 class="feature-title">Keur Massar</h3>
-                <p class="feature-desc">11 quartiers incluant Boune, Jaxaay, Mbeubeuss</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('sud')">
-                <div class="feature-icon" style="color: #4CAF50;">🌅</div>
-                <h3 class="feature-title">Dakar Sud</h3>
-                <p class="feature-desc">10 quartiers incluant Rufisque, Bargny, Diamniadio</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('grand_yoff')">
-                <div class="feature-icon" style="color: #00BCD4;">✈️</div>
-                <h3 class="feature-title">Grand Yoff</h3>
-                <p class="feature-desc">10 quartiers incluant Aéroport LSS, Bopp, Soprim</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('hann_bel_air')">
-                <div class="feature-icon" style="color: #E91E63;">🏭</div>
-                <h3 class="feature-title">Hann Bel-Air</h3>
-                <p class="feature-desc">10 quartiers incluant Zone Industrielle, Port de Pêche</p>
-            </div>
-            <div class="feature-card" onclick="exploreZone('parcelles')">
-                <div class="feature-icon" style="color: #FFC107;">🏡</div>
-                <h3 class="feature-title">Parcelles Assainies</h3>
-                <p class="feature-desc">18 unités couvrant toute la zone des Parcelles</p>
-            </div>
-            <div class="feature-card" onclick="activateSmartSearch()">
-                <div class="feature-icon" style="color: #673AB7;"><i class="fas fa-search-location"></i></div>
-                <h3 class="feature-title">Recherche Intelligente</h3>
-                <p class="feature-desc">Trouvez rapidement n'importe quelle adresse avec l'autocomplétion</p>
-            </div>
-        </div>
-    </section>
-
+    <!-- Booking Section -->
     <section class="booking-section">
         <div class="booking-container">
             <div class="booking-header">
                 <h2>🚕 Réservez votre trajet</h2>
-                <p>Réservation simple et rapide en quelques clics</p>
+                <p>Réservation simple et rapide</p>
             </div>
 
             <form class="booking-form" id="bookingForm" onsubmit="return false;">
                 <div class="form-group">
                     <label><i class="fas fa-map-marker-alt"></i> Point de départ</label>
                     <div class="input-with-button">
-                        <input type="text" id="bookingFrom" required placeholder="Détection automatique...">
+                        <input type="text" id="bookingFrom" required placeholder="Votre position...">
                         <button type="button" class="btn-map-select" onclick="selectOnMap('from')">
-                            <i class="fas fa-map-marked-alt"></i> Carte
+                            <i class="fas fa-map"></i> Carte
                         </button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-map-marker-alt"></i> Destination</label>
+                    <label><i class="fas fa-flag-checkered"></i> Destination</label>
                     <div class="input-with-button">
-                        <input type="text" id="bookingTo" required placeholder="Ex: Almadies">
+                        <input type="text" id="bookingTo" required placeholder="Où allez-vous?">
                         <button type="button" class="btn-map-select" onclick="selectOnMap('to')">
-                            <i class="fas fa-map-marked-alt"></i> Carte
+                            <i class="fas fa-map"></i> Carte
                         </button>
                     </div>
                 </div>
                 
                 <div class="datetime-group">
                     <div class="form-group">
-                        <label><i class="fas fa-calendar-alt"></i> Date</label>
+                        <label><i class="fas fa-calendar"></i> Date</label>
                         <input type="date" id="bookingDate" required>
                     </div>
                     <div class="form-group">
@@ -1814,67 +284,48 @@
                 </div>
                 
                 <div class="form-group">
-                    <label><i class="fas fa-user"></i> Nom complet (optionnel)</label>
-                    <input type="text" id="bookingName" placeholder="Votre nom">
-                </div>
-                <div class="form-group">
                     <label><i class="fas fa-phone"></i> Téléphone</label>
                     <input type="tel" id="bookingPhone" required placeholder="+221 77 XXX XX XX">
                 </div>
-                <div class="form-group" style="grid-column: 1 / -1;">
-                    <label><i class="fas fa-envelope"></i> Email (optionnel)</label>
-                    <input type="email" id="bookingEmail" placeholder="votre@email.com">
-                </div>
-                <div class="form-group" style="grid-column: 1 / -1;">
-                    <label><i class="fas fa-users"></i> Nombre de passagers</label>
-                    <select id="bookingPassengers" required>
-                        <option value="1">1 passager</option>
-                        <option value="2">2 passagers</option>
-                        <option value="3">3 passagers</option>
-                        <option value="4">4 passagers</option>
-                    </select>
-                </div>
-                <div class="form-group" style="grid-column: 1 / -1;">
-                    <label><i class="fas fa-comment"></i> Instructions spéciales (optionnel)</label>
-                    <textarea id="bookingNotes" placeholder="Ex: Bagages volumineux, enfants..."></textarea>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Nom (optionnel)</label>
+                    <input type="text" id="bookingName" placeholder="Votre nom">
                 </div>
             </form>
 
-            <div style="margin-top: 40px;">
-                <h3 style="text-align: center; color: #00A854; margin-bottom: 25px; font-size: 1.8em;">
-                    <i class="fas fa-car"></i> Choisissez votre véhicule
+            <!-- Vehicle Selection -->
+            <div style="margin-top: 30px;">
+                <h3 style="text-align: center; color: #00A854; margin-bottom: 15px;">
+                    <i class="fas fa-car"></i> Type de véhicule
                 </h3>
                 <div class="vehicle-options">
                     <div class="vehicle-option" onclick="selectVehicle('standard', 1500)">
                         <div class="vehicle-option-icon">🚗</div>
                         <div class="vehicle-option-name">Standard</div>
-                        <div class="vehicle-option-capacity">1-4 passagers</div>
-                        <div class="vehicle-option-price">À partir de 1 500 FCFA</div>
+                        <div class="vehicle-option-price">1 500 FCFA+</div>
                     </div>
                     <div class="vehicle-option" onclick="selectVehicle('confort', 2000)">
                         <div class="vehicle-option-icon">✨</div>
                         <div class="vehicle-option-name">Confort</div>
-                        <div class="vehicle-option-capacity">1-4 passagers</div>
-                        <div class="vehicle-option-price">À partir de 2 000 FCFA</div>
+                        <div class="vehicle-option-price">2 000 FCFA+</div>
                     </div>
                     <div class="vehicle-option" onclick="selectVehicle('van', 2500)">
                         <div class="vehicle-option-icon">🚐</div>
                         <div class="vehicle-option-name">Van</div>
-                        <div class="vehicle-option-capacity">5-7 passagers</div>
-                        <div class="vehicle-option-price">À partir de 2 500 FCFA</div>
+                        <div class="vehicle-option-price">2 500 FCFA+</div>
                     </div>
                     <div class="vehicle-option" onclick="selectVehicle('premium', 3500)">
                         <div class="vehicle-option-icon">👑</div>
                         <div class="vehicle-option-name">Premium</div>
-                        <div class="vehicle-option-capacity">1-3 passagers</div>
-                        <div class="vehicle-option-price">À partir de 3 500 FCFA</div>
+                        <div class="vehicle-option-price">3 500 FCFA+</div>
                     </div>
                 </div>
             </div>
 
-            <div style="margin-top: 40px;">
-                <h3 style="text-align: center; color: #00A854; margin-bottom: 25px; font-size: 1.8em;">
-                    <i class="fas fa-credit-card"></i> Mode de paiement
+            <!-- Payment Selection -->
+            <div style="margin-top: 30px;">
+                <h3 style="text-align: center; color: #00A854; margin-bottom: 15px;">
+                    <i class="fas fa-credit-card"></i> Paiement
                 </h3>
                 <div class="payment-methods">
                     <div class="payment-method" onclick="selectPayment('cash')">
@@ -1889,32 +340,20 @@
                         <div class="payment-method-icon">💳</div>
                         <div class="payment-method-name">Wave</div>
                     </div>
-                    <div class="payment-method" onclick="selectPayment('card')">
-                        <div class="payment-method-icon">💳</div>
-                        <div class="payment-method-name">Carte Bancaire</div>
-                    </div>
-                    <div class="payment-method" onclick="selectPayment('freemoney')">
-                        <div class="payment-method-icon">💰</div>
-                        <div class="payment-method-name">Free Money</div>
-                    </div>
-                    <div class="payment-method" onclick="selectPayment('wizall')">
-                        <div class="payment-method-icon">🔷</div>
-                        <div class="payment-method-name">Wizzall</div>
-                    </div>
                 </div>
             </div>
 
-            <div class="booking-summary" id="bookingSummary" style="display: none;">
-                <div class="summary-title">📋 Récapitulatif de la réservation</div>
+            <!-- Summary -->
+            <div class="booking-summary" id="bookingSummary">
+                <div class="summary-title">📋 Récapitulatif</div>
                 <div class="summary-items">
-                    <div class="summary-item"><span><strong>Trajet:</strong></span><span id="summaryRoute">-</span></div>
-                    <div class="summary-item"><span><strong>Date & Heure:</strong></span><span id="summaryDateTime">-</span></div>
-                    <div class="summary-item"><span><strong>Passagers:</strong></span><span id="summaryPassengers">-</span></div>
-                    <div class="summary-item"><span><strong>Véhicule:</strong></span><span id="summaryVehicle">Non sélectionné</span></div>
-                    <div class="summary-item"><span><strong>Paiement:</strong></span><span id="summaryPayment">Non sélectionné</span></div>
+                    <div class="summary-item"><span>Trajet:</span><span id="summaryRoute">-</span></div>
+                    <div class="summary-item"><span>Date:</span><span id="summaryDateTime">-</span></div>
+                    <div class="summary-item"><span>Véhicule:</span><span id="summaryVehicle">-</span></div>
+                    <div class="summary-item"><span>Paiement:</span><span id="summaryPayment">-</span></div>
                 </div>
                 <div class="summary-total">
-                    <span>Prix Total Estimé:</span>
+                    <span>Total estimé:</span>
                     <span id="summaryTotal">0 FCFA</span>
                 </div>
             </div>
@@ -1924,72 +363,176 @@
                     <i class="fas fa-eye"></i> Aperçu
                 </button>
                 <button type="button" class="btn-book btn-book-primary" onclick="confirmBooking()">
-                    <i class="fas fa-check-circle"></i> Confirmer la réservation
+                    <i class="fas fa-check"></i> Confirmer
                 </button>
             </div>
         </div>
     </section>
 
-    <section class="cta-section">
-        <h2 class="cta-title">Prêt à démarrer ?</h2>
-        <p class="cta-text">Rejoignez Al Bourakh aujourd'hui</p>
-        <div class="cta-buttons">
-            <button class="btn-cta btn-white" onclick="scrollToBooking()">
-                <i class="fas fa-car"></i> Réserver une course
-            </button>
-        </div>
-    </section>
+    <!-- ============ TRACKING MODAL ============ -->
+    <div class="tracking-modal" id="trackingModal">
+        <div class="tracking-container">
+            <div class="tracking-header">
+                <h2><i class="fas fa-route"></i> Suivi de course</h2>
+                <button class="tracking-close" onclick="closeTracking()">×</button>
+            </div>
 
-    <div class="chatbot-button" onclick="toggleChatbot()">
-        💬
+            <!-- Tracking Map -->
+            <div id="trackingMap"></div>
+
+            <div class="tracking-info">
+                <!-- Driver Approaching Box -->
+                <div class="driver-approaching-box" id="driverApproachingBox">
+                    <div class="driver-approaching-title">🚗 Votre chauffeur arrive</div>
+                    <div class="driver-eta" id="driverETA">--</div>
+                    <div class="driver-eta-label">minutes</div>
+                    <div class="driver-details-row">
+                        <div class="driver-detail">
+                            <div class="driver-detail-value" id="driverDistance">--</div>
+                            <div class="driver-detail-label">Distance</div>
+                        </div>
+                        <div class="driver-detail">
+                            <div class="driver-detail-value" id="driverArrivalTime">--</div>
+                            <div class="driver-detail-label">Arrivée prévue</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Timeline -->
+                <div class="status-timeline">
+                    <div class="status-step" id="step1">
+                        <div class="status-icon active"><i class="fas fa-check"></i></div>
+                        <div class="status-text">
+                            <h4>Réservation confirmée</h4>
+                            <p>Votre course a été enregistrée</p>
+                        </div>
+                        <div class="status-time" id="step1Time">--:--</div>
+                    </div>
+                    <div class="status-step" id="step2">
+                        <div class="status-icon" id="step2Icon"><i class="fas fa-user-check"></i></div>
+                        <div class="status-text">
+                            <h4>Chauffeur assigné</h4>
+                            <p id="step2Text">En attente d'un chauffeur...</p>
+                        </div>
+                        <div class="status-time" id="step2Time">--:--</div>
+                    </div>
+                    <div class="status-step" id="step3">
+                        <div class="status-icon" id="step3Icon"><i class="fas fa-car"></i></div>
+                        <div class="status-text">
+                            <h4>Chauffeur en route</h4>
+                            <p id="step3Text">Le chauffeur se dirige vers vous</p>
+                        </div>
+                        <div class="status-time" id="step3Time">--:--</div>
+                    </div>
+                    <div class="status-step" id="step4">
+                        <div class="status-icon" id="step4Icon"><i class="fas fa-map-pin"></i></div>
+                        <div class="status-text">
+                            <h4>Chauffeur arrivé</h4>
+                            <p>Le chauffeur est au point de prise en charge</p>
+                        </div>
+                        <div class="status-time" id="step4Time">--:--</div>
+                    </div>
+                    <div class="status-step" id="step5">
+                        <div class="status-icon" id="step5Icon"><i class="fas fa-flag-checkered"></i></div>
+                        <div class="status-text">
+                            <h4>Course en cours</h4>
+                            <p>Direction votre destination</p>
+                        </div>
+                        <div class="status-time" id="step5Time">--:--</div>
+                    </div>
+                </div>
+
+                <!-- Driver Card -->
+                <div class="driver-card" id="driverCard" style="display: none;">
+                    <div class="driver-card-header">
+                        <div class="driver-avatar">👤</div>
+                        <div class="driver-info">
+                            <h3 id="driverName">Chauffeur</h3>
+                            <p><span class="driver-rating">⭐⭐⭐⭐⭐</span> <span id="driverRating">4.9</span></p>
+                        </div>
+                    </div>
+                    <div class="driver-vehicle">
+                        <div class="vehicle-info">
+                            <span class="vehicle-icon">🚗</span>
+                            <div>
+                                <div id="vehicleModel" style="font-weight: bold;">Toyota Corolla</div>
+                                <div id="vehiclePlate" style="font-size: 0.85em; color: #666;">DK-1234-AB</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="driver-actions">
+                        <button class="driver-action-btn btn-call" onclick="callDriver()">
+                            <i class="fas fa-phone"></i> Appeler
+                        </button>
+                        <button class="driver-action-btn btn-message" onclick="messageDriver()">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Trip Details -->
+                <div class="trip-details">
+                    <h3>🗺️ Détails du trajet</h3>
+                    <div class="trip-route">
+                        <div class="trip-point">
+                            <div class="trip-point-icon start"><i class="fas fa-circle"></i></div>
+                            <div class="trip-point-text">
+                                <div class="trip-point-label">Départ</div>
+                                <div class="trip-point-address" id="tripFrom">-</div>
+                            </div>
+                        </div>
+                        <div class="trip-connector"></div>
+                        <div class="trip-point">
+                            <div class="trip-point-icon end"><i class="fas fa-flag"></i></div>
+                            <div class="trip-point-text">
+                                <div class="trip-point-label">Destination</div>
+                                <div class="trip-point-address" id="tripTo">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trip-price">
+                        <span class="trip-price-label">Prix estimé</span>
+                        <span class="trip-price-value" id="tripPrice">0 FCFA</span>
+                    </div>
+                </div>
+
+                <!-- Cancel Button -->
+                <button class="cancel-booking-btn" onclick="cancelBooking()">
+                    <i class="fas fa-times"></i> Annuler la réservation
+                </button>
+            </div>
+        </div>
     </div>
 
+    <!-- Chatbot Button -->
+    <div class="chatbot-button" onclick="toggleChatbot()">💬</div>
+
+    <!-- Chatbot Window -->
     <div class="chatbot-window" id="chatbotWindow">
         <div class="chatbot-header">
-            <div class="chatbot-header-title">
-                🤖 Assistant Al Bourakh
-            </div>
+            <div style="font-weight: bold;">🤖 Assistant Al Bourakh</div>
             <button class="chatbot-close" onclick="toggleChatbot()">×</button>
         </div>
-
         <div class="chatbot-messages" id="chatbotMessages">
             <div class="chatbot-message message-bot">
                 <div class="message-avatar avatar-bot">🚕</div>
                 <div class="message-content content-bot">
-                    Bonjour et bienvenue chez <strong>Al Bourakh</strong> - La Foudre ! ⚡<br><br>
-                    Je suis votre assistant virtuel. Comment puis-je vous aider aujourd'hui ?
-                    <div class="message-time">Maintenant</div>
-                </div>
-            </div>
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="message-avatar avatar-bot">🚕</div>
-                <div class="typing-dots">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+                    Bonjour! Je suis l'assistant Al Bourakh. Comment puis-je vous aider?
                 </div>
             </div>
         </div>
-
         <div class="chatbot-input-container">
-            <input 
-                type="text" 
-                class="chatbot-input" 
-                id="chatbotInput" 
-                placeholder="Posez votre question..."
-                onkeypress="handleChatbotKeypress(event)"
-            >
-            <button class="chatbot-send" id="chatbotSend" onclick="sendChatbotMessage()">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Votre question..." onkeypress="if(event.key==='Enter')sendChatMessage()">
+            <button class="chatbot-send" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // Configuration Firebase
+        // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -2001,611 +544,176 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('✅ Firebase connecté à Al Bourakh!');
+        console.log('🚕 Al Bourakh Client v2.0 - Suivi Temps Réel');
 
-        // Variables globales
-        let map, markers = [], trafficLayer, userMarker, searchMarker, autocomplete;
-        let directionsService, directionsRenderer;
-        let currentRoute = null;
-        let chatHistory = [];
-        let selectedVehicleType = null;
-        let selectedVehiclePrice = 0;
-        let selectedPaymentMethod = null;
-        let autocompleteFrom, autocompleteTo;
-        let geocoder;
+        // ========== GLOBAL VARIABLES ==========
+        let map, trackingMap, trafficLayer, autocomplete, geocoder;
+        let directionsService, directionsRenderer, trackingDirectionsRenderer;
+        let userMarker, departureMarker, destinationMarker;
+        let driverMarker, clientPickupMarker;
+        let selectedVehicle = null, selectedVehiclePrice = 0, selectedPayment = null;
         let mapSelectionMode = null;
-        let departureMarker = null;
-        let destinationMarker = null;
-        let mapClickListener = null;
-        let routeInfoWindow = null;
-        let autoCalculateTimeout = null;
-        let zoneInfoWindow = null;
+        let departureCoords = null, destinationCoords = null;
+        let currentBooking = null;
+        let reservationListener = null;
+        let driverListener = null;
+        let lastDriverPosition = null;
+        let trackingUpdateInterval = null;
+        
+        // Mode simulation pour les tests
+        let simulationMode = false;
+        let simulatedDriverPosition = null;
 
-        const zones = {
-            centre: [
-                {name: 'Plateau', lat: 14.6937, lng: -17.4441, vehicles: 45},
-                {name: 'Médina', lat: 14.6830, lng: -17.4505, vehicles: 38},
-                {name: 'Grand Dakar', lat: 14.7085, lng: -17.4553, vehicles: 52},
-                {name: 'Fass', lat: 14.6910, lng: -17.4620, vehicles: 33},
-                {name: 'Colobane', lat: 14.6850, lng: -17.4520, vehicles: 29},
-                {name: 'Gueule Tapée', lat: 14.6880, lng: -17.4580, vehicles: 27},
-                {name: 'Fann', lat: 14.6950, lng: -17.4500, vehicles: 35},
-                {name: 'Amitié', lat: 14.6800, lng: -17.4450, vehicles: 31},
-                {name: 'Point E', lat: 14.6975, lng: -17.4695, vehicles: 54},
-                {name: 'HLM', lat: 14.7020, lng: -17.4470, vehicles: 31},
-                {name: 'Sicap Liberté', lat: 14.7000, lng: -17.4600, vehicles: 44},
-                {name: 'Dieuppeul', lat: 14.7280, lng: -17.4750, vehicles: 38},
-                {name: 'Derklé', lat: 14.7200, lng: -17.4680, vehicles: 29},
-                {name: 'Sacré-Cœur', lat: 14.7166, lng: -17.4666, vehicles: 62},
-                {name: 'Mermoz', lat: 14.7055, lng: -17.4775, vehicles: 58}
-            ],
-            ouest: [
-                {name: 'Almadies', lat: 14.7286, lng: -17.5295, vehicles: 67},
-                {name: 'Ngor', lat: 14.7511, lng: -17.5133, vehicles: 71},
-                {name: 'Ouakam', lat: 14.7280, lng: -17.5050, vehicles: 56},
-                {name: 'Yoff', lat: 14.7450, lng: -17.4950, vehicles: 83},
-                {name: 'Mamelles', lat: 14.7100, lng: -17.4900, vehicles: 41},
-                {name: 'Les Parcelles Assainies', lat: 14.7650, lng: -17.4400, vehicles: 65},
-                {name: 'Cambérène', lat: 14.7700, lng: -17.4200, vehicles: 39},
-                {name: 'Golf Sud', lat: 14.7600, lng: -17.4350, vehicles: 48},
-                {name: 'Zone B', lat: 14.7580, lng: -17.4280, vehicles: 44},
-                {name: 'Cité Asecna', lat: 14.7380, lng: -17.4850, vehicles: 37},
-                {name: 'Patte d\'Oie', lat: 14.7500, lng: -17.4600, vehicles: 52},
-                {name: 'Liberté 6', lat: 14.7100, lng: -17.4550, vehicles: 46},
-                {name: 'Cité Keur Gorgui', lat: 14.7050, lng: -17.4650, vehicles: 40},
-                {name: 'SICAP Baobabs', lat: 14.7150, lng: -17.4500, vehicles: 43},
-                {name: 'Foire', lat: 14.7250, lng: -17.4700, vehicles: 49}
-            ],
-            pikine: [
-                {name: 'Pikine Ancien', lat: 14.7644, lng: -17.3907, vehicles: 42},
-                {name: 'Pikine Guédiawaye', lat: 14.7865, lng: -17.3985, vehicles: 52},
-                {name: 'Thiaroye', lat: 14.7420, lng: -17.3780, vehicles: 31},
-                {name: 'Yeumbeul', lat: 14.7700, lng: -17.3700, vehicles: 36},
-                {name: 'Mbao', lat: 14.7300, lng: -17.3200, vehicles: 28},
-                {name: 'Malika', lat: 14.8000, lng: -17.3800, vehicles: 38},
-                {name: 'Tivaouane Peulh', lat: 14.8100, lng: -17.4000, vehicles: 29},
-                {name: 'Diamniadio', lat: 14.7200, lng: -17.1800, vehicles: 35},
-                {name: 'Bambilor', lat: 14.7400, lng: -17.2200, vehicles: 27},
-                {name: 'Sangalkam', lat: 14.7600, lng: -17.2400, vehicles: 24},
-                {name: 'Niaga', lat: 14.7500, lng: -17.3300, vehicles: 26},
-                {name: 'Médina Gounass', lat: 14.7750, lng: -17.3600, vehicles: 30},
-                {name: 'Dagoudane', lat: 14.7900, lng: -17.3450, vehicles: 25}
-            ],
-            guediawaye: [
-                {name: 'Sam Notaire', lat: 14.7900, lng: -17.4100, vehicles: 40},
-                {name: 'Médina Gounass', lat: 14.7850, lng: -17.4050, vehicles: 37},
-                {name: 'Golf Nord', lat: 14.8000, lng: -17.4200, vehicles: 43},
-                {name: 'Ndiarème Limamoulaye', lat: 14.7950, lng: -17.4150, vehicles: 35},
-                {name: 'Wakhinane Nimzatt', lat: 14.7800, lng: -17.4000, vehicles: 38},
-                {name: 'HLM5', lat: 14.7880, lng: -17.4080, vehicles: 41},
-                {name: 'Arafat', lat: 14.8050, lng: -17.4250, vehicles: 34},
-                {name: 'Médina Fass Mbao', lat: 14.7820, lng: -17.4020, vehicles: 32},
-                {name: 'Village SOS', lat: 14.7780, lng: -17.4120, vehicles: 30},
-                {name: 'Cité Millionnaire', lat: 14.7920, lng: -17.4180, vehicles: 36},
-                {name: 'Grand Médine', lat: 14.7860, lng: -17.4060, vehicles: 33}
-            ],
-            keur_massar: [
-                {name: 'Keur Massar Centre', lat: 14.7850, lng: -17.3150, vehicles: 45},
-                {name: 'Keur Massar Nord', lat: 14.7950, lng: -17.3100, vehicles: 38},
-                {name: 'Keur Massar Sud', lat: 14.7750, lng: -17.3200, vehicles: 42},
-                {name: 'Boune', lat: 14.7900, lng: -17.3250, vehicles: 35},
-                {name: 'Mbao Keur Massar', lat: 14.7800, lng: -17.3180, vehicles: 40},
-                {name: 'Jaxaay', lat: 14.7700, lng: -17.3080, vehicles: 33},
-                {name: 'Kagnou', lat: 14.7820, lng: -17.3220, vehicles: 36},
-                {name: 'Tivaouane Peulh Keur Massar', lat: 14.7880, lng: -17.3120, vehicles: 39},
-                {name: 'Mbeubeuss', lat: 14.7650, lng: -17.3150, vehicles: 31},
-                {name: 'Diamaguene Sicap Mbao', lat: 14.7780, lng: -17.3280, vehicles: 37},
-                {name: 'Medina Fass Keur Massar', lat: 14.7850, lng: -17.3050, vehicles: 34}
-            ],
-            sud: [
-                {name: 'Rufisque', lat: 14.7138, lng: -17.2778, vehicles: 45},
-                {name: 'Bargny', lat: 14.6833, lng: -17.2167, vehicles: 32},
-                {name: 'Sendou', lat: 14.7000, lng: -17.2500, vehicles: 28},
-                {name: 'Sébikotane', lat: 14.7333, lng: -17.1333, vehicles: 35},
-                {name: 'Diamniadio', lat: 14.7200, lng: -17.1800, vehicles: 40},
-                {name: 'Pout', lat: 14.7700, lng: -17.0500, vehicles: 26},
-                {name: 'Bambilor', lat: 14.7400, lng: -17.2200, vehicles: 29},
-                {name: 'Tivaouane Peulh Sud', lat: 14.7000, lng: -17.2700, vehicles: 24},
-                {name: 'Yenne', lat: 14.7100, lng: -17.2600, vehicles: 27},
-                {name: 'Kounoune', lat: 14.7250, lng: -17.2450, vehicles: 25}
-            ],
-            grand_yoff: [
-                {name: 'Grand Yoff', lat: 14.7500, lng: -17.4700, vehicles: 55},
-                {name: 'Bopp', lat: 14.7450, lng: -17.4650, vehicles: 48},
-                {name: 'Aéroport LSS', lat: 14.7400, lng: -17.4900, vehicles: 60},
-                {name: 'Soprim', lat: 14.7520, lng: -17.4580, vehicles: 42},
-                {name: 'Cité Millionnaire Yoff', lat: 14.7480, lng: -17.4720, vehicles: 45},
-                {name: 'Darou Rahmane', lat: 14.7550, lng: -17.4650, vehicles: 39},
-                {name: 'SICAP Mbao', lat: 14.7420, lng: -17.4750, vehicles: 44},
-                {name: 'Tonghor', lat: 14.7580, lng: -17.4800, vehicles: 37},
-                {name: 'Leona', lat: 14.7350, lng: -17.4950, vehicles: 41},
-                {name: 'Zone de Captage', lat: 14.7600, lng: -17.4550, vehicles: 38}
-            ],
-            hann_bel_air: [
-                {name: 'Hann Bel-Air', lat: 14.7150, lng: -17.4300, vehicles: 47},
-                {name: 'Hann Maristes', lat: 14.7200, lng: -17.4250, vehicles: 43},
-                {name: 'Hann Pêcheurs', lat: 14.7100, lng: -17.4200, vehicles: 39},
-                {name: 'Bel-Air', lat: 14.7180, lng: -17.4320, vehicles: 45},
-                {name: 'Petit Mbao', lat: 14.7250, lng: -17.4150, vehicles: 38},
-                {name: 'Fass Mbao', lat: 14.7300, lng: -17.4100, vehicles: 41},
-                {name: 'Zone Franche', lat: 14.7050, lng: -17.4350, vehicles: 36},
-                {name: 'Port de Pêche', lat: 14.7000, lng: -17.4400, vehicles: 34},
-                {name: 'SODIDA', lat: 14.7120, lng: -17.4280, vehicles: 40},
-                {name: 'Cité Gadaye', lat: 14.7220, lng: -17.4180, vehicles: 37}
-            ],
-            parcelles: [
-                {name: 'Unité 1', lat: 14.7700, lng: -17.4450, vehicles: 50},
-                {name: 'Unité 2', lat: 14.7680, lng: -17.4420, vehicles: 48},
-                {name: 'Unité 3', lat: 14.7720, lng: -17.4380, vehicles: 52},
-                {name: 'Unité 4', lat: 14.7650, lng: -17.4400, vehicles: 46},
-                {name: 'Unité 5', lat: 14.7750, lng: -17.4350, vehicles: 49},
-                {name: 'Unité 6', lat: 14.7780, lng: -17.4320, vehicles: 47},
-                {name: 'Unité 7', lat: 14.7800, lng: -17.4300, vehicles: 51},
-                {name: 'Unité 8', lat: 14.7820, lng: -17.4280, vehicles: 45},
-                {name: 'Unité 9', lat: 14.7840, lng: -17.4250, vehicles: 48},
-                {name: 'Unité 10', lat: 14.7600, lng: -17.4480, vehicles: 44},
-                {name: 'Unité 11', lat: 14.7580, lng: -17.4500, vehicles: 42},
-                {name: 'Unité 12', lat: 14.7620, lng: -17.4460, vehicles: 46},
-                {name: 'Unité 13', lat: 14.7640, lng: -17.4440, vehicles: 43},
-                {name: 'Unité 14', lat: 14.7660, lng: -17.4380, vehicles: 50},
-                {name: 'Unité 15', lat: 14.7700, lng: -17.4360, vehicles: 47},
-                {name: 'Unité 16', lat: 14.7740, lng: -17.4340, vehicles: 49},
-                {name: 'Unité 17', lat: 14.7760, lng: -17.4400, vehicles: 45},
-                {name: 'Unité 18', lat: 14.7670, lng: -17.4420, vehicles: 44}
-            ]
-        };
-
-        // Initialisation de la carte
+        // ========== GOOGLE MAPS INIT ==========
         function initMap() {
-            try {
-                const dakarCenter = {lat: 14.7167, lng: -17.4677};
-                const isMobile = window.innerWidth <= 768;
-                
-                const mapOptions = {
-                    center: dakarCenter,
-                    zoom: isMobile ? 11 : 12,
-                    mapTypeControl: !isMobile,
-                    fullscreenControl: true,
-                    zoomControl: true,
-                    streetViewControl: false,
-                    gestureHandling: isMobile ? 'greedy' : 'auto'
-                };
-                
-                map = new google.maps.Map(document.getElementById('map'), mapOptions);
-                geocoder = new google.maps.Geocoder();
-                directionsService = new google.maps.DirectionsService();
-                directionsRenderer = new google.maps.DirectionsRenderer({
-                    map: map,
-                    suppressMarkers: false,
-                    polylineOptions: {
-                        strokeColor: '#00A854',
-                        strokeWeight: isMobile ? 4 : 5,
-                        strokeOpacity: 0.8
-                    }
-                });
-
-                trafficLayer = new google.maps.TrafficLayer();
-                
-                initSearchAutocomplete();
-
-                Object.keys(zones).forEach(category => {
-                    zones[category].forEach(location => {
-                        addMarker(location, category);
-                    });
-                });
-
-                setTimeout(() => {
-                    document.getElementById('loadingOverlay').style.display = 'none';
-                    showNotification('✅ Carte GPS chargée avec succès!', 'success');
-                }, 1500);
-                
-                initBookingForm();
-                initBookingAutocomplete();
-                autoFillUserLocation();
-                
-                console.log('✅ Carte initialisée avec succès');
-            } catch (error) {
-                console.error('❌ Erreur initialisation carte:', error);
-                document.getElementById('loadingOverlay').style.display = 'none';
-                showNotification('❌ Erreur de chargement de la carte', 'error');
-            }
-        }
-
-        function autoFillUserLocation() {
-            if (!navigator.geolocation) {
-                console.log('❌ Géolocalisation non supportée');
-                return;
-            }
-
-            showNotification('📍 Détection de votre position...', 'info');
+            const dakar = { lat: 14.6937, lng: -17.4441 };
             
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userPos = {
-                        lat: position.coords.latitude, 
-                        lng: position.coords.longitude
-                    };
-                    
-                    geocoder.geocode({ location: userPos }, (results, status) => {
-                        if (status === 'OK' && results[0]) {
-                            const address = results[0].formatted_address;
-                            
-                            const bookingFromInput = document.getElementById('bookingFrom');
-                            bookingFromInput.value = address;
-                            bookingFromInput.style.borderColor = '#00A854';
-                            bookingFromInput.style.backgroundColor = '#e8f5e9';
-                            
-                            updateDepartureMarker(new google.maps.LatLng(userPos.lat, userPos.lng));
-                            
-                            map.setCenter(userPos);
-                            map.setZoom(14);
-                            
-                            showNotification('✅ Position détectée: ' + address, 'success');
-                            
-                            setTimeout(() => {
-                                bookingFromInput.style.borderColor = '';
-                                bookingFromInput.style.backgroundColor = '';
-                            }, 3000);
-                        } else {
-                            showNotification('⚠️ Position détectée mais adresse non trouvée', 'info');
-                            const bookingFromInput = document.getElementById('bookingFrom');
-                            bookingFromInput.value = `Position: ${userPos.lat.toFixed(6)}, ${userPos.lng.toFixed(6)}`;
-                            updateDepartureMarker(new google.maps.LatLng(userPos.lat, userPos.lng));
-                        }
-                    });
-                },
-                (error) => {
-                    console.log('Erreur géolocalisation:', error);
-                    showNotification('⚠️ Géolocalisation refusée - Veuillez remplir manuellement', 'info');
-                    document.getElementById('bookingFrom').placeholder = 'Ex: Plateau, Dakar';
-                }
-            );
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: dakar,
+                zoom: 12,
+                disableDefaultUI: true,
+                zoomControl: true
+            });
+
+            geocoder = new google.maps.Geocoder();
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,
+                polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 }
+            });
+
+            trafficLayer = new google.maps.TrafficLayer();
+
+            // Search autocomplete
+            const searchInput = document.getElementById('searchInput');
+            autocomplete = new google.maps.places.Autocomplete(searchInput, {
+                componentRestrictions: { country: 'sn' }
+            });
+            autocomplete.addListener('place_changed', onPlaceSelected);
+
+            // Booking autocompletes
+            initBookingAutocomplete();
+            
+            // Map click for selection
+            map.addListener('click', handleMapClick);
+
+            // Auto-detect user location
+            autoDetectLocation();
+
+            // Init date/time
+            initDateTime();
+
+            console.log('✅ Map initialized');
         }
 
         function initBookingAutocomplete() {
-            const inputFrom = document.getElementById('bookingFrom');
-            if (inputFrom) {
-                autocompleteFrom = new google.maps.places.Autocomplete(inputFrom, {
-                    bounds: new google.maps.LatLngBounds(
-                        new google.maps.LatLng(14.6, -17.6),
-                        new google.maps.LatLng(14.9, -17.0)
-                    ),
-                    strictBounds: true,
-                    componentRestrictions: { country: 'sn' },
-                    fields: ['formatted_address', 'geometry', 'name']
-                });
+            const fromInput = document.getElementById('bookingFrom');
+            const toInput = document.getElementById('bookingTo');
 
-                autocompleteFrom.addListener('place_changed', () => {
-                    const place = autocompleteFrom.getPlace();
-                    if (place.geometry) {
-                        inputFrom.value = place.name || place.formatted_address;
-                        updateDepartureMarker(place.geometry.location);
-                        checkAndCalculateRoute();
-                    }
-                });
+            const autocompleteFrom = new google.maps.places.Autocomplete(fromInput, {
+                componentRestrictions: { country: 'sn' }
+            });
+            autocompleteFrom.addListener('place_changed', () => {
+                const place = autocompleteFrom.getPlace();
+                if (place.geometry) {
+                    departureCoords = {
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng()
+                    };
+                    updateMarker('departure', departureCoords);
+                    calculateRoute();
+                }
+            });
 
-                inputFrom.addEventListener('change', () => {
-                    if (inputFrom.value.trim()) {
-                        checkAndCalculateRoute();
-                    }
-                });
-            }
+            const autocompleteTo = new google.maps.places.Autocomplete(toInput, {
+                componentRestrictions: { country: 'sn' }
+            });
+            autocompleteTo.addListener('place_changed', () => {
+                const place = autocompleteTo.getPlace();
+                if (place.geometry) {
+                    destinationCoords = {
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng()
+                    };
+                    updateMarker('destination', destinationCoords);
+                    calculateRoute();
+                }
+            });
+        }
 
-            const inputTo = document.getElementById('bookingTo');
-            if (inputTo) {
-                autocompleteTo = new google.maps.places.Autocomplete(inputTo, {
-                    bounds: new google.maps.LatLngBounds(
-                        new google.maps.LatLng(14.6, -17.6),
-                        new google.maps.LatLng(14.9, -17.0)
-                    ),
-                    strictBounds: true,
-                    componentRestrictions: { country: 'sn' },
-                    fields: ['formatted_address', 'geometry', 'name']
-                });
-
-                autocompleteTo.addListener('place_changed', () => {
-                    const place = autocompleteTo.getPlace();
-                    if (place.geometry) {
-                        inputTo.value = place.name || place.formatted_address;
-                        updateDestinationMarker(place.geometry.location);
-                        autoFillDateTime();
-                        checkAndCalculateRoute();
-                    }
-                });
-
-                inputTo.addEventListener('change', () => {
-                    if (inputTo.value.trim()) {
-                        autoFillDateTime();
-                        checkAndCalculateRoute();
-                    }
-                });
+        function onPlaceSelected() {
+            const place = autocomplete.getPlace();
+            if (place.geometry) {
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
             }
         }
 
-        function autoFillDateTime() {
+        function autoDetectLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                        departureCoords = userPos;
+                        
+                        map.setCenter(userPos);
+                        map.setZoom(14);
+
+                        geocoder.geocode({ location: userPos }, (results, status) => {
+                            if (status === 'OK' && results[0]) {
+                                document.getElementById('bookingFrom').value = results[0].formatted_address;
+                                updateMarker('departure', userPos);
+                            }
+                        });
+                    },
+                    () => console.log('Geolocation denied')
+                );
+            }
+        }
+
+        function initDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + 30);
+            
             const dateInput = document.getElementById('bookingDate');
             const timeInput = document.getElementById('bookingTime');
             
-            if (!dateInput.value || !timeInput.value) {
-                const now = new Date();
-                now.setMinutes(now.getMinutes() + 30);
-                
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                dateInput.value = `${year}-${month}-${day}`;
-                
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                timeInput.value = `${hours}:${minutes}`;
-                
-                dateInput.style.borderColor = '#00A854';
-                timeInput.style.borderColor = '#00A854';
-                
-                setTimeout(() => {
-                    dateInput.style.borderColor = '';
-                    timeInput.style.borderColor = '';
-                }, 1500);
-                
-                showNotification('📅 Date et heure renseignées automatiquement', 'info');
-            }
+            dateInput.value = now.toISOString().split('T')[0];
+            dateInput.min = new Date().toISOString().split('T')[0];
+            timeInput.value = now.toTimeString().slice(0, 5);
         }
 
-        function selectOnMap(type) {
-            mapSelectionMode = type;
-            const banner = document.getElementById('mapSelectionBanner');
-            const selectionText = document.getElementById('selectionText');
-            const mapElement = document.getElementById('map');
-            
-            if (type === 'from') {
-                selectionText.textContent = '📍 Cliquez sur la carte pour choisir le POINT DE DÉPART';
-            } else {
-                selectionText.textContent = '🎯 Cliquez sur la carte pour choisir la DESTINATION';
+        // ========== MAP FUNCTIONS ==========
+        function findMyLocation() {
+            if (navigator.geolocation) {
+                showNotification('📍 Localisation...', 'info');
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                        map.setCenter(userPos);
+                        map.setZoom(15);
+                        
+                        if (userMarker) userMarker.setMap(null);
+                        userMarker = new google.maps.Marker({
+                            position: userPos,
+                            map: map,
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 10,
+                                fillColor: '#4285F4',
+                                fillOpacity: 1,
+                                strokeColor: 'white',
+                                strokeWeight: 3
+                            },
+                            animation: google.maps.Animation.BOUNCE
+                        });
+                        setTimeout(() => userMarker.setAnimation(null), 2000);
+                        showNotification('✅ Position trouvée!', 'success');
+                    },
+                    () => showNotification('❌ Localisation refusée', 'error')
+                );
             }
-            
-            banner.classList.add('active');
-            mapElement.classList.add('selection-mode');
-            
-            document.querySelector('.map-container').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-            
-            if (mapClickListener) {
-                google.maps.event.removeListener(mapClickListener);
-            }
-            
-            mapClickListener = map.addListener('click', function(event) {
-                handleMapClick(event.latLng);
-            });
-            
-            showNotification(`🗺️ Cliquez sur la carte pour choisir ${type === 'from' ? 'le point de départ' : 'la destination'}`, 'info');
-        }
-
-        function handleMapClick(location) {
-            if (!mapSelectionMode) return;
-            
-            showNotification('🔍 Récupération de l\'adresse...', 'info');
-            
-            geocoder.geocode({ location: location }, function(results, status) {
-                if (status === 'OK' && results[0]) {
-                    const address = results[0].formatted_address;
-                    
-                    if (mapSelectionMode === 'from') {
-                        document.getElementById('bookingFrom').value = address;
-                        updateDepartureMarker(location);
-                        showNotification(`✅ Point de départ: ${address}`, 'success');
-                    } else if (mapSelectionMode === 'to') {
-                        document.getElementById('bookingTo').value = address;
-                        updateDestinationMarker(location);
-                        autoFillDateTime();
-                        showNotification(`✅ Destination: ${address}`, 'success');
-                    }
-                    
-                    cancelMapSelection();
-                    checkAndCalculateRoute();
-                } else {
-                    showNotification('❌ Impossible de récupérer l\'adresse', 'error');
-                }
-            });
-        }
-
-        function checkAndCalculateRoute() {
-            if (autoCalculateTimeout) {
-                clearTimeout(autoCalculateTimeout);
-            }
-            
-            autoCalculateTimeout = setTimeout(() => {
-                const fromValue = document.getElementById('bookingFrom').value.trim();
-                const toValue = document.getElementById('bookingTo').value.trim();
-                
-                if (fromValue && toValue && departureMarker && destinationMarker) {
-                    calculateBookingRoute();
-                }
-            }, 500);
-        }
-
-        function calculateBookingRoute() {
-            if (!departureMarker || !destinationMarker) {
-                return;
-            }
-
-            showNotification('🧭 Calcul de l\'itinéraire...', 'info');
-
-            const request = {
-                origin: departureMarker.getPosition(),
-                destination: destinationMarker.getPosition(),
-                travelMode: google.maps.TravelMode.DRIVING,
-                unitSystem: google.maps.UnitSystem.METRIC
-            };
-
-            directionsService.route(request, (result, status) => {
-                if (status === 'OK') {
-                    directionsRenderer.setDirections(result);
-                    const route = result.routes[0];
-                    const leg = route.legs[0];
-                    
-                    const distance = leg.distance.value / 1000;
-                    const duration = leg.duration.text;
-                    const distanceText = leg.distance.text;
-                    
-                    const basePrice = selectedVehicleType ? selectedVehiclePrice : 1500;
-                    const pricePerKm = {
-                        standard: 200,
-                        confort: 250,
-                        van: 300,
-                        premium: 400
-                    };
-                    const kmRate = selectedVehicleType ? pricePerKm[selectedVehicleType] : 200;
-                    const estimatedPrice = Math.round(basePrice + (distance * kmRate));
-                    
-                    showRouteInfo(distanceText, duration, estimatedPrice);
-                    showNotification(`✅ Itinéraire calculé: ${distanceText}, ${duration}`, 'success');
-                } else {
-                    showNotification('❌ Impossible de calculer l\'itinéraire', 'error');
-                    console.error('Erreur calcul itinéraire:', status);
-                }
-            });
-        }
-
-        function showRouteInfo(distance, duration, price) {
-            if (routeInfoWindow) {
-                routeInfoWindow.close();
-            }
-
-            const content = `
-                <div style="padding: 15px; min-width: 250px; font-family: 'Segoe UI', sans-serif;">
-                    <h3 style="color: #00A854; margin: 0 0 12px 0; font-size: 1.2em;">
-                        🧭 Itinéraire calculé
-                    </h3>
-                    <div style="background: linear-gradient(135deg, #00A854, #FECB00); padding: 12px; border-radius: 8px; color: white; margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                            <strong>📍 Distance:</strong>
-                            <span>${distance}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                            <strong>⏱️ Durée:</strong>
-                            <span>${duration}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.3);">
-                            <strong>💰 Prix estimé:</strong>
-                            <span style="font-size: 1.15em; font-weight: bold;">${price.toLocaleString()} FCFA</span>
-                        </div>
-                    </div>
-                    <p style="margin: 0; font-size: 0.85em; color: #666; text-align: center;">
-                        ${selectedVehicleType ? '✅ Véhicule sélectionné' : '⚠️ Sélectionnez un véhicule pour un prix précis'}
-                    </p>
-                </div>
-            `;
-
-            const midPoint = new google.maps.LatLng(
-                (departureMarker.getPosition().lat() + destinationMarker.getPosition().lat()) / 2,
-                (departureMarker.getPosition().lng() + destinationMarker.getPosition().lng()) / 2
-            );
-
-            routeInfoWindow = new google.maps.InfoWindow({
-                content: content,
-                position: midPoint
-            });
-
-            routeInfoWindow.open(map);
-        }
-
-        function updateDepartureMarker(location) {
-            if (departureMarker) {
-                departureMarker.setMap(null);
-            }
-            
-            departureMarker = new google.maps.Marker({
-                position: location,
-                map: map,
-                title: "Point de départ",
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 15,
-                    fillColor: '#4CAF50',
-                    fillOpacity: 1,
-                    strokeColor: 'white',
-                    strokeWeight: 4
-                },
-                animation: google.maps.Animation.DROP,
-                zIndex: 1000
-            });
-            
-            const infoWindow = new google.maps.InfoWindow({
-                content: `<div style="padding: 10px; font-weight: bold; color: #4CAF50;">
-                    <i class="fas fa-map-marker-alt"></i> Point de départ
-                </div>`
-            });
-            
-            departureMarker.addListener('click', () => {
-                infoWindow.open(map, departureMarker);
-            });
-            
-            map.panTo(location);
-        }
-
-        function updateDestinationMarker(location) {
-            if (destinationMarker) {
-                destinationMarker.setMap(null);
-            }
-            
-            destinationMarker = new google.maps.Marker({
-                position: location,
-                map: map,
-                title: "Destination",
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 15,
-                    fillColor: '#E30613',
-                    fillOpacity: 1,
-                    strokeColor: 'white',
-                    strokeWeight: 4
-                },
-                animation: google.maps.Animation.DROP,
-                zIndex: 1000
-            });
-            
-            const infoWindow = new google.maps.InfoWindow({
-                content: `<div style="padding: 10px; font-weight: bold; color: #E30613;">
-                    <i class="fas fa-flag-checkered"></i> Destination
-                </div>`
-            });
-            
-            destinationMarker.addListener('click', () => {
-                infoWindow.open(map, destinationMarker);
-            });
-            
-            map.panTo(location);
-        }
-
-        function cancelMapSelection() {
-            mapSelectionMode = null;
-            const banner = document.getElementById('mapSelectionBanner');
-            const mapElement = document.getElementById('map');
-            
-            banner.classList.remove('active');
-            mapElement.classList.remove('selection-mode');
-            
-            if (mapClickListener) {
-                google.maps.event.removeListener(mapClickListener);
-                mapClickListener = null;
-            }
-        }
-
-        function closeZoneInfo() {
-            if (zoneInfoWindow) {
-                zoneInfoWindow.close();
-                zoneInfoWindow = null;
-                showNotification('✅ Fenêtre fermée', 'info');
-            }
-        }
-
-        function centerMap() {
-            const dakarCenter = {lat: 14.7167, lng: -17.4677};
-            map.setCenter(dakarCenter);
-            map.setZoom(11);
-            showNotification('🎯 Carte centrée sur Dakar', 'info');
         }
 
         function toggleTraffic() {
@@ -2614,518 +722,106 @@
                 showNotification('🚦 Trafic désactivé', 'info');
             } else {
                 trafficLayer.setMap(map);
-                showNotification('🚦 Trafic en temps réel activé', 'success');
+                showNotification('🚦 Trafic activé', 'success');
             }
         }
 
-        function initSearchAutocomplete() {
-            const input = document.getElementById('searchInput');
-            const searchClear = document.getElementById('searchClear');
+        function selectOnMap(type) {
+            mapSelectionMode = type;
+            showNotification(`🗺️ Cliquez sur la carte pour ${type === 'from' ? 'le départ' : 'la destination'}`, 'info');
+            map.getDiv().style.cursor = 'crosshair';
+            document.querySelector('.map-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleMapClick(event) {
+            if (!mapSelectionMode) return;
             
-            autocomplete = new google.maps.places.Autocomplete(input, {
-                bounds: new google.maps.LatLngBounds(
-                    new google.maps.LatLng(14.6, -17.6),
-                    new google.maps.LatLng(14.9, -17.0)
-                ),
-                strictBounds: true,
-                componentRestrictions: { country: 'sn' },
-                fields: ['formatted_address', 'geometry', 'name', 'place_id']
-            });
-
-            autocomplete.addListener('place_changed', onPlaceSelected);
-
-            input.addEventListener('input', function() {
-                searchClear.style.display = this.value.length > 0 ? 'flex' : 'none';
-            });
-        }
-
-        function onPlaceSelected() {
-            const place = autocomplete.getPlace();
-            if (!place.geometry || !place.geometry.location) {
-                showNotification('❌ Aucune information géographique disponible', 'error');
-                return;
-            }
-
-            if (searchMarker) searchMarker.setMap(null);
-
-            const isMobile = window.innerWidth <= 768;
-            searchMarker = new google.maps.Marker({
-                position: place.geometry.location,
-                map: map,
-                title: place.name || place.formatted_address,
-                animation: google.maps.Animation.DROP,
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: isMobile ? 14 : 12,
-                    fillColor: '#FF6B00',
-                    fillOpacity: 1,
-                    strokeColor: 'white',
-                    strokeWeight: isMobile ? 5 : 4
-                }
-            });
-
-            map.setCenter(place.geometry.location);
-            map.setZoom(isMobile ? 15 : 16);
-            showNotification(`✅ Adresse trouvée: ${place.name || place.formatted_address}`, 'success');
-        }
-
-        function clearSearch() {
-            const input = document.getElementById('searchInput');
-            const searchClear = document.getElementById('searchClear');
-            input.value = '';
-            searchClear.style.display = 'none';
-            if (searchMarker) {
-                searchMarker.setMap(null);
-                searchMarker = null;
-            }
-            showNotification('🗑️ Recherche effacée', 'info');
-        }
-
-        function addMarker(location, category) {
-            const colors = {
-                centre: '#00A854',
-                ouest: '#2196F3',
-                pikine: '#FF9800',
-                guediawaye: '#9C27B0',
-                keur_massar: '#FF5722',
-                sud: '#4CAF50',
-                grand_yoff: '#00BCD4',
-                hann_bel_air: '#E91E63',
-                parcelles: '#FFC107'
-            };
-
-            const isMobile = window.innerWidth <= 768;
-            const marker = new google.maps.Marker({
-                position: {lat: location.lat, lng: location.lng},
-                map: map,
-                title: location.name,
-                animation: google.maps.Animation.DROP,
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: isMobile ? 10 : 8,
-                    fillColor: colors[category] || '#00A854',
-                    fillOpacity: 0.9,
-                    strokeColor: 'white',
-                    strokeWeight: isMobile ? 3 : 2
-                }
-            });
-
-            const infoContent = `
-                <div style="padding: ${isMobile ? '12px' : '15px'}; min-width: ${isMobile ? '180px' : '200px'}; max-width: ${isMobile ? '250px' : '300px'};">
-                    <h3 style="color: ${colors[category] || '#00A854'}; margin-bottom: 10px; font-size: ${isMobile ? '1.1em' : '1.2em'};">
-                        ${location.name}
-                    </h3>
-                    <p style="margin: 5px 0;"><strong>🚕 ${location.vehicles}</strong> véhicules disponibles</p>
-                    <p style="margin: 5px 0;"><strong>⏱️ ${Math.floor(Math.random() * 8) + 3} min</strong> d'attente</p>
-                    <button onclick="reserverCourse('${location.name}')" style="
-                        width: 100%;
-                        padding: ${isMobile ? '12px' : '10px'};
-                        margin-top: 10px;
-                        background: linear-gradient(135deg, #00A854, #FECB00);
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-weight: bold;
-                        cursor: pointer;
-                        font-size: ${isMobile ? '0.95em' : '1em'};
-                        touch-action: manipulation;
-                    ">🚗 Réserver une course</button>
-                </div>
-            `;
-
-            const infoWindow = new google.maps.InfoWindow({
-                content: infoContent,
-                maxWidth: isMobile ? 280 : 350
-            });
-
-            marker.addListener('click', () => {
-                infoWindow.open(map, marker);
-                if (isMobile) {
-                    map.panTo(marker.getPosition());
-                    setTimeout(() => {
-                        map.panBy(0, -100);
-                    }, 300);
-                }
-            });
-
-            markers.push({marker, category, location, infoWindow});
-        }
-
-        function reserverCourse(quartier) {
-            showNotification(`✅ Redirection vers la réservation pour ${quartier}`, 'info');
-            document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setTimeout(() => {
-                document.getElementById('bookingTo').value = quartier;
-                document.getElementById('bookingTo').focus();
-                autoFillDateTime();
-            }, 1000);
-        }
-
-        function activateGPSNavigation() {
-            showNotification('🧭 Mode Navigation GPS activé!', 'success');
-            if (navigator.geolocation) {
-                showNotification('📍 Localisation en cours...', 'info');
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const userPos = {lat: position.coords.latitude, lng: position.coords.longitude};
-                        if (userMarker) userMarker.setMap(null);
-                        userMarker = new google.maps.Marker({
-                            position: userPos,
-                            map: map,
-                            title: "Votre position",
-                            icon: {
-                                path: google.maps.SymbolPath.CIRCLE,
-                                scale: 12,
-                                fillColor: '#4285F4',
-                                fillOpacity: 1,
-                                strokeColor: 'white',
-                                strokeWeight: 4
-                            },
-                            animation: google.maps.Animation.DROP
-                        });
-                        map.setCenter(userPos);
-                        map.setZoom(15);
-                        
-                        showNavigationDestinations(userPos);
-                    },
-                    () => {
-                        showNotification('❌ Géolocalisation refusée', 'error');
+            const location = event.latLng;
+            geocoder.geocode({ location: location }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const address = results[0].formatted_address;
+                    
+                    if (mapSelectionMode === 'from') {
+                        document.getElementById('bookingFrom').value = address;
+                        departureCoords = { lat: location.lat(), lng: location.lng() };
+                        updateMarker('departure', departureCoords);
+                    } else {
+                        document.getElementById('bookingTo').value = address;
+                        destinationCoords = { lat: location.lat(), lng: location.lng() };
+                        updateMarker('destination', destinationCoords);
                     }
-                );
-            } else {
-                showNotification('❌ Géolocalisation non supportée', 'error');
-            }
+                    
+                    calculateRoute();
+                    showNotification(`✅ ${mapSelectionMode === 'from' ? 'Départ' : 'Destination'} sélectionné`, 'success');
+                }
+                
+                mapSelectionMode = null;
+                map.getDiv().style.cursor = '';
+            });
         }
 
-        function showNavigationDestinations(userPos) {
-            let allQuartiers = [];
-            Object.keys(zones).forEach(zoneKey => {
-                zones[zoneKey].forEach(quartier => {
-                    const distance = calculateDistance(
-                        userPos.lat, 
-                        userPos.lng, 
-                        quartier.lat, 
-                        quartier.lng
-                    );
-                    allQuartiers.push({...quartier, distance: distance});
+        function updateMarker(type, coords) {
+            if (type === 'departure') {
+                if (departureMarker) departureMarker.setMap(null);
+                departureMarker = new google.maps.Marker({
+                    position: coords,
+                    map: map,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 12,
+                        fillColor: '#4CAF50',
+                        fillOpacity: 1,
+                        strokeColor: 'white',
+                        strokeWeight: 3
+                    },
+                    label: { text: 'A', color: 'white', fontWeight: 'bold' }
                 });
-            });
-            
-            allQuartiers.sort((a, b) => a.distance - b.distance);
-            const nearest = allQuartiers.slice(0, 5);
-            
-            let content = `
-                <div style="padding: 20px; max-width: 350px;">
-                    <h3 style="color: #00A854; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-route"></i> Destinations à proximité
-                    </h3>
-                    <p style="margin-bottom: 15px; color: #666;">Sélectionnez une destination pour calculer l'itinéraire :</p>
-            `;
-            
-            nearest.forEach(quartier => {
-                content += `
-                    <div style="padding: 12px; margin-bottom: 10px; background: #f5f5f5; border-radius: 8px; cursor: pointer; border-left: 4px solid #00A854;" 
-                         onclick="calculateRoute({lat: ${userPos.lat}, lng: ${userPos.lng}}, {lat: ${quartier.lat}, lng: ${quartier.lng}}, '${quartier.name}')">
-                        <strong>${quartier.name}</strong><br>
-                        <small style="color: #666;">📍 ${quartier.distance.toFixed(1)} km • 🚗 ${quartier.vehicles} véhicules</small>
-                    </div>
-                `;
-            });
-            
-            content += `
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                    <small style="color: #999;">💡 Utilisez la recherche pour d'autres destinations</small>
-                </div>
-                </div>
-            `;
-            
-            const infoWindow = new google.maps.InfoWindow({
-                content: content,
-                position: userPos
-            });
-            infoWindow.open(map);
-        }
-
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLng/2) * Math.sin(dLng/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        function calculateRoute(start, end, destinationName) {
-            if (!directionsService || !directionsRenderer) {
-                showNotification('❌ Service de navigation non disponible', 'error');
-                return;
+            } else {
+                if (destinationMarker) destinationMarker.setMap(null);
+                destinationMarker = new google.maps.Marker({
+                    position: coords,
+                    map: map,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 12,
+                        fillColor: '#E30613',
+                        fillOpacity: 1,
+                        strokeColor: 'white',
+                        strokeWeight: 3
+                    },
+                    label: { text: 'B', color: 'white', fontWeight: 'bold' }
+                });
             }
-            showNotification('🧭 Calcul de l\'itinéraire en cours...', 'info');
-            const request = {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.DRIVING,
-                unitSystem: google.maps.UnitSystem.METRIC
-            };
-            directionsService.route(request, (result, status) => {
+        }
+
+        function calculateRoute() {
+            if (!departureCoords || !destinationCoords) return;
+
+            directionsService.route({
+                origin: departureCoords,
+                destination: destinationCoords,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
                 if (status === 'OK') {
                     directionsRenderer.setDirections(result);
-                    const route = result.routes[0];
-                    const leg = route.legs[0];
-                    currentRoute = result;
-                    
-                    const distance = leg.distance.text;
-                    const duration = leg.duration.text;
-                    const estimatedPrice = Math.round(1500 + (leg.distance.value / 1000 * 200));
-                    
-                    showNotification(`✅ Itinéraire calculé!\n📍 ${distance}\n⏱️ ${duration}\n💰 ${estimatedPrice.toLocaleString()} FCFA`, 'success');
-                    
-                    showRouteInstructions(leg, destinationName, distance, duration, estimatedPrice);
-                } else {
-                    showNotification('❌ Erreur calcul itinéraire: ' + status, 'error');
                 }
             });
         }
 
-        function showRouteInstructions(leg, destination, distance, duration, price) {
-            let instructions = `
-                <div style="padding: 20px; max-width: 400px;">
-                    <h3 style="color: #00A854; margin-bottom: 15px;">🗺️ Itinéraire vers ${destination}</h3>
-                    <div style="background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; border-radius: 10px; color: white; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span><strong>📍 Distance:</strong></span>
-                            <span>${distance}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span><strong>⏱️ Durée:</strong></span>
-                            <span>${duration}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span><strong>💰 Prix estimé:</strong></span>
-                            <span style="font-size: 1.2em;">${price.toLocaleString()} FCFA</span>
-                        </div>
-                    </div>
-                    <h4 style="margin-bottom: 10px; color: #333;">📋 Instructions:</h4>
-                    <div style="max-height: 300px; overflow-y: auto;">
-            `;
-            
-            leg.steps.forEach((step, i) => {
-                const instruction = step.instructions.replace(/<[^>]*>/g, '');
-                instructions += `
-                    <div style="padding: 10px; margin-bottom: 8px; background: #f5f5f5; border-left: 4px solid #00A854; border-radius: 5px;">
-                        <strong>${i + 1}.</strong> ${instruction}<br>
-                        <small style="color: #666;">📏 ${step.distance.text} • ⏱️ ${step.duration.text}</small>
-                    </div>
-                `;
-            });
-            
-            instructions += `
-                    </div>
-                    <button onclick="startNavigation()" style="width: 100%; padding: 12px; margin-top: 15px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">
-                        <i class="fas fa-play"></i> Démarrer la navigation
-                    </button>
-                </div>
-            `;
-            
-            const infoWindow = new google.maps.InfoWindow({
-                content: instructions,
-                position: leg.start_location
-            });
-            infoWindow.open(map);
-        }
-
-        function startNavigation() {
-            if (!currentRoute) {
-                showNotification('❌ Aucun itinéraire actif', 'error');
-                return;
-            }
-            showNotification('🚗 Navigation démarrée! Suivez les instructions.', 'success');
-        }
-
-        function findMyLocation() {
-            if (!navigator.geolocation) {
-                showNotification('❌ Géolocalisation non supportée', 'error');
-                return;
-            }
-            showNotification('📍 Recherche de votre position...', 'info');
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const pos = {lat: position.coords.latitude, lng: position.coords.longitude};
-                    if (userMarker) userMarker.setMap(null);
-                    userMarker = new google.maps.Marker({
-                        position: pos,
-                        map: map,
-                        title: "Votre position",
-                        animation: google.maps.Animation.BOUNCE,
-                        icon: {
-                            path: google.maps.SymbolPath.CIRCLE,
-                            scale: 12,
-                            fillColor: '#4285F4',
-                            fillOpacity: 1,
-                            strokeColor: 'white',
-                            strokeWeight: 4
-                        }
-                    });
-                    setTimeout(() => { userMarker.setAnimation(null); }, 2000);
-                    map.setCenter(pos);
-                    map.setZoom(16);
-                    const accuracy = position.coords.accuracy;
-                    showNotification(`✅ Position trouvée! (précision: ${Math.round(accuracy)}m)`, 'success');
-                },
-                () => {
-                    showNotification('❌ Impossible de vous localiser', 'error');
-                }
-            );
-        }
-
-        function exploreZone(zoneKey) {
-            if (!map) {
-                showNotification('⚠️ Veuillez patienter que la carte soit chargée', 'info');
-                setTimeout(() => exploreZone(zoneKey), 1000);
-                return;
-            }
-
-            document.querySelector('.map-container').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-
-            setTimeout(() => {
-                showZoneQuartiers(zoneKey);
-            }, 800);
-        }
-
-        function showZoneQuartiers(zoneKey) {
-            const zoneNames = {
-                centre: 'Dakar Centre',
-                ouest: 'Corniche & Ouest',
-                pikine: 'Pikine',
-                guediawaye: 'Guédiawaye',
-                keur_massar: 'Keur Massar',
-                sud: 'Dakar Sud',
-                grand_yoff: 'Grand Yoff',
-                hann_bel_air: 'Hann Bel-Air',
-                parcelles: 'Parcelles Assainies'
-            };
-
-            const zoneColors = {
-                centre: '#00A854',
-                ouest: '#2196F3',
-                pikine: '#FF9800',
-                guediawaye: '#9C27B0',
-                keur_massar: '#FF5722',
-                sud: '#4CAF50',
-                grand_yoff: '#00BCD4',
-                hann_bel_air: '#E91E63',
-                parcelles: '#FFC107'
-            };
-
-            const quartiers = zones[zoneKey];
-            const zoneName = zoneNames[zoneKey];
-            const zoneColor = zoneColors[zoneKey];
-            
-            const bounds = new google.maps.LatLngBounds();
-            quartiers.forEach(q => {
-                bounds.extend(new google.maps.LatLng(q.lat, q.lng));
-            });
-            map.fitBounds(bounds);
-            
-            let content = `
-                <div style="padding: 20px; max-width: 450px;">
-                    <h3 style="color: ${zoneColor}; margin-bottom: 15px; font-size: 1.5em;">
-                        📍 ${zoneName}
-                    </h3>
-                    <p style="margin-bottom: 15px; color: #666;">
-                        <strong>${quartiers.length} quartiers</strong> couverts • 
-                        <strong>${quartiers.reduce((sum, q) => sum + q.vehicles, 0)} véhicules</strong> disponibles
-                    </p>
-                    <div style="max-height: 400px; overflow-y: auto;">
-                        <h4 style="margin-bottom: 10px; color: #333;">Liste des quartiers:</h4>
-            `;
-            
-            quartiers.forEach(q => {
-                content += `
-                    <div style="padding: 10px; margin-bottom: 8px; background: #f5f5f5; border-left: 4px solid ${zoneColor}; border-radius: 5px; cursor: pointer;"
-                         onclick="zoomToQuartier(${q.lat}, ${q.lng}, '${q.name}')">
-                        <strong>${q.name}</strong><br>
-                        <small style="color: #666;">🚕 ${q.vehicles} véhicules disponibles</small>
-                    </div>
-                `;
-            });
-            
-            content += `
-                    </div>
-                    <button onclick="closeZoneInfo()" 
-                            style="width: 100%; padding: 10px; margin-top: 15px; background: ${zoneColor}; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                        Fermer
-                    </button>
-                </div>
-            `;
-            
-            if (zoneInfoWindow) {
-                zoneInfoWindow.close();
-            }
-            
-            zoneInfoWindow = new google.maps.InfoWindow({
-                content: content,
-                position: bounds.getCenter()
-            });
-            
-            zoneInfoWindow.open(map);
-            
-            showNotification(`📍 Zone ${zoneName} - ${quartiers.length} quartiers`, 'success');
-        }
-
-        function zoomToQuartier(lat, lng, name) {
-            map.setCenter({lat, lng});
-            map.setZoom(16);
-            showNotification(`📍 Zoom sur ${name}`, 'info');
-        }
-
-        function initBookingForm() {
-            const today = new Date();
-            const dateInput = document.getElementById('bookingDate');
-            dateInput.min = today.toISOString().split('T')[0];
-        }
-
-        function selectVehicle(type, basePrice) {
-            selectedVehicleType = type;
-            selectedVehiclePrice = basePrice;
-            document.querySelectorAll('.vehicle-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
+        // ========== BOOKING FUNCTIONS ==========
+        function selectVehicle(type, price) {
+            selectedVehicle = type;
+            selectedVehiclePrice = price;
+            document.querySelectorAll('.vehicle-option').forEach(el => el.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
-            const vehicleNames = {
-                standard: '🚗 Standard',
-                confort: '✨ Confort',
-                van: '🚐 Van',
-                premium: '👑 Premium'
-            };
-            showNotification(`✅ Véhicule sélectionné: ${vehicleNames[type]}`, 'success');
-            
-            if (departureMarker && destinationMarker) {
-                calculateBookingRoute();
-            }
+            showNotification(`✅ Véhicule: ${type}`, 'success');
         }
 
         function selectPayment(method) {
-            selectedPaymentMethod = method;
-            document.querySelectorAll('.payment-method').forEach(opt => {
-                opt.classList.remove('selected');
-            });
+            selectedPayment = method;
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
-            const paymentNames = {
-                cash: '💵 Espèces',
-                orange: '📱 Orange Money',
-                wave: '💳 Wave',
-                card: '💳 Carte Bancaire',
-                freemoney: '💰 Free Money',
-                wizall: '🔷 Wizzall'
-            };
-            showNotification(`✅ Paiement: ${paymentNames[method]}`, 'success');
+            showNotification(`✅ Paiement: ${method}`, 'success');
         }
 
         function previewBooking() {
@@ -3133,434 +829,598 @@
             const to = document.getElementById('bookingTo').value.trim();
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
-            const passengers = document.getElementById('bookingPassengers').value;
             const phone = document.getElementById('bookingPhone').value.trim();
 
             if (!from || !to || !date || !time || !phone) {
-                showNotification('⚠️ Veuillez remplir tous les champs obligatoires (départ, destination, date, heure, téléphone)', 'error');
+                showNotification('⚠️ Remplissez tous les champs', 'error');
                 return;
             }
-            if (!selectedVehicleType) {
-                showNotification('⚠️ Veuillez sélectionner un véhicule', 'error');
+            if (!selectedVehicle) {
+                showNotification('⚠️ Sélectionnez un véhicule', 'error');
                 return;
             }
-            if (!selectedPaymentMethod) {
-                showNotification('⚠️ Veuillez sélectionner un mode de paiement', 'error');
+            if (!selectedPayment) {
+                showNotification('⚠️ Sélectionnez un paiement', 'error');
                 return;
             }
 
-            let totalPrice;
-            if (directionsRenderer.getDirections()) {
-                const route = directionsRenderer.getDirections().routes[0];
-                const leg = route.legs[0];
-                const distance = leg.distance.value / 1000;
-                const pricePerKm = {standard: 200, confort: 250, van: 300, premium: 400};
-                totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicleType]));
-            } else {
-                const distance = (Math.random() * 22 + 3).toFixed(1);
-                const pricePerKm = {standard: 200, confort: 250, van: 300, premium: 400};
-                totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicleType]));
+            // Calculate price
+            let distance = 10; // Default
+            if (departureCoords && destinationCoords) {
+                distance = calculateDistance(departureCoords, destinationCoords);
             }
+            const pricePerKm = { standard: 200, confort: 250, van: 300, premium: 400 };
+            const totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicle]));
 
-            const vehicleNames = {
-                standard: '🚗 Standard',
-                confort: '✨ Confort',
-                van: '🚐 Van',
-                premium: '👑 Premium'
-            };
-            const paymentNames = {
-                cash: '💵 Espèces',
-                orange: '📱 Orange Money',
-                wave: '💳 Wave',
-                card: '💳 Carte Bancaire',
-                freemoney: '💰 Free Money',
-                wizall: '🔷 Wizzall'
-            };
+            const vehicleNames = { standard: '🚗 Standard', confort: '✨ Confort', van: '🚐 Van', premium: '👑 Premium' };
+            const paymentNames = { cash: '💵 Espèces', orange: '📱 Orange Money', wave: '💳 Wave' };
 
-            document.getElementById('summaryRoute').textContent = `${from} → ${to}`;
+            document.getElementById('summaryRoute').textContent = `${from.substring(0, 20)}... → ${to.substring(0, 20)}...`;
             document.getElementById('summaryDateTime').textContent = `${date} à ${time}`;
-            document.getElementById('summaryPassengers').textContent = `${passengers} personne(s)`;
-            document.getElementById('summaryVehicle').textContent = vehicleNames[selectedVehicleType];
-            document.getElementById('summaryPayment').textContent = paymentNames[selectedPaymentMethod];
+            document.getElementById('summaryVehicle').textContent = vehicleNames[selectedVehicle];
+            document.getElementById('summaryPayment').textContent = paymentNames[selectedPayment];
             document.getElementById('summaryTotal').textContent = `${totalPrice.toLocaleString()} FCFA`;
 
-            const summary = document.getElementById('bookingSummary');
-            summary.style.display = 'block';
-            summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            showNotification('👀 Vérifiez votre réservation', 'info');
+            document.getElementById('bookingSummary').style.display = 'block';
+            document.getElementById('bookingSummary').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ✅ FONCTION CORRIGÉE avec les bons noms de champs
+        function calculateDistance(p1, p2) {
+            const R = 6371;
+            const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+            const dLon = (p2.lng - p1.lng) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
         async function confirmBooking() {
-            const phone = document.getElementById('bookingPhone').value.trim();
-
-            if (!phone) {
-                showNotification('⚠️ Veuillez remplir votre numéro de téléphone', 'error');
-                return;
-            }
-
             const summary = document.getElementById('bookingSummary');
             if (summary.style.display === 'none') {
-                showNotification('⚠️ Veuillez d\'abord prévisualiser votre réservation', 'error');
+                showNotification('⚠️ Cliquez d\'abord sur Aperçu', 'error');
                 return;
             }
 
-            // ✅ STRUCTURE DE DONNÉES CORRIGÉE ET UNIFIÉE
+            showLoading('Enregistrement...');
+
             const bookingData = {
-                // Informations client (noms de champs unifiés avec le Dashboard)
-                clientNom: document.getElementById('bookingName').value.trim() || null,
-                clientTelephone: phone,
-                clientEmail: document.getElementById('bookingEmail').value.trim() || null,
-                
-                // Informations de trajet
+                clientNom: document.getElementById('bookingName').value.trim() || 'Client',
+                clientTelephone: document.getElementById('bookingPhone').value.trim(),
                 depart: document.getElementById('bookingFrom').value.trim(),
                 destination: document.getElementById('bookingTo').value.trim(),
-                
-                // Date et heure (noms unifiés)
+                departCoords: departureCoords,
+                destinationCoords: destinationCoords,
                 dateReservation: document.getElementById('bookingDate').value,
                 heureReservation: document.getElementById('bookingTime').value,
-                
-                // Détails de la réservation
-                nombrePassagers: parseInt(document.getElementById('bookingPassengers').value),
-                vehiculeType: selectedVehicleType,
-                prixBase: selectedVehiclePrice,
-                modePaiement: selectedPaymentMethod,
+                vehiculeType: selectedVehicle,
+                modePaiement: selectedPayment,
                 prixEstime: parseInt(document.getElementById('summaryTotal').textContent.replace(/\D/g, '')),
-                instructionsSpeciales: document.getElementById('bookingNotes').value.trim() || null,
-                
-                // Informations système
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 statut: 'en_attente',
-                source: 'web',
-                
-                // Champs pour l'assignation (initialement vides)
                 chauffeurAssigne: null,
                 nomChauffeur: null,
-                telephoneChauffeur: null,
-                modeAssignation: null,  // Sera rempli par le système (automatique/manuel)
-                dateAssignation: null
+                telephoneChauffeur: null
             };
 
             try {
-                showNotification('💾 Enregistrement en cours...', 'info');
-                
-                // Enregistrement dans Firebase
                 const docRef = await db.collection('reservations').add(bookingData);
                 
-                console.log('✅ Réservation enregistrée avec ID:', docRef.id);
-                console.log('📋 Données enregistrées:', bookingData);
+                currentBooking = {
+                    id: docRef.id,
+                    ...bookingData
+                };
+
+                hideLoading();
+                showNotification('✅ Réservation confirmée!', 'success');
+
+                // Open tracking modal
+                openTracking();
                 
-                showNotification('🎉 Réservation confirmée! SMS envoyé.', 'success');
+                // Start listening for updates
+                startReservationListener(docRef.id);
 
-                setTimeout(() => {
-                    const bookingDateTime = new Date(`${bookingData.dateReservation}T${bookingData.heureReservation}`);
-                    const now = new Date();
-                    const timeDiff = bookingDateTime - now;
-                    const isImmediate = timeDiff < 3600000;
-                    
-                    let contactMessage;
-                    if (isImmediate) {
-                        contactMessage = 'Un chauffeur vous contactera dans quelques minutes.';
-                    } else {
-                        const minutesBefore = Math.floor(timeDiff / 60000) > 60 ? '30 minutes' : '15 minutes';
-                        contactMessage = `Un chauffeur vous contactera ${minutesBefore} avant.`;
-                    }
-                    
-                    const confirmationMsg = `✅ RÉSERVATION CONFIRMÉE\n\n📱 Numéro: ${phone}\n🚗 Véhicule: ${document.getElementById('summaryVehicle').textContent}\n📍 Trajet: ${document.getElementById('summaryRoute').textContent}\n📅 ${document.getElementById('summaryDateTime').textContent}\n💰 Total: ${document.getElementById('summaryTotal').textContent}\n\n${contactMessage}\nCode de réservation: AB${docRef.id.substring(0, 8).toUpperCase()}`;
-                    alert(confirmationMsg);
-
-                    // Réinitialisation du formulaire
-                    document.getElementById('bookingForm').reset();
-                    document.querySelectorAll('.vehicle-option, .payment-method').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    summary.style.display = 'none';
-                    selectedVehicleType = null;
-                    selectedPaymentMethod = null;
-                    
-                    // Nettoyage des marqueurs
-                    if (departureMarker) {
-                        departureMarker.setMap(null);
-                        departureMarker = null;
-                    }
-                    if (destinationMarker) {
-                        destinationMarker.setMap(null);
-                        destinationMarker = null;
-                    }
-                    
-                    if (directionsRenderer) {
-                        directionsRenderer.setDirections({routes: []});
-                    }
-                    
-                    if (routeInfoWindow) {
-                        routeInfoWindow.close();
-                        routeInfoWindow = null;
-                    }
-                }, 1500);
             } catch (error) {
-                console.error('❌ Erreur lors de la réservation:', error);
+                hideLoading();
+                console.error('Erreur:', error);
                 showNotification('❌ Erreur: ' + error.message, 'error');
             }
         }
 
-        function activateSmartSearch() {
-            showNotification('🔍 Recherche intelligente activée!', 'success');
-            document.querySelector('.map-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // ========== TRACKING FUNCTIONS ==========
+        function openTracking() {
+            document.getElementById('trackingModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Populate trip details
+            document.getElementById('tripFrom').textContent = currentBooking.depart;
+            document.getElementById('tripTo').textContent = currentBooking.destination;
+            document.getElementById('tripPrice').textContent = currentBooking.prixEstime.toLocaleString() + ' FCFA';
+
+            // Set step 1 time
+            document.getElementById('step1Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+            // Initialize tracking map
+            setTimeout(() => initTrackingMap(), 300);
+        }
+
+        function closeTracking() {
+            document.getElementById('trackingModal').classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Stop listeners
+            if (reservationListener) {
+                reservationListener();
+                reservationListener = null;
+            }
+            if (driverListener) {
+                driverListener();
+                driverListener = null;
+            }
+        }
+
+        function initTrackingMap() {
+            if (!currentBooking || !currentBooking.departCoords) return;
+
+            trackingMap = new google.maps.Map(document.getElementById('trackingMap'), {
+                center: currentBooking.departCoords,
+                zoom: 14,
+                disableDefaultUI: true,
+                zoomControl: true
+            });
+
+            trackingDirectionsRenderer = new google.maps.DirectionsRenderer({
+                map: trackingMap,
+                suppressMarkers: true,
+                polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5, strokeOpacity: 0.8 }
+            });
+
+            // Client pickup marker (green)
+            clientPickupMarker = new google.maps.Marker({
+                position: currentBooking.departCoords,
+                map: trackingMap,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 12,
+                    fillColor: '#4CAF50',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: 3
+                },
+                label: { text: '📍', fontSize: '16px' },
+                title: 'Point de prise en charge'
+            });
+
+            // Destination marker (red) - optional display
+            if (currentBooking.destinationCoords) {
+                new google.maps.Marker({
+                    position: currentBooking.destinationCoords,
+                    map: trackingMap,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: '#E30613',
+                        fillOpacity: 0.7,
+                        strokeColor: 'white',
+                        strokeWeight: 2
+                    },
+                    title: 'Destination'
+                });
+            }
+        }
+
+        function startReservationListener(reservationId) {
+            console.log('👂 Écoute réservation:', reservationId);
+
+            reservationListener = db.collection('reservations').doc(reservationId)
+                .onSnapshot((doc) => {
+                    if (!doc.exists) {
+                        console.log('❌ Réservation non trouvée');
+                        return;
+                    }
+
+                    const data = doc.data();
+                    console.log('📦 Mise à jour réservation:', data.statut, data);
+
+                    currentBooking = { id: doc.id, ...data };
+
+                    // Update status timeline
+                    updateStatusTimeline(data.statut);
+
+                    // If driver assigned, start driver tracking
+                    if (data.chauffeurAssigne) {
+                        console.log('🚗 Chauffeur assigné:', data.chauffeurAssigne);
+                        updateStep2(data);
+                        
+                        // Démarrer le tracking du chauffeur si pas déjà actif
+                        if (!driverListener) {
+                            startDriverTracking(data.chauffeurAssigne);
+                        }
+                    }
+
+                    // Update driver card
+                    if (data.nomChauffeur) {
+                        showDriverCard(data);
+                    }
+                }, (error) => {
+                    console.error('❌ Erreur écoute réservation:', error);
+                });
+        }
+
+        function updateStep2(data) {
+            const step2Icon = document.getElementById('step2Icon');
+            const step2Text = document.getElementById('step2Text');
+            const step2Time = document.getElementById('step2Time');
+
+            step2Icon.classList.add('active');
+            step2Text.textContent = `${data.nomChauffeur || 'Chauffeur'} assigné`;
+            step2Time.textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function startDriverTracking(driverId) {
+            console.log('🚗 Démarrage suivi chauffeur:', driverId);
+            
+            // Arrêter l'ancien listener si existant
+            if (driverListener) {
+                driverListener();
+                driverListener = null;
+            }
+
+            // Écouter les mises à jour en temps réel
+            driverListener = db.collection('drivers').doc(driverId)
+                .onSnapshot((doc) => {
+                    if (!doc.exists) {
+                        console.log('❌ Chauffeur non trouvé');
+                        return;
+                    }
+
+                    const driverData = doc.data();
+                    console.log('📍 Données chauffeur reçues:', driverData.statut, driverData.position);
+                    
+                    // Vérifier si le chauffeur a une position
+                    if (driverData.position && driverData.position.latitude && driverData.position.longitude) {
+                        const driverPos = {
+                            lat: driverData.position.latitude,
+                            lng: driverData.position.longitude
+                        };
+                        
+                        console.log('📍 Position chauffeur:', driverPos);
+                        
+                        // Sauvegarder la dernière position
+                        lastDriverPosition = driverPos;
+
+                        // Mettre à jour le marqueur et la route
+                        updateDriverMarker(driverPos);
+                        calculateApproachRoute(driverPos);
+                        
+                        // Mettre à jour le statut step3
+                        updateStep3();
+                    } else {
+                        console.log('⚠️ Pas de position GPS pour le chauffeur');
+                    }
+
+                    // Vérifier le statut du chauffeur
+                    if (driverData.statut === 'en_course') {
+                        console.log('🚗 Chauffeur en course');
+                    }
+                }, (error) => {
+                    console.error('❌ Erreur suivi chauffeur:', error);
+                    showNotification('Erreur de connexion au suivi', 'error');
+                });
+
+            // Activer le mode simulation si pas de données après 5 secondes
             setTimeout(() => {
-                const searchInput = document.getElementById('searchInput');
-                searchInput.focus();
-                searchInput.style.border = '3px solid #00A854';
-                searchInput.style.boxShadow = '0 0 20px rgba(0, 168, 84, 0.5)';
-                searchInput.placeholder = '🔍 Tapez une adresse à Dakar (ex: Plateau, Almadies...)';
+                if (!lastDriverPosition && currentBooking) {
+                    console.log('🧪 Activation mode simulation (pas de données chauffeur)');
+                    startSimulationMode();
+                }
+            }, 5000);
+        }
+        
+        // Mode simulation pour tester le suivi
+        function startSimulationMode() {
+            if (simulationMode) return;
+            simulationMode = true;
+            
+            console.log('🧪 Mode simulation activé');
+            showNotification('📍 Mode démo: Simulation du trajet', 'info');
+            
+            // Position initiale du chauffeur (à 2km du client)
+            if (currentBooking && currentBooking.departCoords) {
+                simulatedDriverPosition = {
+                    lat: currentBooking.departCoords.lat + 0.015,
+                    lng: currentBooking.departCoords.lng + 0.015
+                };
                 
-                setTimeout(() => {
-                    searchInput.style.border = '';
-                    searchInput.style.boxShadow = '';
-                    searchInput.placeholder = '🔍 Rechercher une adresse à Dakar...';
+                // Afficher la position initiale
+                updateDriverMarker(simulatedDriverPosition);
+                calculateApproachRoute(simulatedDriverPosition);
+                updateStep3();
+                
+                // Simuler le déplacement toutes les 3 secondes
+                trackingUpdateInterval = setInterval(() => {
+                    if (!currentBooking || !simulatedDriverPosition) {
+                        clearInterval(trackingUpdateInterval);
+                        return;
+                    }
+                    
+                    // Déplacer le chauffeur vers le client
+                    const target = currentBooking.departCoords;
+                    const speed = 0.002; // Environ 200m par mise à jour
+                    
+                    const dLat = target.lat - simulatedDriverPosition.lat;
+                    const dLng = target.lng - simulatedDriverPosition.lng;
+                    const distance = Math.sqrt(dLat * dLat + dLng * dLng);
+                    
+                    if (distance < 0.001) {
+                        // Chauffeur arrivé
+                        console.log('🎯 Chauffeur arrivé (simulation)');
+                        clearInterval(trackingUpdateInterval);
+                        updateStatusTimeline('arrive');
+                        return;
+                    }
+                    
+                    // Avancer vers le client
+                    simulatedDriverPosition = {
+                        lat: simulatedDriverPosition.lat + (dLat / distance) * speed,
+                        lng: simulatedDriverPosition.lng + (dLng / distance) * speed
+                    };
+                    
+                    console.log('🚗 Position simulée:', simulatedDriverPosition);
+                    updateDriverMarker(simulatedDriverPosition);
+                    calculateApproachRoute(simulatedDriverPosition);
+                    
                 }, 3000);
-            }, 800);
+            }
         }
 
+        function updateDriverMarker(position) {
+            if (!trackingMap) return;
+
+            if (driverMarker) {
+                driverMarker.setPosition(position);
+            } else {
+                driverMarker = new google.maps.Marker({
+                    position: position,
+                    map: trackingMap,
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 8,
+                        fillColor: '#2196F3',
+                        fillOpacity: 1,
+                        strokeColor: 'white',
+                        strokeWeight: 2,
+                        rotation: 0
+                    },
+                    title: 'Votre chauffeur',
+                    zIndex: 100
+                });
+            }
+
+            // Fit bounds to show both markers
+            const bounds = new google.maps.LatLngBounds();
+            bounds.extend(position);
+            if (currentBooking.departCoords) {
+                bounds.extend(currentBooking.departCoords);
+            }
+            trackingMap.fitBounds(bounds, { padding: 50 });
+        }
+
+        function calculateApproachRoute(driverPos) {
+            if (!currentBooking.departCoords || !directionsService) return;
+
+            directionsService.route({
+                origin: driverPos,
+                destination: currentBooking.departCoords,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === 'OK') {
+                    trackingDirectionsRenderer.setDirections(result);
+
+                    const leg = result.routes[0].legs[0];
+                    
+                    // Update ETA display
+                    const durationMinutes = Math.ceil(leg.duration.value / 60);
+                    document.getElementById('driverETA').textContent = durationMinutes;
+                    document.getElementById('driverDistance').textContent = leg.distance.text;
+                    
+                    // Calculate arrival time
+                    const arrivalTime = new Date(Date.now() + leg.duration.value * 1000);
+                    document.getElementById('driverArrivalTime').textContent = 
+                        arrivalTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+                    // Show approaching box
+                    document.getElementById('driverApproachingBox').style.display = 'block';
+                }
+            });
+        }
+
+        function updateStep3() {
+            const step3Icon = document.getElementById('step3Icon');
+            step3Icon.classList.remove('active');
+            step3Icon.classList.add('current');
+            document.getElementById('step3Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateStatusTimeline(statut) {
+            const step4Icon = document.getElementById('step4Icon');
+            const step5Icon = document.getElementById('step5Icon');
+
+            switch(statut) {
+                case 'arrive':
+                    step4Icon.classList.add('active');
+                    document.getElementById('step3Icon').classList.remove('current');
+                    document.getElementById('step3Icon').classList.add('active');
+                    document.getElementById('step4Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    
+                    // Update approaching box
+                    document.getElementById('driverApproachingBox').innerHTML = `
+                        <div class="driver-approaching-title">✅ Chauffeur arrivé!</div>
+                        <div class="driver-eta" style="font-size: 1.5em;">Rejoignez votre chauffeur</div>
+                    `;
+                    document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
+                    break;
+
+                case 'en_cours':
+                    step4Icon.classList.add('active');
+                    step5Icon.classList.add('current');
+                    document.getElementById('step5Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    
+                    document.getElementById('driverApproachingBox').innerHTML = `
+                        <div class="driver-approaching-title">🚗 Course en cours</div>
+                        <div class="driver-eta" style="font-size: 1.2em;">Direction: ${currentBooking.destination}</div>
+                    `;
+                    document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #00A854, #FECB00)';
+                    break;
+
+                case 'terminee':
+                    step5Icon.classList.remove('current');
+                    step5Icon.classList.add('active');
+                    
+                    document.getElementById('driverApproachingBox').innerHTML = `
+                        <div class="driver-approaching-title">🎉 Course terminée!</div>
+                        <div class="driver-eta" style="font-size: 1.2em;">Merci d'avoir choisi Al Bourakh</div>
+                    `;
+                    document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #9C27B0, #E91E63)';
+                    
+                    setTimeout(() => {
+                        closeTracking();
+                        showNotification('🎉 Course terminée! Merci!', 'success');
+                    }, 3000);
+                    break;
+
+                case 'annulee':
+                    closeTracking();
+                    showNotification('❌ Réservation annulée', 'error');
+                    break;
+            }
+        }
+
+        function showDriverCard(data) {
+            const driverCard = document.getElementById('driverCard');
+            driverCard.style.display = 'block';
+
+            document.getElementById('driverName').textContent = data.nomChauffeur || 'Chauffeur';
+            document.getElementById('driverRating').textContent = '4.9';
+            
+            // Store phone for call
+            driverCard.dataset.phone = data.telephoneChauffeur || '';
+        }
+
+        function callDriver() {
+            const phone = document.getElementById('driverCard').dataset.phone;
+            if (phone) {
+                window.location.href = `tel:${phone}`;
+            } else {
+                showNotification('Numéro non disponible', 'error');
+            }
+        }
+
+        function messageDriver() {
+            const phone = document.getElementById('driverCard').dataset.phone;
+            if (phone) {
+                window.location.href = `sms:${phone}`;
+            } else {
+                showNotification('Numéro non disponible', 'error');
+            }
+        }
+
+        async function cancelBooking() {
+            if (!confirm('Annuler cette réservation?')) return;
+
+            if (currentBooking && currentBooking.id) {
+                try {
+                    await db.collection('reservations').doc(currentBooking.id).update({
+                        statut: 'annulee',
+                        dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
+            }
+
+            closeTracking();
+            currentBooking = null;
+            showNotification('Réservation annulée', 'info');
+        }
+
+        // ========== UI HELPERS ==========
         function scrollToBooking() {
-            document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            showNotification('📝 Remplissez le formulaire de réservation', 'info');
+            document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth' });
         }
 
+        function showNotification(message, type = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => {
+                notif.style.animation = 'slideIn 0.3s reverse';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        function showLoading(text = 'Chargement...') {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.querySelector('.loading-text').textContent = text;
+            overlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // ========== CHATBOT ==========
         function toggleChatbot() {
-            const chatbot = document.getElementById('chatbotWindow');
-            chatbot.classList.toggle('active');
-            if (chatbot.classList.contains('active')) {
-                document.getElementById('chatbotInput').focus();
-            }
+            document.getElementById('chatbotWindow').classList.toggle('active');
         }
 
-        function handleChatbotKeypress(event) {
-            if (event.key === 'Enter') {
-                sendChatbotMessage();
-            }
-        }
-
-        // Base de connaissances Al Bourakh
-        const AL_BOURAKH_KNOWLEDGE = `Tu es l'assistant virtuel officiel d'Al Bourakh, le premier service de transport avec chauffeur 100% sénégalais.
-
-**INFORMATIONS ESSENTIELLES:**
-
-**SERVICES & TARIFS:**
-- Standard (Kia Rio): 1000 FCFA base + 200 FCFA/km
-- Confort (VW Polo): 1500 FCFA base + 250 FCFA/km  
-- Van: 2000 FCFA base + 300 FCFA/km
-- Premium (Hyundai): 2500 FCFA base + 400 FCFA/km
-- Moto Jakarta: 500 FCFA base + 150 FCFA/km
-
-**NAVETTE AÉROPORT AIBD (tarifs fixes):**
-- Dakar Centre → AIBD: 15,000 FCFA
-- Almadies → AIBD: 18,000 FCFA
-- Pikine → AIBD: 12,000 FCFA
-
-**ZONES COUVERTES:**
-Dakar (Plateau, Médina, Almadies, Ngor, Yoff, Pikine, Guédiawaye), Thiès, Saint-Louis
-
-**CONTACT:**
-- Téléphone 24/7: +221 77 123 45 67
-- WhatsApp: +221 77 123 45 67
-- Email: support@albourakh.sn
-
-**PAIEMENT:**
-Cash, Orange Money, Wave, Free Money, E-Money, Wari, Carte bancaire
-
-**PROGRAMME FIDÉLITÉ:**
-- Bronze (0-999 pts): Standard
-- Argent (1000-4999 pts): -5%
-- Or (5000-14999 pts): -10%
-- Platine (15000+ pts): -15%
-
-**SÉCURITÉ:**
-- Tous chauffeurs vérifiés (casier judiciaire)
-- Assurance jusqu'à 10M FCFA
-- Bouton SOS dans l'app
-- Partage de trajet en temps réel
-
-Réponds de manière naturelle, chaleureuse et professionnelle en français. Si on te pose une question sur un prix ou service, donne les informations exactes ci-dessus.`;
-
-        async function sendChatbotMessage() {
+        function sendChatMessage() {
             const input = document.getElementById('chatbotInput');
             const message = input.value.trim();
             if (!message) return;
 
-            const sendButton = document.getElementById('chatbotSend');
-            sendButton.disabled = true;
-            input.disabled = true;
-
             addChatMessage(message, 'user');
             input.value = '';
 
-            showTypingIndicator();
-
-            try {
-                // Utiliser l'API Claude directement
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "x-api-key": "VOTRE_CLE_API_ANTHROPIC" // L'utilisateur devra remplacer
-                    },
-                    body: JSON.stringify({
-                        model: "claude-sonnet-4-20250514",
-                        max_tokens: 1024,
-                        system: AL_BOURAKH_KNOWLEDGE,
-                        messages: [
-                            {
-                                role: "user",
-                                content: message
-                            }
-                        ]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erreur API');
-                }
-
-                const data = await response.json();
-                hideTypingIndicator();
-                
-                const botResponse = data.content[0].text || "Désolé, je n'ai pas compris votre question.";
-                addChatMessage(botResponse, 'bot');
-                
-            } catch (error) {
-                console.error('Erreur chatbot:', error);
-                hideTypingIndicator();
-                
-                // Réponse de secours basique
-                const fallbackResponse = getFallbackResponse(message);
-                addChatMessage(fallbackResponse, 'bot');
-            } finally {
-                sendButton.disabled = false;
-                input.disabled = false;
-                input.focus();
-            }
-        }
-
-        // Système de réponses de secours
-        function getFallbackResponse(message) {
-            const msg = message.toLowerCase();
-            
-            // Prix et tarifs
-            if (msg.includes('prix') || msg.includes('tarif') || msg.includes('coût') || msg.includes('combien')) {
-                return `📊 **Nos Tarifs Al Bourakh:**\n\n🚗 **Standard**: 1000 FCFA + 200 FCFA/km\n✨ **Confort**: 1500 FCFA + 250 FCFA/km\n🚐 **Van**: 2000 FCFA + 300 FCFA/km\n👑 **Premium**: 2500 FCFA + 400 FCFA/km\n🏍️ **Moto Jakarta**: 500 FCFA + 150 FCFA/km\n\n✈️ **Aéroport AIBD**: 15,000 FCFA depuis Dakar Centre\n\nBesoin d'un devis précis ? Remplissez le formulaire de réservation !`;
-            }
-            
-            // Contact
-            if (msg.includes('contact') || msg.includes('appeler') || msg.includes('téléphone') || msg.includes('joindre')) {
-                return `📞 **Contactez-nous 24/7:**\n\n☎️ Téléphone: +221 77 123 45 67\n💬 WhatsApp: +221 77 123 45 67\n📧 Email: support@albourakh.sn\n\nNotre équipe est disponible jour et nuit pour vous servir !`;
-            }
-            
-            // Réservation
-            if (msg.includes('réserv') || msg.includes('commander') || msg.includes('course')) {
-                return `🚕 **Pour réserver votre course:**\n\n1. Remplissez le formulaire ci-dessus avec:\n   - Votre point de départ\n   - Votre destination\n   - Date et heure souhaitées\n\n2. Choisissez votre type de véhicule\n\n3. Sélectionnez votre mode de paiement\n\n4. Cliquez sur "Confirmer la réservation"\n\n✅ Vous recevrez une confirmation par SMS !`;
-            }
-            
-            // Zones
-            if (msg.includes('zone') || msg.includes('quartier') || msg.includes('où') || msg.includes('couverture')) {
-                return `📍 **Nos zones de couverture:**\n\n🏙️ **Dakar**: Plateau, Médina, Almadies, Ngor, Yoff, Ouakam, Pikine, Guédiawaye, Parcelles Assainies\n\n🌆 **Autres régions**: Thiès, Saint-Louis\n\n🚁 Bientôt: Mbour, Saly, Kaolack\n\nVous pouvez réserver dans toutes ces zones !`;
-            }
-            
-            // Paiement
-            if (msg.includes('paiement') || msg.includes('payer') || msg.includes('mobile money') || msg.includes('orange')) {
-                return `💳 **Modes de paiement acceptés:**\n\n💵 Espèces\n📱 Orange Money\n💳 Wave\n💰 Free Money\n🔷 E-Money (Tigo)\n💎 Wari\n💳 Carte Bancaire (Visa, Mastercard)\n\nChoisissez votre mode préféré lors de la réservation !`;
-            }
-            
-            // Aéroport
-            if (msg.includes('aéroport') || msg.includes('aibd') || msg.includes('vol') || msg.includes('avion')) {
-                return `✈️ **Navette Aéroport AIBD:**\n\n📍 **Tarifs fixes** depuis Dakar:\n- Centre-ville: 15,000 FCFA\n- Almadies: 18,000 FCFA\n- Pikine: 12,000 FCFA\n\n✅ Inclus: Suivi de vol, assistance bagages\n⏰ Recommandation: Réservez 3h avant votre vol\n\nRéservez maintenant dans le formulaire ci-dessus !`;
-            }
-            
-            // Sécurité
-            if (msg.includes('sécurité') || msg.includes('sûr') || msg.includes('fiable') || msg.includes('assurance')) {
-                return `🛡️ **Votre sécurité est notre priorité:**\n\n✅ Tous nos chauffeurs sont vérifiés (casier judiciaire)\n🚗 Véhicules assurés jusqu'à 10M FCFA\n📱 Bouton SOS dans l'application\n📍 Partage de trajet en temps réel\n⭐ Système de notation chauffeurs\n\nVoyagez l'esprit tranquille avec Al Bourakh !`;
-            }
-            
-            // Fidélité
-            if (msg.includes('fidélité') || msg.includes('point') || msg.includes('réduction') || msg.includes('promotion')) {
-                return `⭐ **Programme Fidélité Al Bourakh VIP:**\n\n🥉 **Bronze** (0-999 pts): Membre standard\n🥈 **Argent** (1000-4999 pts): -5% sur tous trajets\n🥇 **Or** (5000-14999 pts): -10% + surclassement gratuit\n💎 **Platine** (15000+ pts): -15% + service VIP\n\nGagnez 1 point par 100 FCFA dépensés !\n\n🎁 Code BIENVENUE: -30% sur vos 3 premiers trajets !`;
-            }
-            
-            // Réponse générale
-            return `Bonjour ! Je suis l'assistant Al Bourakh 🚕\n\nJe peux vous aider avec:\n- 💰 Les tarifs et prix\n- 📍 Les zones couvertes\n- 🚗 La réservation de courses\n- 💳 Les modes de paiement\n- ✈️ La navette aéroport\n- ⭐ Le programme fidélité\n\nPosez-moi votre question ou contactez-nous au +221 77 123 45 67 !`;
-        }
-
-        function showTypingIndicator() {
-            document.getElementById('typingIndicator').classList.add('active');
-            const messagesContainer = document.getElementById('chatbotMessages');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function hideTypingIndicator() {
-            document.getElementById('typingIndicator').classList.remove('active');
+            // Simple bot response
+            setTimeout(() => {
+                const response = getBotResponse(message);
+                addChatMessage(response, 'bot');
+            }, 500);
         }
 
         function addChatMessage(text, sender) {
-            const messagesContainer = document.getElementById('chatbotMessages');
-            const messageDiv = document.createElement('div');
-            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-
-            messageDiv.className = `chatbot-message message-${sender}`;
-            messageDiv.innerHTML = `
-                <div class="message-avatar avatar-${sender}">
-                    ${sender === 'bot' ? '🚕' : '👤'}
-                </div>
-                <div class="message-content content-${sender}">
-                    ${text.replace(/\n/g, '<br>')}
-                    <div class="message-time">${time}</div>
-                </div>
+            const container = document.getElementById('chatbotMessages');
+            const div = document.createElement('div');
+            div.className = `chatbot-message message-${sender}`;
+            div.innerHTML = `
+                <div class="message-avatar avatar-${sender}">${sender === 'bot' ? '🚕' : '👤'}</div>
+                <div class="message-content content-${sender}">${text}</div>
             `;
-
-            messagesContainer.insertBefore(messageDiv, document.getElementById('typingIndicator'));
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            chatHistory.push({ sender, text, time });
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = message;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.3s ease reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 4000);
+        function getBotResponse(message) {
+            const msg = message.toLowerCase();
+            if (msg.includes('prix') || msg.includes('tarif')) {
+                return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+ (+ 200-400F/km selon véhicule).';
+            }
+            if (msg.includes('contact') || msg.includes('téléphone')) {
+                return '📞 Appelez-nous au +221 77 123 45 67 (24h/24)';
+            }
+            if (msg.includes('suivi') || msg.includes('chauffeur')) {
+                return 'Après confirmation, vous pouvez suivre votre chauffeur en temps réel sur la carte!';
+            }
+            return 'Je suis l\'assistant Al Bourakh. Posez-moi vos questions sur les tarifs, réservations ou le suivi!';
         }
 
-        // Exposer initMap globalement pour Google Maps API
+        // ========== INIT ==========
         window.initMap = initMap;
     </script>
 
-    <script>
-        // Gestion d'erreur pour Google Maps
-        window.gm_authFailure = function() {
-            console.error('❌ Erreur d\'authentification Google Maps API');
-            document.getElementById('loadingOverlay').style.display = 'none';
-            showNotification('❌ Erreur d\'authentification Google Maps - Vérifiez vos restrictions', 'error');
-        };
-
-        window.addEventListener('error', function(e) {
-            if (e.message && e.message.includes('Google')) {
-                console.error('Erreur Google Maps:', e);
-            }
-        });
-    </script>
-    
-    <script async defer 
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places,geometry"
-            onerror="handleMapLoadError()">
-    </script>
-    
-    <script>
-        function handleMapLoadError() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-            showNotification('❌ Impossible de charger Google Maps. Vérifiez votre connexion internet.', 'error');
-            console.error('Échec du chargement du script Google Maps');
-        }
-    </script>
+    <!-- Google Maps -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 </body>
 </html>
