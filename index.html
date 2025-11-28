@@ -9,74 +9,80 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; min-height: 100vh; overflow-x: hidden; }
         
         /* Hero Section */
-        .hero-section { background: linear-gradient(135deg, #00A854, #FECB00, #E30613); padding: 60px 20px; text-align: center; color: white; }
-        .hero-logo { width: 120px; height: 90px; margin-bottom: 15px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
-        .hero-title { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .hero-subtitle { font-size: 1.2em; opacity: 0.95; }
-        .hero-cta { display: inline-block; margin-top: 25px; padding: 15px 35px; font-size: 1.1em; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: white; color: #00A854; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .hero-section { background: linear-gradient(135deg, #00A854, #FECB00, #E30613); padding: 40px 15px; text-align: center; color: white; }
+        .hero-logo { width: 100px; height: 75px; margin-bottom: 12px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
+        .hero-title { font-size: 2em; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero-subtitle { font-size: 1em; opacity: 0.95; }
+        .hero-cta { display: inline-block; margin-top: 20px; padding: 12px 28px; font-size: 1em; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: white; color: #00A854; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s; }
         .hero-cta:hover { transform: scale(1.05); }
 
         /* Map Container */
-        .map-container { max-width: 1200px; margin: 30px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        .map-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .map-logo { font-size: 1.3em; font-weight: bold; color: white; display: flex; align-items: center; gap: 10px; }
-        .search-container { position: relative; flex: 1; min-width: 250px; max-width: 400px; }
-        .search-input { width: 100%; padding: 12px 40px 12px 15px; border: none; border-radius: 10px; font-size: 1em; }
-        .search-input:focus { outline: none; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-        .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #00A854; }
-        .map-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-        .map-btn { padding: 10px 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9em; transition: all 0.3s; }
+        .map-container { max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .map-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .map-logo { font-size: 1.1em; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; }
+        .search-container { position: relative; flex: 1; min-width: 200px; max-width: 100%; }
+        .search-input { width: 100%; padding: 10px 35px 10px 12px; border: none; border-radius: 8px; font-size: 0.95em; }
+        .search-input:focus { outline: none; box-shadow: 0 0 8px rgba(0,0,0,0.2); }
+        .search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #00A854; }
+        .map-controls { display: flex; gap: 6px; flex-wrap: wrap; }
+        .map-btn { padding: 8px 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.85em; transition: all 0.3s; white-space: nowrap; }
         .map-btn:hover { transform: translateY(-2px); }
         .btn-primary { background: #00A854; color: white; }
         .btn-secondary { background: #2196F3; color: white; }
         .btn-outline { background: white; color: #333; }
-        #map { height: 450px; width: 100%; }
+        #map { height: 400px; width: 100%; }
 
         /* Booking Section */
-        .booking-section { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .booking-container { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-        .booking-header { text-align: center; margin-bottom: 30px; }
-        .booking-header h2 { font-size: 2em; color: #00A854; margin-bottom: 10px; }
-        .booking-header p { color: #666; }
-        .booking-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .booking-section { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
+        .booking-container { background: white; border-radius: 15px; padding: 25px 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .booking-header { text-align: center; margin-bottom: 25px; }
+        .booking-header h2 { font-size: 1.6em; color: #00A854; margin-bottom: 8px; }
+        .booking-header p { color: #666; font-size: 0.95em; }
+        .booking-form { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-weight: 600; color: #333; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 1em; transition: all 0.3s; }
+        .form-group label { font-weight: 600; color: #333; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; font-size: 0.95em; }
+        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 0.95em; transition: all 0.3s; width: 100%; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: #00A854; }
-        .input-with-button { display: flex; gap: 8px; }
-        .input-with-button input { flex: 1; }
-        .btn-map-select { padding: 12px 15px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+        .input-with-button { display: flex; gap: 6px; width: 100%; }
+        .input-with-button input { flex: 1; min-width: 0; }
+        .btn-map-select { padding: 12px 10px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 0.85em; flex-shrink: 0; }
         .btn-map-select:hover { transform: scale(1.02); }
-        .datetime-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; grid-column: 1 / -1; }
+        .btn-map-select i { font-size: 1em; }
+        .btn-gps { background: linear-gradient(135deg, #2196F3, #00BCD4); }
+        .btn-gps.loading i { animation: spin 1s linear infinite; }
+        .btn-gps.success { background: linear-gradient(135deg, #4CAF50, #8BC34A); }
+        .btn-gps.error { background: linear-gradient(135deg, #E30613, #F44336); }
+        .datetime-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         /* Vehicle Options */
-        .vehicle-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 8px; }
-        .vehicle-option { border: 2px solid #ddd; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
+        .vehicle-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+        .vehicle-option { border: 2px solid #ddd; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
         .vehicle-option:hover { border-color: #FECB00; }
         .vehicle-option.selected { border-color: #00A854; background: #e8f5e9; }
-        .vehicle-option-icon { font-size: 2em; margin-bottom: 8px; }
-        .vehicle-option-name { font-weight: bold; font-size: 0.9em; }
-        .vehicle-option-price { color: #00A854; font-weight: bold; font-size: 0.85em; margin-top: 5px; }
+        .vehicle-option-icon { font-size: 1.8em; margin-bottom: 6px; }
+        .vehicle-option-name { font-weight: bold; font-size: 0.85em; }
+        .vehicle-option-price { color: #00A854; font-weight: bold; font-size: 0.8em; margin-top: 4px; }
 
         /* Payment Methods */
-        .payment-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 8px; }
-        .payment-method { padding: 12px; border: 2px solid #ddd; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
+        .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+        .payment-method { padding: 10px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
         .payment-method:hover { border-color: #FECB00; }
         .payment-method.selected { border-color: #00A854; background: #e8f5e9; }
-        .payment-method-icon { font-size: 1.5em; margin-bottom: 5px; }
-        .payment-method-name { font-size: 0.8em; font-weight: 600; }
+        .payment-method-icon { font-size: 1.3em; margin-bottom: 4px; }
+        .payment-method-name { font-size: 0.75em; font-weight: 600; }
 
         /* Booking Summary */
-        .booking-summary { background: linear-gradient(135deg, #00A854, #FECB00); padding: 25px; border-radius: 15px; color: white; margin-top: 25px; display: none; }
-        .summary-title { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; text-align: center; }
-        .summary-items { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
-        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95em; }
-        .summary-total { background: rgba(255,255,255,0.3); padding: 12px 15px; border-radius: 10px; display: flex; justify-content: space-between; font-size: 1.2em; font-weight: bold; }
-        .booking-actions { display: flex; gap: 12px; margin-top: 25px; }
-        .btn-book { flex: 1; padding: 15px; font-size: 1.1em; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
+        .booking-summary { background: linear-gradient(135deg, #00A854, #FECB00); padding: 20px 15px; border-radius: 12px; color: white; margin-top: 20px; display: none; }
+        .summary-title { font-size: 1.2em; font-weight: bold; margin-bottom: 12px; text-align: center; }
+        .summary-items { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; gap: 10px; }
+        .summary-item span:last-child { text-align: right; }
+        .summary-total { background: rgba(255,255,255,0.3); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 1.1em; font-weight: bold; }
+        .booking-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn-book { padding: 14px 10px; font-size: 1em; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s; }
         .btn-book:hover { transform: scale(1.02); }
         .btn-book-primary { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
         .btn-book-secondary { background: white; color: #00A854; border: 2px solid #00A854; }
@@ -84,126 +90,244 @@
         /* ============ TRACKING MODAL ============ */
         .tracking-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; overflow-y: auto; }
         .tracking-modal.active { display: block; }
-        .tracking-container { max-width: 500px; margin: 20px auto; background: white; border-radius: 20px; overflow: hidden; min-height: calc(100vh - 40px); }
-        .tracking-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .tracking-header h2 { font-size: 1.3em; display: flex; align-items: center; gap: 10px; }
-        .tracking-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em; }
+        .tracking-container { max-width: 500px; margin: 10px auto; background: white; border-radius: 15px; overflow: hidden; min-height: calc(100vh - 20px); }
+        .tracking-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .tracking-header h2 { font-size: 1.2em; display: flex; align-items: center; gap: 8px; }
+        .tracking-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2em; }
         
-        #trackingMap { height: 300px; width: 100%; }
+        #trackingMap { height: 280px; width: 100%; }
         
-        .tracking-info { padding: 20px; }
+        .tracking-info { padding: 15px; }
         
         /* Driver Approaching Box */
-        .driver-approaching-box { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 20px; border-radius: 15px; color: white; margin-bottom: 20px; text-align: center; }
-        .driver-approaching-title { font-size: 1em; opacity: 0.9; margin-bottom: 10px; }
-        .driver-eta { font-size: 2.5em; font-weight: bold; margin-bottom: 5px; }
-        .driver-eta-label { font-size: 0.9em; opacity: 0.9; }
-        .driver-details-row { display: flex; justify-content: space-around; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); }
+        .driver-approaching-box { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; }
+        .driver-approaching-title { font-size: 0.95em; opacity: 0.9; margin-bottom: 8px; }
+        .driver-eta { font-size: 2.2em; font-weight: bold; margin-bottom: 4px; }
+        .driver-eta-label { font-size: 0.85em; opacity: 0.9; }
+        .driver-details-row { display: flex; justify-content: space-around; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.3); }
         .driver-detail { text-align: center; }
-        .driver-detail-value { font-size: 1.3em; font-weight: bold; }
-        .driver-detail-label { font-size: 0.75em; opacity: 0.8; }
+        .driver-detail-value { font-size: 1.2em; font-weight: bold; }
+        .driver-detail-label { font-size: 0.7em; opacity: 0.8; }
 
         /* Status Timeline */
-        .status-timeline { background: #f5f5f5; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .status-step { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #e0e0e0; }
+        .status-timeline { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .status-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
         .status-step:last-child { border-bottom: none; }
-        .status-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em; background: #e0e0e0; color: #999; }
+        .status-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1em; background: #e0e0e0; color: #999; flex-shrink: 0; }
         .status-icon.active { background: #00A854; color: white; }
         .status-icon.current { background: #2196F3; color: white; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .status-text { flex: 1; }
-        .status-text h4 { font-size: 0.95em; color: #333; margin-bottom: 3px; }
-        .status-text p { font-size: 0.8em; color: #666; }
-        .status-time { font-size: 0.8em; color: #999; }
+        .status-text { flex: 1; min-width: 0; }
+        .status-text h4 { font-size: 0.9em; color: #333; margin-bottom: 2px; }
+        .status-text p { font-size: 0.75em; color: #666; }
+        .status-time { font-size: 0.75em; color: #999; flex-shrink: 0; }
 
         /* Driver Card */
-        .driver-card { background: white; border: 2px solid #e0e0e0; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .driver-card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .driver-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8em; color: white; }
-        .driver-info h3 { font-size: 1.1em; color: #333; margin-bottom: 5px; }
-        .driver-info p { font-size: 0.9em; color: #666; }
+        .driver-card { background: white; border: 2px solid #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .driver-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .driver-avatar { width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6em; color: white; flex-shrink: 0; }
+        .driver-info { flex: 1; min-width: 0; }
+        .driver-info h3 { font-size: 1em; color: #333; margin-bottom: 4px; }
+        .driver-info p { font-size: 0.85em; color: #666; }
         .driver-rating { color: #FFC107; }
-        .driver-vehicle { background: #f5f5f5; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .vehicle-info { display: flex; align-items: center; gap: 10px; }
-        .vehicle-icon { font-size: 1.5em; }
+        .driver-vehicle { background: #f5f5f5; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .vehicle-info { display: flex; align-items: center; gap: 8px; }
+        .vehicle-icon { font-size: 1.4em; }
         
-        .driver-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .driver-action-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; }
+        .driver-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+        .driver-action-btn { padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85em; }
         .btn-call { background: #00A854; color: white; }
         .btn-message { background: #2196F3; color: white; }
 
         /* Trip Details */
-        .trip-details { background: #f5f5f5; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .trip-details h3 { font-size: 1em; color: #333; margin-bottom: 15px; }
-        .trip-route { display: flex; flex-direction: column; gap: 15px; }
-        .trip-point { display: flex; align-items: flex-start; gap: 12px; }
-        .trip-point-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; color: white; flex-shrink: 0; }
+        .trip-details { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .trip-details h3 { font-size: 0.95em; color: #333; margin-bottom: 12px; }
+        .trip-route { display: flex; flex-direction: column; gap: 12px; }
+        .trip-point { display: flex; align-items: flex-start; gap: 10px; }
+        .trip-point-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85em; color: white; flex-shrink: 0; }
         .trip-point-icon.start { background: #4CAF50; }
         .trip-point-icon.end { background: #E30613; }
-        .trip-point-text { flex: 1; }
-        .trip-point-label { font-size: 0.75em; color: #666; text-transform: uppercase; }
-        .trip-point-address { font-size: 0.95em; color: #333; font-weight: 500; }
-        .trip-connector { width: 2px; height: 25px; background: #ddd; margin-left: 14px; }
-        .trip-price { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ddd; }
-        .trip-price-label { font-size: 0.9em; color: #666; }
-        .trip-price-value { font-size: 1.4em; font-weight: bold; color: #00A854; }
+        .trip-point-text { flex: 1; min-width: 0; }
+        .trip-point-label { font-size: 0.7em; color: #666; text-transform: uppercase; }
+        .trip-point-address { font-size: 0.9em; color: #333; font-weight: 500; word-wrap: break-word; }
+        .trip-connector { width: 2px; height: 20px; background: #ddd; margin-left: 13px; }
+        .trip-price { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 2px dashed #ddd; }
+        .trip-price-label { font-size: 0.85em; color: #666; }
+        .trip-price-value { font-size: 1.3em; font-weight: bold; color: #00A854; }
 
         /* Cancel Button */
-        .cancel-booking-btn { width: 100%; padding: 15px; background: #f5f5f5; border: 2px solid #E30613; color: #E30613; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .cancel-booking-btn { width: 100%; padding: 14px; background: #f5f5f5; border: 2px solid #E30613; color: #E30613; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 0.95em; }
         .cancel-booking-btn:hover { background: #E30613; color: white; }
 
-        /* Notifications */
-        .notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 12px; color: white; font-weight: 600; z-index: 10001; animation: slideIn 0.3s; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+        /* Permission Modal */
+        .permission-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10002; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .permission-modal.active { display: flex; }
+        .permission-content { background: white; border-radius: 15px; padding: 25px 20px; max-width: 400px; width: 100%; text-align: center; }
+        .permission-icon { font-size: 3em; margin-bottom: 15px; }
+        .permission-title { font-size: 1.3em; font-weight: bold; color: #333; margin-bottom: 12px; }
+        .permission-text { color: #666; line-height: 1.5; margin-bottom: 20px; font-size: 0.95em; }
+        .permission-steps { background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
+        .permission-steps h4 { font-size: 0.9em; color: #333; margin-bottom: 10px; }
+        .permission-steps ol { margin-left: 20px; color: #666; font-size: 0.85em; }
+        .permission-steps li { margin-bottom: 6px; }
+        .permission-actions { display: flex; gap: 10px; }
+        .permission-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.95em; }
+        .btn-allow { background: linear-gradient(135deg, #4CAF50, #8BC34A); color: white; }
+        .btn-cancel { background: #f5f5f5; color: #666; }
+        .notification { position: fixed; top: 15px; right: 15px; left: 15px; max-width: 400px; margin: 0 auto; padding: 12px 20px; border-radius: 10px; color: white; font-weight: 600; z-index: 10001; animation: slideIn 0.3s; box-shadow: 0 8px 25px rgba(0,0,0,0.3); font-size: 0.9em; }
+        @keyframes slideIn { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .notification.success { background: #4CAF50; }
         .notification.error { background: #E30613; }
         .notification.info { background: #2196F3; }
 
         /* Loading */
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .loading-spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top-color: #FECB00; border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.2); border-top-color: #FECB00; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: white; font-size: 1.2em; margin-top: 20px; }
+        .loading-text { color: white; font-size: 1.1em; margin-top: 18px; }
 
         /* Chatbot */
-        .chatbot-button { position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em; cursor: pointer; box-shadow: 0 8px 25px rgba(0,0,0,0.3); z-index: 9998; animation: bounce 2s infinite; }
+        .chatbot-button { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.4em; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.3); z-index: 9998; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .chatbot-window { position: fixed; bottom: 90px; right: 25px; width: 350px; height: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 9999; display: none; flex-direction: column; overflow: hidden; }
+        .chatbot-window { position: fixed; bottom: 80px; right: 15px; left: 15px; max-width: 400px; height: 450px; background: white; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); z-index: 9999; display: none; flex-direction: column; overflow: hidden; margin: 0 auto; }
         .chatbot-window.active { display: flex; }
-        .chatbot-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .chatbot-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
-        .chatbot-messages { flex: 1; overflow-y: auto; padding: 15px; background: #f5f5f5; }
-        .chatbot-message { margin-bottom: 12px; }
-        .message-bot, .message-user { display: flex; gap: 10px; align-items: flex-start; }
+        .chatbot-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 12px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .chatbot-header div { font-size: 0.95em; font-weight: bold; }
+        .chatbot-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1.1em; }
+        .chatbot-messages { flex: 1; overflow-y: auto; padding: 12px; background: #f5f5f5; }
+        .chatbot-message { margin-bottom: 10px; }
+        .message-bot, .message-user { display: flex; gap: 8px; align-items: flex-start; }
         .message-user { flex-direction: row-reverse; }
-        .message-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .message-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9em; }
         .avatar-bot { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
         .avatar-user { background: #667eea; color: white; }
-        .message-content { max-width: 70%; padding: 10px 14px; border-radius: 15px; line-height: 1.4; font-size: 0.9em; }
-        .content-bot { background: white; border-bottom-left-radius: 5px; }
-        .content-user { background: linear-gradient(135deg, #00A854, #FECB00); color: white; border-bottom-right-radius: 5px; }
-        .chatbot-input-container { padding: 12px; background: white; display: flex; gap: 10px; }
-        .chatbot-input { flex: 1; padding: 10px 15px; border: 2px solid #ddd; border-radius: 20px; font-size: 0.95em; }
+        .message-content { max-width: 70%; padding: 9px 12px; border-radius: 12px; line-height: 1.4; font-size: 0.85em; word-wrap: break-word; }
+        .content-bot { background: white; border-bottom-left-radius: 4px; }
+        .content-user { background: linear-gradient(135deg, #00A854, #FECB00); color: white; border-bottom-right-radius: 4px; }
+        .chatbot-input-container { padding: 10px; background: white; display: flex; gap: 8px; }
+        .chatbot-input { flex: 1; padding: 9px 12px; border: 2px solid #ddd; border-radius: 18px; font-size: 0.9em; min-width: 0; }
         .chatbot-input:focus { outline: none; border-color: #00A854; }
-        .chatbot-send { width: 40px; height: 40px; background: #00A854; color: white; border: none; border-radius: 50%; cursor: pointer; }
+        .chatbot-send { width: 36px; height: 36px; background: #00A854; color: white; border: none; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 0.9em; }
 
-        /* Mobile Responsive */
+        /* Mobile Responsive Optimizations */
         @media (max-width: 768px) {
-            .hero-title { font-size: 1.8em; }
-            .hero-subtitle { font-size: 1em; }
-            .map-header { flex-direction: column; }
+            body { font-size: 14px; }
+            .hero-section { padding: 30px 12px; }
+            .hero-logo { width: 85px; height: 65px; }
+            .hero-title { font-size: 1.6em; }
+            .hero-subtitle { font-size: 0.9em; }
+            .hero-cta { padding: 10px 24px; font-size: 0.95em; }
+            
+            .map-container { margin: 15px 10px; border-radius: 12px; }
+            .map-header { flex-direction: column; padding: 10px 12px; }
+            .map-logo { font-size: 1em; }
             .search-container { width: 100%; max-width: none; }
+            .search-input { font-size: 0.9em; padding: 9px 32px 9px 10px; }
             .map-controls { width: 100%; justify-content: center; }
-            #map { height: 350px; }
-            .booking-container { padding: 25px 15px; }
-            .booking-form { grid-template-columns: 1fr; }
-            .datetime-group { grid-template-columns: 1fr 1fr; }
-            .vehicle-options { grid-template-columns: repeat(2, 1fr); }
+            .map-btn { padding: 7px 10px; font-size: 0.8em; }
+            #map { height: 320px; }
+            
+            .booking-section { margin: 20px auto; padding: 0 10px; }
+            .booking-container { padding: 20px 12px; border-radius: 12px; }
+            .booking-header h2 { font-size: 1.4em; }
+            .booking-header p { font-size: 0.9em; }
+            .booking-form { gap: 12px; }
+            .form-group label { font-size: 0.9em; }
+            .form-group input, .form-group select { padding: 11px; font-size: 0.9em; }
+            .input-with-button { gap: 5px; }
+            .btn-map-select { padding: 11px 8px; font-size: 0.8em; min-width: 60px; }
+            .btn-gps { min-width: 50px; padding: 11px 6px; }
+            .datetime-group { gap: 8px; }
+            
+            .vehicle-options { gap: 8px; }
+            .vehicle-option { padding: 10px 6px; }
+            .vehicle-option-icon { font-size: 1.6em; }
+            .vehicle-option-name { font-size: 0.8em; }
+            .vehicle-option-price { font-size: 0.75em; }
+            
+            .payment-methods { gap: 6px; }
+            .payment-method { padding: 9px 5px; }
+            .payment-method-icon { font-size: 1.2em; }
+            .payment-method-name { font-size: 0.7em; }
+            
+            .booking-summary { padding: 18px 12px; }
+            .summary-title { font-size: 1.1em; }
+            .summary-item { font-size: 0.85em; }
+            .summary-total { font-size: 1em; padding: 9px 10px; }
+            .booking-actions { gap: 8px; }
+            .btn-book { padding: 12px 8px; font-size: 0.95em; }
+            
+            .tracking-container { margin: 5px; min-height: calc(100vh - 10px); border-radius: 12px; }
+            .tracking-header { padding: 12px; }
+            .tracking-header h2 { font-size: 1.1em; }
+            .tracking-close { width: 32px; height: 32px; }
+            #trackingMap { height: 240px; }
+            .tracking-info { padding: 12px; }
+            
+            .driver-approaching-box { padding: 15px 12px; }
+            .driver-approaching-title { font-size: 0.9em; }
+            .driver-eta { font-size: 2em; }
+            .driver-detail-value { font-size: 1.1em; }
+            
+            .status-timeline { padding: 12px; }
+            .status-step { gap: 10px; padding: 8px 0; }
+            .status-icon { width: 32px; height: 32px; font-size: 1em; }
+            .status-text h4 { font-size: 0.85em; }
+            .status-text p { font-size: 0.72em; }
+            .status-time { font-size: 0.7em; }
+            
+            .driver-card { padding: 12px; }
+            .driver-avatar { width: 50px; height: 50px; font-size: 1.5em; }
+            .driver-info h3 { font-size: 0.95em; }
+            .driver-info p { font-size: 0.8em; }
+            .driver-vehicle { padding: 9px; }
+            .driver-actions { gap: 6px; }
+            .driver-action-btn { padding: 9px; font-size: 0.8em; }
+            
+            .trip-details { padding: 12px; }
+            .trip-details h3 { font-size: 0.9em; }
+            .trip-point-icon { width: 26px; height: 26px; font-size: 0.8em; }
+            .trip-point-address { font-size: 0.85em; }
+            .trip-price-value { font-size: 1.2em; }
+            
+            .cancel-booking-btn { padding: 12px; font-size: 0.9em; }
+            
+            .chatbot-button { width: 46px; height: 46px; font-size: 1.3em; bottom: 18px; right: 18px; }
+            .chatbot-window { bottom: 75px; right: 12px; left: 12px; height: 420px; }
+            .notification { font-size: 0.85em; padding: 10px 16px; }
+            
+            .permission-content { padding: 20px 15px; }
+            .permission-icon { font-size: 2.5em; }
+            .permission-title { font-size: 1.2em; }
+            .permission-text { font-size: 0.9em; }
+            .permission-steps { padding: 12px; }
+            .permission-steps h4 { font-size: 0.85em; }
+            .permission-steps ol { font-size: 0.8em; }
+            .permission-steps li { margin-bottom: 5px; }
+            .permission-btn { padding: 11px; font-size: 0.9em; }
+        }
+        
+        @media (max-width: 380px) {
+            .hero-title { font-size: 1.4em; }
+            .booking-header h2 { font-size: 1.3em; }
+            .btn-map-select { padding: 11px 6px; font-size: 0.75em; min-width: 55px; }
+            .btn-map-select i { font-size: 0.9em; }
+            .btn-gps { min-width: 45px; padding: 11px 5px; }
+            .vehicle-options { grid-template-columns: 1fr 1fr; }
             .payment-methods { grid-template-columns: repeat(3, 1fr); }
-            .booking-actions { flex-direction: column; }
-            .chatbot-window { width: calc(100% - 30px); right: 15px; bottom: 85px; height: 450px; }
-            .tracking-container { margin: 10px; min-height: calc(100vh - 20px); }
-            #trackingMap { height: 250px; }
+            .payment-method-name { font-size: 0.65em; }
+            .driver-eta { font-size: 1.8em; }
+            
+            .permission-modal { padding: 15px; }
+            .permission-content { padding: 18px 12px; }
+            .permission-icon { font-size: 2.2em; }
+            .permission-title { font-size: 1.1em; }
+            .permission-text { font-size: 0.85em; }
+            .permission-steps { padding: 10px; }
+            .permission-steps h4 { font-size: 0.8em; }
+            .permission-steps ol { margin-left: 18px; font-size: 0.75em; }
+            .permission-actions { flex-direction: column; }
+            .permission-btn { padding: 10px; font-size: 0.85em; }
         }
     </style>
 </head>
@@ -234,7 +358,7 @@
             </div>
             <div class="map-controls">
                 <button class="map-btn btn-secondary" onclick="findMyLocation()">
-                    <i class="fas fa-location-arrow"></i> Ma Position
+                    <i class="fas fa-location-arrow"></i> Position
                 </button>
                 <button class="map-btn btn-outline" onclick="toggleTraffic()">
                     <i class="fas fa-traffic-light"></i> Trafic
@@ -257,6 +381,9 @@
                     <label><i class="fas fa-map-marker-alt"></i> Point de départ</label>
                     <div class="input-with-button">
                         <input type="text" id="bookingFrom" required placeholder="Votre position...">
+                        <button type="button" class="btn-map-select btn-gps" onclick="getCurrentPosition()" title="Utiliser ma position actuelle">
+                            <i class="fas fa-crosshairs" id="gpsIcon"></i> GPS
+                        </button>
                         <button type="button" class="btn-map-select" onclick="selectOnMap('from')">
                             <i class="fas fa-map"></i> Carte
                         </button>
@@ -294,8 +421,8 @@
             </form>
 
             <!-- Vehicle Selection -->
-            <div style="margin-top: 30px;">
-                <h3 style="text-align: center; color: #00A854; margin-bottom: 15px;">
+            <div style="margin-top: 25px;">
+                <h3 style="text-align: center; color: #00A854; margin-bottom: 12px; font-size: 1.1em;">
                     <i class="fas fa-car"></i> Type de véhicule
                 </h3>
                 <div class="vehicle-options">
@@ -323,8 +450,8 @@
             </div>
 
             <!-- Payment Selection -->
-            <div style="margin-top: 30px;">
-                <h3 style="text-align: center; color: #00A854; margin-bottom: 15px;">
+            <div style="margin-top: 25px;">
+                <h3 style="text-align: center; color: #00A854; margin-bottom: 12px; font-size: 1.1em;">
                     <i class="fas fa-credit-card"></i> Paiement
                 </h3>
                 <div class="payment-methods">
@@ -455,8 +582,8 @@
                         <div class="vehicle-info">
                             <span class="vehicle-icon">🚗</span>
                             <div>
-                                <div id="vehicleModel" style="font-weight: bold;">Toyota Corolla</div>
-                                <div id="vehiclePlate" style="font-size: 0.85em; color: #666;">DK-1234-AB</div>
+                                <div id="vehicleModel" style="font-weight: bold; font-size: 0.9em;">Toyota Corolla</div>
+                                <div id="vehiclePlate" style="font-size: 0.75em; color: #666;">DK-1234-AB</div>
                             </div>
                         </div>
                     </div>
@@ -507,10 +634,34 @@
     <!-- Chatbot Button -->
     <div class="chatbot-button" onclick="toggleChatbot()">💬</div>
 
+    <!-- Permission Modal -->
+    <div class="permission-modal" id="permissionModal">
+        <div class="permission-content">
+            <div class="permission-icon">📍</div>
+            <div class="permission-title">Activer la géolocalisation</div>
+            <div class="permission-text">
+                Al Bourakh a besoin d'accéder à votre position pour vous offrir le meilleur service.
+            </div>
+            <div class="permission-steps">
+                <h4>💡 Comment activer :</h4>
+                <ol>
+                    <li>Appuyez sur l'icône 🔒 ou ⓘ dans la barre d'adresse</li>
+                    <li>Trouvez "Position" ou "Localisation"</li>
+                    <li>Sélectionnez "Autoriser"</li>
+                    <li>Rechargez la page</li>
+                </ol>
+            </div>
+            <div class="permission-actions">
+                <button class="permission-btn btn-cancel" onclick="closePermissionModal()">Plus tard</button>
+                <button class="permission-btn btn-allow" onclick="requestLocationPermission()">Autoriser</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Chatbot Window -->
     <div class="chatbot-window" id="chatbotWindow">
         <div class="chatbot-header">
-            <div style="font-weight: bold;">🤖 Assistant Al Bourakh</div>
+            <div>🤖 Assistant Al Bourakh</div>
             <button class="chatbot-close" onclick="toggleChatbot()">×</button>
         </div>
         <div class="chatbot-messages" id="chatbotMessages">
@@ -544,7 +695,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v2.0 - Suivi Temps Réel');
+        console.log('🚕 Al Bourakh Client v2.1 - Mobile Optimized');
 
         // ========== GLOBAL VARIABLES ==========
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
@@ -672,6 +823,266 @@
             }
         }
 
+        // Nouvelle fonction pour récupérer la position en temps réel avec feedback
+        async function getCurrentPosition() {
+            const gpsBtn = event.currentTarget;
+            const gpsIcon = document.getElementById('gpsIcon');
+            const fromInput = document.getElementById('bookingFrom');
+            
+            // Vérifier si on est dans un iframe (artifact viewer, etc.)
+            if (window.self !== window.top) {
+                showNotification('⚠️ GPS désactivé dans cette prévisualisation', 'error');
+                gpsBtn.classList.add('error');
+                setTimeout(() => {
+                    gpsBtn.classList.remove('error');
+                    // Proposer une alternative
+                    showTestLocationModal();
+                }, 1500);
+                return;
+            }
+            
+            // Vérifier si la géolocalisation est disponible
+            if (!navigator.geolocation) {
+                showNotification('❌ Géolocalisation non disponible sur cet appareil', 'error');
+                gpsBtn.classList.add('error');
+                setTimeout(() => {
+                    gpsBtn.classList.remove('error');
+                    showTestLocationModal();
+                }, 1500);
+                return;
+            }
+
+            // Vérifier l'état de la permission avec l'API Permissions (si disponible)
+            if (navigator.permissions && navigator.permissions.query) {
+                try {
+                    const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+                    
+                    if (permissionStatus.state === 'denied') {
+                        showPermissionModal();
+                        gpsBtn.classList.add('error');
+                        setTimeout(() => gpsBtn.classList.remove('error'), 2000);
+                        return;
+                    }
+                } catch (e) {
+                    console.log('Permissions API non supportée, on continue normalement');
+                }
+            }
+
+            // Afficher l'état de chargement
+            gpsBtn.classList.add('loading');
+            gpsBtn.disabled = true;
+            fromInput.placeholder = '📍 Récupération de votre position...';
+            showNotification('📍 Localisation en cours...', 'info');
+
+            // Options de géolocalisation haute précision
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userPos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    console.log('📍 Position GPS récupérée:', userPos);
+                    console.log('📊 Précision:', position.coords.accuracy, 'mètres');
+                    
+                    departureCoords = userPos;
+                    map.setCenter(userPos);
+                    map.setZoom(16);
+                    
+                    geocoder.geocode({ location: userPos }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            const address = results[0].formatted_address;
+                            fromInput.value = address;
+                            updateMarker('departure', userPos);
+                            
+                            if (destinationCoords) {
+                                calculateRoute();
+                            }
+                            
+                            gpsBtn.classList.remove('loading');
+                            gpsBtn.classList.add('success');
+                            gpsBtn.disabled = false;
+                            fromInput.placeholder = 'Votre position...';
+                            
+                            const accuracy = Math.round(position.coords.accuracy);
+                            showNotification(`✅ Position détectée (±${accuracy}m)`, 'success');
+                            
+                            setTimeout(() => {
+                                gpsBtn.classList.remove('success');
+                            }, 2000);
+                            
+                        } else {
+                            console.error('Erreur géocodage:', status);
+                            fromInput.value = `Lat: ${userPos.lat.toFixed(6)}, Lng: ${userPos.lng.toFixed(6)}`;
+                            updateMarker('departure', userPos);
+                            
+                            gpsBtn.classList.remove('loading');
+                            gpsBtn.classList.add('success');
+                            gpsBtn.disabled = false;
+                            fromInput.placeholder = 'Votre position...';
+                            
+                            showNotification('✅ Position GPS OK (adresse non trouvée)', 'success');
+                            
+                            setTimeout(() => {
+                                gpsBtn.classList.remove('success');
+                            }, 2000);
+                        }
+                    });
+                },
+                (error) => {
+                    console.error('Erreur géolocalisation:', error.code, error.message);
+                    
+                    gpsBtn.classList.remove('loading');
+                    gpsBtn.classList.add('error');
+                    gpsBtn.disabled = false;
+                    fromInput.placeholder = 'Votre position...';
+                    
+                    let errorMessage = '❌ Erreur de localisation';
+                    let showModal = false;
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = '⚠️ Autorisation requise - Voir instructions';
+                            showModal = true;
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = '❌ Signal GPS indisponible - Réessayez';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = '⏱️ Délai dépassé - Réessayez dans un lieu dégagé';
+                            break;
+                    }
+                    
+                    showNotification(errorMessage, 'error');
+                    
+                    if (showModal) {
+                        setTimeout(() => {
+                            showPermissionModal();
+                        }, 1000);
+                    }
+                    
+                    setTimeout(() => {
+                        gpsBtn.classList.remove('error');
+                    }, 2000);
+                },
+                options
+            );
+        }
+
+        // Modal pour les positions de test (Dakar)
+        function showTestLocationModal() {
+            const testLocations = [
+                { name: 'Place de l\'Indépendance', lat: 14.6937, lng: -17.4441 },
+                { name: 'Plateau (Centre-ville)', lat: 14.6843, lng: -17.4444 },
+                { name: 'Almadies', lat: 14.7458, lng: -17.5071 },
+                { name: 'Parcelles Assainies', lat: 14.7644, lng: -17.4383 },
+                { name: 'Grand Yoff', lat: 14.7503, lng: -17.4581 },
+                { name: 'Pikine', lat: 14.7549, lng: -17.3901 }
+            ];
+            
+            let html = `
+                <div class="permission-modal active" id="testLocationModal" style="z-index: 10003;">
+                    <div class="permission-content">
+                        <div class="permission-icon">🗺️</div>
+                        <div class="permission-title">Mode Test - Choisir une position</div>
+                        <div class="permission-text">
+                            Le GPS n'est pas disponible dans cette prévisualisation. Choisissez une position de test à Dakar :
+                        </div>
+                        <div style="max-height: 250px; overflow-y: auto; margin: 15px 0;">
+            `;
+            
+            testLocations.forEach((loc, i) => {
+                html += `
+                    <button onclick="setTestLocation(${loc.lat}, ${loc.lng}, '${loc.name}')" 
+                            style="width: 100%; padding: 12px; margin-bottom: 8px; background: #f5f5f5; 
+                                   border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: left;
+                                   font-size: 0.9em; transition: all 0.2s;">
+                        <strong>${loc.name}</strong><br>
+                        <small style="color: #666;">Lat: ${loc.lat.toFixed(4)}, Lng: ${loc.lng.toFixed(4)}</small>
+                    </button>
+                `;
+            });
+            
+            html += `
+                        </div>
+                        <div class="permission-actions">
+                            <button class="permission-btn btn-cancel" onclick="closeTestLocationModal()">Annuler</button>
+                        </div>
+                        <div style="margin-top: 15px; padding: 10px; background: #FFF9C4; border-radius: 8px; font-size: 0.8em; color: #666;">
+                            💡 <strong>Pour utiliser le vrai GPS :</strong><br>
+                            Déployez sur un serveur HTTPS (Vercel, Netlify, etc.)
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Insérer le modal
+            const existing = document.getElementById('testLocationModal');
+            if (existing) existing.remove();
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function setTestLocation(lat, lng, name) {
+            const userPos = { lat, lng };
+            departureCoords = userPos;
+            
+            map.setCenter(userPos);
+            map.setZoom(15);
+            
+            // Géocodage inverse
+            geocoder.geocode({ location: userPos }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    document.getElementById('bookingFrom').value = results[0].formatted_address;
+                } else {
+                    document.getElementById('bookingFrom').value = name;
+                }
+                
+                updateMarker('departure', userPos);
+                
+                if (destinationCoords) {
+                    calculateRoute();
+                }
+            });
+            
+            closeTestLocationModal();
+            showNotification(`✅ Position test : ${name}`, 'success');
+        }
+
+        function closeTestLocationModal() {
+            const modal = document.getElementById('testLocationModal');
+            if (modal) modal.remove();
+            document.body.style.overflow = '';
+        }
+
+        // Fonctions pour gérer le modal de permissions
+        function showPermissionModal() {
+            document.getElementById('permissionModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePermissionModal() {
+            document.getElementById('permissionModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function requestLocationPermission() {
+            closePermissionModal();
+            showNotification('💡 Appuyez sur "Autoriser" dans la popup du navigateur', 'info');
+            
+            // Essayer de déclencher la demande de permission
+            setTimeout(() => {
+                getCurrentPosition();
+            }, 500);
+        }
+
         function initDateTime() {
             const now = new Date();
             now.setMinutes(now.getMinutes() + 30);
@@ -688,11 +1099,18 @@
         function findMyLocation() {
             if (navigator.geolocation) {
                 showNotification('📍 Localisation...', 'info');
+                
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 8000,
+                    maximumAge: 0
+                };
+                
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
                         const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                         map.setCenter(userPos);
-                        map.setZoom(15);
+                        map.setZoom(16);
                         
                         if (userMarker) userMarker.setMap(null);
                         userMarker = new google.maps.Marker({
@@ -706,13 +1124,28 @@
                                 strokeColor: 'white',
                                 strokeWeight: 3
                             },
-                            animation: google.maps.Animation.BOUNCE
+                            animation: google.maps.Animation.BOUNCE,
+                            title: 'Vous êtes ici'
                         });
+                        
                         setTimeout(() => userMarker.setAnimation(null), 2000);
-                        showNotification('✅ Position trouvée!', 'success');
+                        
+                        const accuracy = Math.round(pos.coords.accuracy);
+                        showNotification(`✅ Position trouvée (±${accuracy}m)`, 'success');
                     },
-                    () => showNotification('❌ Localisation refusée', 'error')
+                    (error) => {
+                        let errorMsg = '❌ Localisation refusée';
+                        if (error.code === error.TIMEOUT) {
+                            errorMsg = '❌ Délai de localisation dépassé';
+                        } else if (error.code === error.POSITION_UNAVAILABLE) {
+                            errorMsg = '❌ Position GPS indisponible';
+                        }
+                        showNotification(errorMsg, 'error');
+                    },
+                    options
                 );
+            } else {
+                showNotification('❌ Géolocalisation non supportée', 'error');
             }
         }
 
@@ -855,7 +1288,7 @@
             const vehicleNames = { standard: '🚗 Standard', confort: '✨ Confort', van: '🚐 Van', premium: '👑 Premium' };
             const paymentNames = { cash: '💵 Espèces', orange: '📱 Orange Money', wave: '💳 Wave' };
 
-            document.getElementById('summaryRoute').textContent = `${from.substring(0, 20)}... → ${to.substring(0, 20)}...`;
+            document.getElementById('summaryRoute').textContent = `${from.substring(0, 15)}... → ${to.substring(0, 15)}...`;
             document.getElementById('summaryDateTime').textContent = `${date} à ${time}`;
             document.getElementById('summaryVehicle').textContent = vehicleNames[selectedVehicle];
             document.getElementById('summaryPayment').textContent = paymentNames[selectedPayment];
@@ -1355,7 +1788,7 @@
             notif.textContent = message;
             document.body.appendChild(notif);
             setTimeout(() => {
-                notif.style.animation = 'slideIn 0.3s reverse';
+                notif.style.opacity = '0';
                 setTimeout(() => notif.remove(), 300);
             }, 3000);
         }
