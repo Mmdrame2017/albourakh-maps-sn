@@ -11,7 +11,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #333; min-height: 100vh; overflow-x: hidden; }
         
-        /* Hero Section */
         .hero-section { background: linear-gradient(135deg, #00A854, #FECB00, #E30613); padding: 40px 15px; text-align: center; color: white; }
         .hero-logo { width: 100px; height: 75px; margin-bottom: 12px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
         .hero-title { font-size: 2em; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
@@ -19,7 +18,6 @@
         .hero-cta { display: inline-block; margin-top: 20px; padding: 12px 28px; font-size: 1em; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; background: white; color: #00A854; box-shadow: 0 8px 25px rgba(0,0,0,0.2); transition: all 0.3s; }
         .hero-cta:hover { transform: scale(1.05); }
 
-        /* Map Container */
         .map-container { max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
         .map-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .map-logo { font-size: 1.1em; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; }
@@ -35,7 +33,6 @@
         .btn-outline { background: white; color: #333; }
         #map { height: 400px; width: 100%; }
 
-        /* Booking Section */
         .booking-section { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
         .booking-container { background: white; border-radius: 15px; padding: 25px 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
         .booking-header { text-align: center; margin-bottom: 25px; }
@@ -57,7 +54,6 @@
         .btn-gps.error { background: linear-gradient(135deg, #E30613, #F44336); }
         .datetime-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* Vehicle Options */
         .vehicle-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
         .vehicle-option { border: 2px solid #ddd; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
         .vehicle-option:hover { border-color: #FECB00; }
@@ -66,7 +62,6 @@
         .vehicle-option-name { font-weight: bold; font-size: 0.85em; }
         .vehicle-option-price { color: #00A854; font-weight: bold; font-size: 0.8em; margin-top: 4px; }
 
-        /* Payment Methods */
         .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
         .payment-method { padding: 10px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
         .payment-method:hover { border-color: #FECB00; }
@@ -74,7 +69,6 @@
         .payment-method-icon { font-size: 1.3em; margin-bottom: 4px; }
         .payment-method-name { font-size: 0.75em; font-weight: 600; }
 
-        /* Booking Summary */
         .booking-summary { background: linear-gradient(135deg, #00A854, #FECB00); padding: 20px 15px; border-radius: 12px; color: white; margin-top: 20px; display: none; }
         .summary-title { font-size: 1.2em; font-weight: bold; margin-bottom: 12px; text-align: center; }
         .summary-items { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
@@ -87,7 +81,6 @@
         .btn-book-primary { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
         .btn-book-secondary { background: white; color: #00A854; border: 2px solid #00A854; }
 
-        /* ============ TRACKING MODAL ============ */
         .tracking-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; overflow-y: auto; }
         .tracking-modal.active { display: block; }
         .tracking-container { max-width: 500px; margin: 10px auto; background: white; border-radius: 15px; overflow: hidden; min-height: calc(100vh - 20px); }
@@ -99,7 +92,6 @@
         
         .tracking-info { padding: 15px; }
         
-        /* Driver Approaching Box */
         .driver-approaching-box { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; }
         .driver-approaching-title { font-size: 0.95em; opacity: 0.9; margin-bottom: 8px; }
         .driver-eta { font-size: 2.2em; font-weight: bold; margin-bottom: 4px; }
@@ -109,7 +101,6 @@
         .driver-detail-value { font-size: 1.2em; font-weight: bold; }
         .driver-detail-label { font-size: 0.7em; opacity: 0.8; }
 
-        /* Status Timeline */
         .status-timeline { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .status-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
         .status-step:last-child { border-bottom: none; }
@@ -122,7 +113,6 @@
         .status-text p { font-size: 0.75em; color: #666; }
         .status-time { font-size: 0.75em; color: #999; flex-shrink: 0; }
 
-        /* Driver Card */
         .driver-card { background: white; border: 2px solid #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .driver-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .driver-avatar { width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6em; color: white; flex-shrink: 0; }
@@ -139,7 +129,6 @@
         .btn-call { background: #00A854; color: white; }
         .btn-message { background: #2196F3; color: white; }
 
-        /* Trip Details */
         .trip-details { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .trip-details h3 { font-size: 0.95em; color: #333; margin-bottom: 12px; }
         .trip-route { display: flex; flex-direction: column; gap: 12px; }
@@ -155,11 +144,9 @@
         .trip-price-label { font-size: 0.85em; color: #666; }
         .trip-price-value { font-size: 1.3em; font-weight: bold; color: #00A854; }
 
-        /* Cancel Button */
         .cancel-booking-btn { width: 100%; padding: 14px; background: #f5f5f5; border: 2px solid #E30613; color: #E30613; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 0.95em; }
         .cancel-booking-btn:hover { background: #E30613; color: white; }
 
-        /* ============ EVALUATION MODAL ============ */
         .evaluation-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10005; display: none; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
         .evaluation-modal.active { display: flex; }
         .evaluation-container { background: white; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
@@ -168,13 +155,11 @@
         .evaluation-header p { font-size: 0.9em; opacity: 0.95; }
         .evaluation-content { padding: 20px 15px; }
         
-        /* Driver Summary in Evaluation */
         .evaluation-driver-summary { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
         .evaluation-driver-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: white; flex-shrink: 0; }
         .evaluation-driver-info h3 { font-size: 1em; color: #333; margin-bottom: 4px; }
         .evaluation-driver-info p { font-size: 0.85em; color: #666; }
         
-        /* Star Rating */
         .rating-section { margin-bottom: 25px; }
         .rating-section h3 { font-size: 1em; color: #333; margin-bottom: 12px; text-align: center; }
         .star-rating { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
@@ -182,7 +167,6 @@
         .star:hover, .star.active { color: #FFC107; transform: scale(1.1); }
         .rating-label { text-align: center; font-size: 0.9em; color: #666; font-weight: 600; min-height: 24px; }
         
-        /* Criteria Rating */
         .criteria-section { margin-bottom: 25px; }
         .criteria-section h3 { font-size: 1em; color: #333; margin-bottom: 15px; }
         .criteria-item { margin-bottom: 15px; }
@@ -193,14 +177,12 @@
         .criteria-star { font-size: 1.2em; color: #ddd; cursor: pointer; transition: all 0.2s; }
         .criteria-star:hover, .criteria-star.active { color: #FFC107; }
         
-        /* Comment Section */
         .comment-section { margin-bottom: 20px; }
         .comment-section h3 { font-size: 1em; color: #333; margin-bottom: 10px; }
         .comment-textarea { width: 100%; min-height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9em; resize: vertical; }
         .comment-textarea:focus { outline: none; border-color: #00A854; }
         .comment-counter { text-align: right; font-size: 0.8em; color: #999; margin-top: 4px; }
         
-        /* Evaluation Actions */
         .evaluation-actions { display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #e0e0e0; }
         .evaluation-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 1em; cursor: pointer; transition: all 0.3s; }
         .btn-skip { background: #f5f5f5; color: #666; }
@@ -210,7 +192,6 @@
         .btn-submit-evaluation:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,168,84,0.3); }
         .fa-spinner { animation: spin 1s linear infinite; }
 
-        /* Permission Modal */
         .permission-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10002; display: none; align-items: center; justify-content: center; padding: 20px; }
         .permission-modal.active { display: flex; }
         .permission-content { background: white; border-radius: 15px; padding: 25px 20px; max-width: 400px; width: 100%; text-align: center; }
@@ -231,13 +212,11 @@
         .notification.error { background: #E30613; }
         .notification.info { background: #2196F3; }
 
-        /* Loading */
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
         .loading-spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.2); border-top-color: #FECB00; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: white; font-size: 1.1em; margin-top: 18px; }
 
-        /* Chatbot */
         .chatbot-button { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.4em; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.3); z-index: 9998; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         .chatbot-window { position: fixed; bottom: 80px; right: 15px; left: 15px; max-width: 400px; height: 450px; background: white; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); z-index: 9999; display: none; flex-direction: column; overflow: hidden; margin: 0 auto; }
@@ -260,7 +239,6 @@
         .chatbot-input:focus { outline: none; border-color: #00A854; }
         .chatbot-send { width: 36px; height: 36px; background: #00A854; color: white; border: none; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 0.9em; }
 
-        /* Mobile Responsive Optimizations */
         @media (max-width: 768px) {
             body { font-size: 14px; }
             .hero-section { padding: 30px 12px; }
@@ -343,7 +321,6 @@
             
             .cancel-booking-btn { padding: 12px; font-size: 0.9em; }
             
-            /* Evaluation Modal Mobile */
             .evaluation-container { max-height: 95vh; }
             .evaluation-header { padding: 18px 12px; }
             .evaluation-header h2 { font-size: 1.3em; }
@@ -395,13 +372,11 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div class="loading-spinner"></div>
         <div class="loading-text">Chargement...</div>
     </div>
 
-    <!-- Hero Section -->
     <section class="hero-section">
         <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh" class="hero-logo" onerror="this.style.display='none'">
         <h1 class="hero-title"><i class="fas fa-route"></i> Al Bourakh</h1>
@@ -411,7 +386,6 @@
         </button>
     </section>
 
-    <!-- Map Container -->
     <div class="map-container">
         <div class="map-header">
             <div class="map-logo">🚕 Al Bourakh GPS</div>
@@ -431,7 +405,6 @@
         <div id="map"></div>
     </div>
 
-    <!-- Booking Section -->
     <section class="booking-section">
         <div class="booking-container">
             <div class="booking-header">
@@ -483,7 +456,6 @@
                 </div>
             </form>
 
-            <!-- Vehicle Selection -->
             <div style="margin-top: 25px;">
                 <h3 style="text-align: center; color: #00A854; margin-bottom: 12px; font-size: 1.1em;">
                     <i class="fas fa-car"></i> Type de véhicule
@@ -512,7 +484,6 @@
                 </div>
             </div>
 
-            <!-- Payment Selection -->
             <div style="margin-top: 25px;">
                 <h3 style="text-align: center; color: #00A854; margin-bottom: 12px; font-size: 1.1em;">
                     <i class="fas fa-credit-card"></i> Paiement
@@ -533,7 +504,6 @@
                 </div>
             </div>
 
-            <!-- Summary -->
             <div class="booking-summary" id="bookingSummary">
                 <div class="summary-title">📋 Récapitulatif</div>
                 <div class="summary-items">
@@ -559,7 +529,6 @@
         </div>
     </section>
 
-    <!-- ============ TRACKING MODAL ============ -->
     <div class="tracking-modal" id="trackingModal">
         <div class="tracking-container">
             <div class="tracking-header">
@@ -567,11 +536,9 @@
                 <button class="tracking-close" onclick="closeTracking()">×</button>
             </div>
 
-            <!-- Tracking Map -->
             <div id="trackingMap"></div>
 
             <div class="tracking-info">
-                <!-- Driver Approaching Box -->
                 <div class="driver-approaching-box" id="driverApproachingBox">
                     <div class="driver-approaching-title">🚗 Votre chauffeur arrive</div>
                     <div class="driver-eta" id="driverETA">--</div>
@@ -588,7 +555,6 @@
                     </div>
                 </div>
 
-                <!-- Status Timeline -->
                 <div class="status-timeline">
                     <div class="status-step" id="step1">
                         <div class="status-icon active"><i class="fas fa-check"></i></div>
@@ -632,7 +598,6 @@
                     </div>
                 </div>
 
-                <!-- Driver Card -->
                 <div class="driver-card" id="driverCard" style="display: none;">
                     <div class="driver-card-header">
                         <div class="driver-avatar">👤</div>
@@ -660,7 +625,6 @@
                     </div>
                 </div>
 
-                <!-- Trip Details -->
                 <div class="trip-details">
                     <h3>🗺️ Détails du trajet</h3>
                     <div class="trip-route">
@@ -686,7 +650,6 @@
                     </div>
                 </div>
 
-                <!-- Cancel Button -->
                 <button class="cancel-booking-btn" onclick="cancelBooking()">
                     <i class="fas fa-times"></i> Annuler la réservation
                 </button>
@@ -694,7 +657,6 @@
         </div>
     </div>
 
-    <!-- ============ EVALUATION MODAL ============ -->
     <div class="evaluation-modal" id="evaluationModal">
         <div class="evaluation-container">
             <div class="evaluation-header">
@@ -703,7 +665,6 @@
             </div>
             
             <div class="evaluation-content">
-                <!-- Driver Summary -->
                 <div class="evaluation-driver-summary">
                     <div class="evaluation-driver-avatar">👤</div>
                     <div class="evaluation-driver-info">
@@ -712,7 +673,6 @@
                     </div>
                 </div>
 
-                <!-- Overall Rating -->
                 <div class="rating-section">
                     <h3>Note globale</h3>
                     <div class="star-rating" id="overallRating">
@@ -725,7 +685,6 @@
                     <div class="rating-label" id="overallRatingLabel">Sélectionnez une note</div>
                 </div>
 
-                <!-- Criteria Ratings -->
                 <div class="criteria-section">
                     <h3>Critères d'évaluation</h3>
                     
@@ -794,7 +753,6 @@
                     </div>
                 </div>
 
-                <!-- Comment Section -->
                 <div class="comment-section">
                     <h3><i class="fas fa-comment-dots"></i> Commentaire (optionnel)</h3>
                     <textarea 
@@ -808,7 +766,6 @@
                     </div>
                 </div>
 
-                <!-- Actions -->
                 <div class="evaluation-actions">
                     <button class="evaluation-btn btn-skip" id="skipEvaluationBtn">
                         Plus tard
@@ -821,10 +778,8 @@
         </div>
     </div>
 
-    <!-- Chatbot Button -->
     <div class="chatbot-button" onclick="toggleChatbot()">💬</div>
 
-    <!-- Permission Modal -->
     <div class="permission-modal" id="permissionModal">
         <div class="permission-content">
             <div class="permission-icon">📍</div>
@@ -848,7 +803,6 @@
         </div>
     </div>
 
-    <!-- Chatbot Window -->
     <div class="chatbot-window" id="chatbotWindow">
         <div class="chatbot-header">
             <div>🤖 Assistant Al Bourakh</div>
@@ -868,12 +822,10 @@
         </div>
     </div>
 
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -885,9 +837,8 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v2.2 - Avec Évaluation Chauffeur');
+        console.log('🚕 Al Bourakh Client v2.2 - CORRIGÉ (drivers en priorité)');
 
-        // ========== GLOBAL VARIABLES ==========
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
         let directionsService, directionsRenderer, trackingDirectionsRenderer;
         let userMarker, departureMarker, destinationMarker;
@@ -901,7 +852,6 @@
         let lastDriverPosition = null;
         let trackingUpdateInterval = null;
         
-        // Evaluation variables
         let evaluationData = {
             noteGlobale: 0,
             conduite: 0,
@@ -911,11 +861,9 @@
             commentaire: ''
         };
         
-        // Mode simulation
         let simulationMode = false;
         let simulatedDriverPosition = null;
 
-        // ========== GOOGLE MAPS INIT ==========
         function initMap() {
             const dakar = { lat: 14.6937, lng: -17.4441 };
             
@@ -1183,7 +1131,6 @@
                 </div>
             `;
             
-            // Insérer le modal
             const existing = document.getElementById('testLocationModal');
             if (existing) existing.remove();
             
@@ -1250,7 +1197,6 @@
             timeInput.value = now.toTimeString().slice(0, 5);
         }
 
-        // ========== MAP FUNCTIONS ==========
         function findMyLocation() {
             if (navigator.geolocation) {
                 showNotification('📍 Localisation...', 'info');
@@ -1396,7 +1342,6 @@
             });
         }
 
-        // ========== BOOKING FUNCTIONS ==========
         function selectVehicle(type, price) {
             selectedVehicle = type;
             selectedVehiclePrice = price;
@@ -1511,7 +1456,6 @@
             }
         }
 
-        // ========== TRACKING FUNCTIONS ==========
         function openTracking() {
             document.getElementById('trackingModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1800,13 +1744,11 @@
                     `;
                     document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #9C27B0, #E91E63)';
                     
-                    // Arrêter le tracking
                     if (trackingUpdateInterval) {
                         clearInterval(trackingUpdateInterval);
                         trackingUpdateInterval = null;
                     }
                     
-                    // Ouvrir le modal d'évaluation après 2 secondes
                     setTimeout(() => {
                         openEvaluationModal();
                     }, 2000);
@@ -1828,59 +1770,57 @@
             
             console.log('🚗 Affichage carte chauffeur:', driverName, 'ID:', data.chauffeurAssigne);
             
-            // Valeurs par défaut
             let marque = 'Véhicule';
             let modele = '';
             let immatriculation = 'XX-0000-XX';
             let rating = 4.9;
             
-            // IMPORTANT: Récupérer depuis "candidatures" au lieu de "drivers"
             if (data.chauffeurAssigne) {
                 try {
-                    console.log('📡 Récupération depuis candidatures...');
-                    const candidatureDoc = await db.collection('candidatures').doc(data.chauffeurAssigne).get();
+                    console.log('📡 Récupération depuis drivers...');
+                    const driverDoc = await db.collection('drivers').doc(data.chauffeurAssigne).get();
                     
-                    if (candidatureDoc.exists) {
-                        const candidatureData = candidatureDoc.data();
-                        console.log('📦 Données candidature reçues:', candidatureData);
+                    if (driverDoc.exists) {
+                        const driverData = driverDoc.data();
+                        console.log('📦 Données driver reçues:', driverData);
                         
-                        // Note
-                        rating = candidatureData.noteGlobale || candidatureData.rating || 4.9;
+                        rating = driverData.noteGlobale || driverData.rating || 4.9;
                         
-                        // Marque (plusieurs variantes)
-                        marque = candidatureData.vehiculeMarque || 
-                                candidatureData.marqueVehicule || 
-                                candidatureData.marque ||
-                                candidatureData.vehicleBrand ||
+                        marque = driverData.marque ||
+                                driverData.vehiculeMarque || 
+                                driverData.marqueVehicule || 
+                                driverData.vehicule?.marque ||
+                                driverData.vehicleBrand ||
                                 data.vehiculeType || 
                                 'Véhicule';
                         
-                        // Modèle
-                        modele = candidatureData.vehiculeModele || 
-                                candidatureData.modeleVehicule || 
-                                candidatureData.modele ||
+                        modele = driverData.modele ||
+                                driverData.vehiculeModele || 
+                                driverData.modeleVehicule || 
+                                driverData.vehicule?.modele ||
                                 '';
                         
-                        // Immatriculation
-                        immatriculation = candidatureData.immatriculation || 
-                                         candidatureData.numeroImmatriculation || 
-                                         candidatureData.plaque ||
+                        immatriculation = driverData.immatriculation || 
+                                         driverData.numeroImmatriculation || 
+                                         driverData.vehicule?.immatriculation ||
+                                         driverData.plaque ||
                                          'XX-0000-XX';
                         
-                        console.log('✅ Infos véhicule:', {marque, modele, immatriculation, rating});
+                        console.log('✅ Infos véhicule depuis drivers:', {marque, modele, immatriculation, rating});
                     } else {
-                        console.warn('⚠️ Document candidature introuvable, essai avec drivers...');
+                        console.warn('⚠️ Document driver introuvable, essai avec candidatures...');
                         
-                        // Fallback: essayer drivers
-                        const driverDoc = await db.collection('drivers').doc(data.chauffeurAssigne).get();
-                        if (driverDoc.exists) {
-                            const driverData = driverDoc.data();
-                            console.log('📦 Données driver reçues:', driverData);
+                        const candidatureDoc = await db.collection('candidatures').doc(data.chauffeurAssigne).get();
+                        if (candidatureDoc.exists) {
+                            const candidatureData = candidatureDoc.data();
+                            console.log('📦 Données candidature reçues (fallback):', candidatureData);
                             
-                            rating = driverData.noteGlobale || driverData.rating || 4.9;
-                            marque = driverData.vehiculeMarque || driverData.marqueVehicule || marque;
-                            modele = driverData.vehiculeModele || driverData.modeleVehicule || modele;
-                            immatriculation = driverData.immatriculation || driverData.numeroImmatriculation || immatriculation;
+                            rating = candidatureData.noteGlobale || candidatureData.rating || 4.9;
+                            marque = candidatureData.vehiculeMarque || candidatureData.marqueVehicule || candidatureData.marque || marque;
+                            modele = candidatureData.vehiculeModele || candidatureData.modeleVehicule || candidatureData.modele || modele;
+                            immatriculation = candidatureData.immatriculation || candidatureData.numeroImmatriculation || candidatureData.plaque || immatriculation;
+                            
+                            console.log('✅ Infos véhicule depuis candidatures (fallback):', {marque, modele, immatriculation, rating});
                         }
                     }
                 } catch (error) {
@@ -1888,7 +1828,6 @@
                 }
             }
             
-            // Mettre à jour l'affichage
             document.getElementById('driverRating').textContent = rating;
             
             const vehicleModelText = modele ? `${marque} ${modele}` : marque;
@@ -1897,7 +1836,6 @@
             
             console.log('🎨 Affichage:', vehicleModelText, immatriculation);
             
-            // Stocker dans currentBooking
             if (currentBooking) {
                 currentBooking.vehiculeMarque = marque;
                 currentBooking.vehiculeModele = modele;
@@ -1946,9 +1884,7 @@
             showNotification('Réservation annulée', 'info');
         }
 
-        // ========== EVALUATION FUNCTIONS ==========
         function initEvaluationListeners() {
-            // Overall rating
             const overallStars = document.querySelectorAll('#overallRating .star');
             overallStars.forEach(star => {
                 star.addEventListener('click', () => {
@@ -1959,7 +1895,6 @@
                 });
             });
 
-            // Criteria ratings
             const criteriaStars = document.querySelectorAll('.criteria-star');
             criteriaStars.forEach(star => {
                 star.addEventListener('click', () => {
@@ -1971,7 +1906,6 @@
                 });
             });
 
-            // Comment counter
             const commentTextarea = document.getElementById('evaluationComment');
             commentTextarea.addEventListener('input', () => {
                 const length = commentTextarea.value.length;
@@ -1979,11 +1913,9 @@
                 evaluationData.commentaire = commentTextarea.value;
             });
 
-            // Submit button
             const submitBtn = document.getElementById('submitEvaluationBtn');
             submitBtn.addEventListener('click', submitEvaluation);
 
-            // Skip button
             const skipBtn = document.getElementById('skipEvaluationBtn');
             skipBtn.addEventListener('click', skipEvaluation);
 
@@ -2024,7 +1956,6 @@
         function updateSubmitButton() {
             const btn = document.getElementById('submitEvaluationBtn');
             
-            // Vérifier que la note globale est renseignée
             if (evaluationData.noteGlobale > 0) {
                 btn.disabled = false;
             } else {
@@ -2040,14 +1971,11 @@
 
             console.log('🌟 Ouverture modal évaluation', currentBooking);
 
-            // Remplir les infos du chauffeur
             document.getElementById('evalDriverName').textContent = 
                 currentBooking.nomChauffeur || 'Votre chauffeur';
             
-            // Afficher les vraies infos du véhicule
             let vehiculeText = '';
             
-            // Essayer d'utiliser les vraies infos du véhicule
             const marque = currentBooking.vehiculeMarque;
             const modele = currentBooking.vehiculeModele;
             const immat = currentBooking.immatriculation;
@@ -2058,7 +1986,6 @@
                     vehiculeText += ` • ${immat}`;
                 }
             } else {
-                // Fallback: utiliser le type de véhicule réservé
                 const typeVehicule = currentBooking.vehiculeType || 'standard';
                 const typeNames = {
                     standard: '🚗 Véhicule Standard',
@@ -2072,7 +1999,6 @@
             document.getElementById('evalVehicle').textContent = vehiculeText;
             console.log('🚗 Véhicule affiché:', vehiculeText);
 
-            // Reset evaluation data
             evaluationData = {
                 noteGlobale: 0,
                 conduite: 0,
@@ -2082,7 +2008,6 @@
                 commentaire: ''
             };
 
-            // Reset UI
             document.querySelectorAll('.star, .criteria-star').forEach(s => s.classList.remove('active'));
             document.getElementById('overallRatingLabel').textContent = 'Sélectionnez une note';
             document.querySelectorAll('.criteria-value').forEach(v => v.textContent = '-');
@@ -2090,7 +2015,6 @@
             document.getElementById('commentLength').textContent = '0';
             document.getElementById('submitEvaluationBtn').disabled = true;
 
-            // Afficher le modal
             document.getElementById('evaluationModal').classList.add('active');
             document.body.style.overflow = 'hidden';
             
@@ -2145,11 +2069,9 @@
 
                 console.log('📝 Données à sauvegarder:', evaluationDoc);
 
-                // Sauvegarder l'évaluation
                 const evalRef = await db.collection('evaluations').add(evaluationDoc);
                 console.log('✅ Évaluation sauvegardée avec ID:', evalRef.id);
 
-                // Mettre à jour la réservation
                 await db.collection('reservations').doc(currentBooking.id).update({
                     evaluationSoumise: true,
                     noteClient: evaluationData.noteGlobale,
@@ -2157,7 +2079,6 @@
                 });
                 console.log('✅ Réservation mise à jour');
 
-                // Mettre à jour la note moyenne du chauffeur dans candidatures
                 if (currentBooking.chauffeurAssigne) {
                     try {
                         const evaluationsSnap = await db.collection('evaluations')
@@ -2173,7 +2094,6 @@
                         
                         const moyenneNote = count > 0 ? parseFloat((totalNotes / count).toFixed(1)) : 0;
                         
-                        // Mettre à jour dans candidatures
                         await db.collection('candidatures').doc(currentBooking.chauffeurAssigne).update({
                             noteGlobale: moyenneNote,
                             nombreEvaluations: count
@@ -2198,7 +2118,6 @@
             } catch (error) {
                 console.error('❌ Erreur lors de l\'évaluation:', error);
                 
-                // Gérer spécifiquement l'erreur de permissions
                 if (error.code === 'permission-denied') {
                     showNotification('❌ Erreur de permissions Firebase - Contactez l\'admin', 'error');
                     console.error('🔒 ERREUR PERMISSIONS: Ajoutez ces règles Firestore:');
@@ -2215,7 +2134,6 @@ allow read: if request.auth != null;
             }
         }
 
-        // ========== UI HELPERS ==========
         function scrollToBooking() {
             document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth' });
         }
@@ -2241,7 +2159,6 @@ allow read: if request.auth != null;
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
-        // ========== CHATBOT ==========
         function toggleChatbot() {
             document.getElementById('chatbotWindow').classList.toggle('active');
         }
@@ -2286,7 +2203,6 @@ allow read: if request.auth != null;
             return 'Assistant Al Bourakh à votre service!';
         }
 
-        // ========== INIT ==========
         window.initMap = initMap;
     </script>
 
