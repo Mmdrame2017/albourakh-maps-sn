@@ -159,6 +159,57 @@
         .cancel-booking-btn { width: 100%; padding: 14px; background: #f5f5f5; border: 2px solid #E30613; color: #E30613; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 0.95em; }
         .cancel-booking-btn:hover { background: #E30613; color: white; }
 
+        /* ============ EVALUATION MODAL ============ */
+        .evaluation-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10005; display: none; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
+        .evaluation-modal.active { display: flex; }
+        .evaluation-container { background: white; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .evaluation-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 20px 15px; color: white; text-align: center; border-radius: 15px 15px 0 0; }
+        .evaluation-header h2 { font-size: 1.4em; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .evaluation-header p { font-size: 0.9em; opacity: 0.95; }
+        .evaluation-content { padding: 20px 15px; }
+        
+        /* Driver Summary in Evaluation */
+        .evaluation-driver-summary { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .evaluation-driver-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: white; flex-shrink: 0; }
+        .evaluation-driver-info h3 { font-size: 1em; color: #333; margin-bottom: 4px; }
+        .evaluation-driver-info p { font-size: 0.85em; color: #666; }
+        
+        /* Star Rating */
+        .rating-section { margin-bottom: 25px; }
+        .rating-section h3 { font-size: 1em; color: #333; margin-bottom: 12px; text-align: center; }
+        .star-rating { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+        .star { font-size: 2.5em; color: #ddd; cursor: pointer; transition: all 0.2s; }
+        .star:hover, .star.active { color: #FFC107; transform: scale(1.1); }
+        .rating-label { text-align: center; font-size: 0.9em; color: #666; font-weight: 600; min-height: 24px; }
+        
+        /* Criteria Rating */
+        .criteria-section { margin-bottom: 25px; }
+        .criteria-section h3 { font-size: 1em; color: #333; margin-bottom: 15px; }
+        .criteria-item { margin-bottom: 15px; }
+        .criteria-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .criteria-label { font-size: 0.9em; color: #333; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .criteria-value { font-size: 0.85em; color: #00A854; font-weight: bold; }
+        .criteria-stars { display: flex; gap: 4px; }
+        .criteria-star { font-size: 1.2em; color: #ddd; cursor: pointer; transition: all 0.2s; }
+        .criteria-star:hover, .criteria-star.active { color: #FFC107; }
+        
+        /* Comment Section */
+        .comment-section { margin-bottom: 20px; }
+        .comment-section h3 { font-size: 1em; color: #333; margin-bottom: 10px; }
+        .comment-textarea { width: 100%; min-height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9em; resize: vertical; }
+        .comment-textarea:focus { outline: none; border-color: #00A854; }
+        .comment-counter { text-align: right; font-size: 0.8em; color: #999; margin-top: 4px; }
+        
+        /* Evaluation Actions */
+        .evaluation-actions { display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #e0e0e0; }
+        .evaluation-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 1em; cursor: pointer; transition: all 0.3s; }
+        .btn-skip { background: #f5f5f5; color: #666; }
+        .btn-submit-evaluation { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
+        .btn-submit-evaluation:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-skip:hover { background: #e0e0e0; }
+        .btn-submit-evaluation:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,168,84,0.3); }
+        .fa-spinner { animation: spin 1s linear infinite; }
+
         /* Permission Modal */
         .permission-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10002; display: none; align-items: center; justify-content: center; padding: 20px; }
         .permission-modal.active { display: flex; }
@@ -292,6 +343,17 @@
             
             .cancel-booking-btn { padding: 12px; font-size: 0.9em; }
             
+            /* Evaluation Modal Mobile */
+            .evaluation-container { max-height: 95vh; }
+            .evaluation-header { padding: 18px 12px; }
+            .evaluation-header h2 { font-size: 1.3em; }
+            .evaluation-content { padding: 18px 12px; }
+            .evaluation-driver-avatar { width: 45px; height: 45px; font-size: 1.4em; }
+            .star { font-size: 2.2em; gap: 6px; }
+            .criteria-item { margin-bottom: 12px; }
+            .comment-textarea { min-height: 80px; font-size: 0.85em; }
+            .evaluation-btn { padding: 12px; font-size: 0.95em; }
+            
             .chatbot-button { width: 46px; height: 46px; font-size: 1.3em; bottom: 18px; right: 18px; }
             .chatbot-window { bottom: 75px; right: 12px; left: 12px; height: 420px; }
             .notification { font-size: 0.85em; padding: 10px 16px; }
@@ -317,6 +379,7 @@
             .payment-methods { grid-template-columns: repeat(3, 1fr); }
             .payment-method-name { font-size: 0.65em; }
             .driver-eta { font-size: 1.8em; }
+            .star { font-size: 2em; gap: 4px; }
             
             .permission-modal { padding: 15px; }
             .permission-content { padding: 18px 12px; }
@@ -631,6 +694,133 @@
         </div>
     </div>
 
+    <!-- ============ EVALUATION MODAL ============ -->
+    <div class="evaluation-modal" id="evaluationModal">
+        <div class="evaluation-container">
+            <div class="evaluation-header">
+                <h2><i class="fas fa-star"></i> Évaluez votre course</h2>
+                <p>Votre avis nous aide à améliorer notre service</p>
+            </div>
+            
+            <div class="evaluation-content">
+                <!-- Driver Summary -->
+                <div class="evaluation-driver-summary">
+                    <div class="evaluation-driver-avatar">👤</div>
+                    <div class="evaluation-driver-info">
+                        <h3 id="evalDriverName">Chauffeur</h3>
+                        <p id="evalVehicle">Toyota Corolla • DK-1234-AB</p>
+                    </div>
+                </div>
+
+                <!-- Overall Rating -->
+                <div class="rating-section">
+                    <h3>Note globale</h3>
+                    <div class="star-rating" id="overallRating">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                    </div>
+                    <div class="rating-label" id="overallRatingLabel">Sélectionnez une note</div>
+                </div>
+
+                <!-- Criteria Ratings -->
+                <div class="criteria-section">
+                    <h3>Critères d'évaluation</h3>
+                    
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="criteria-label">
+                                <i class="fas fa-car" style="color: #2196F3;"></i> Conduite
+                            </span>
+                            <span class="criteria-value" id="conduiteValue">-</span>
+                        </div>
+                        <div class="criteria-stars" id="conduiteRating">
+                            <span class="criteria-star" data-criteria="conduite" data-rating="1">★</span>
+                            <span class="criteria-star" data-criteria="conduite" data-rating="2">★</span>
+                            <span class="criteria-star" data-criteria="conduite" data-rating="3">★</span>
+                            <span class="criteria-star" data-criteria="conduite" data-rating="4">★</span>
+                            <span class="criteria-star" data-criteria="conduite" data-rating="5">★</span>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="criteria-label">
+                                <i class="fas fa-clock" style="color: #FF9800;"></i> Ponctualité
+                            </span>
+                            <span class="criteria-value" id="ponctualiteValue">-</span>
+                        </div>
+                        <div class="criteria-stars" id="ponctualiteRating">
+                            <span class="criteria-star" data-criteria="ponctualite" data-rating="1">★</span>
+                            <span class="criteria-star" data-criteria="ponctualite" data-rating="2">★</span>
+                            <span class="criteria-star" data-criteria="ponctualite" data-rating="3">★</span>
+                            <span class="criteria-star" data-criteria="ponctualite" data-rating="4">★</span>
+                            <span class="criteria-star" data-criteria="ponctualite" data-rating="5">★</span>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="criteria-label">
+                                <i class="fas fa-spray-can" style="color: #00BCD4;"></i> Propreté
+                            </span>
+                            <span class="criteria-value" id="propreteValue">-</span>
+                        </div>
+                        <div class="criteria-stars" id="propreteRating">
+                            <span class="criteria-star" data-criteria="proprete" data-rating="1">★</span>
+                            <span class="criteria-star" data-criteria="proprete" data-rating="2">★</span>
+                            <span class="criteria-star" data-criteria="proprete" data-rating="3">★</span>
+                            <span class="criteria-star" data-criteria="proprete" data-rating="4">★</span>
+                            <span class="criteria-star" data-criteria="proprete" data-rating="5">★</span>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="criteria-label">
+                                <i class="fas fa-smile" style="color: #4CAF50;"></i> Amabilité
+                            </span>
+                            <span class="criteria-value" id="amabiliteValue">-</span>
+                        </div>
+                        <div class="criteria-stars" id="amabiliteRating">
+                            <span class="criteria-star" data-criteria="amabilite" data-rating="1">★</span>
+                            <span class="criteria-star" data-criteria="amabilite" data-rating="2">★</span>
+                            <span class="criteria-star" data-criteria="amabilite" data-rating="3">★</span>
+                            <span class="criteria-star" data-criteria="amabilite" data-rating="4">★</span>
+                            <span class="criteria-star" data-criteria="amabilite" data-rating="5">★</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment Section -->
+                <div class="comment-section">
+                    <h3><i class="fas fa-comment-dots"></i> Commentaire (optionnel)</h3>
+                    <textarea 
+                        id="evaluationComment" 
+                        class="comment-textarea" 
+                        placeholder="Partagez votre expérience avec ce chauffeur..."
+                        maxlength="500"
+                    ></textarea>
+                    <div class="comment-counter">
+                        <span id="commentLength">0</span>/500
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="evaluation-actions">
+                    <button class="evaluation-btn btn-skip" id="skipEvaluationBtn">
+                        Plus tard
+                    </button>
+                    <button class="evaluation-btn btn-submit-evaluation" id="submitEvaluationBtn" disabled>
+                        <i class="fas fa-paper-plane"></i> Envoyer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Chatbot Button -->
     <div class="chatbot-button" onclick="toggleChatbot()">💬</div>
 
@@ -695,7 +885,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v2.1 - Mobile Optimized');
+        console.log('🚕 Al Bourakh Client v2.2 - Avec Évaluation Chauffeur');
 
         // ========== GLOBAL VARIABLES ==========
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
@@ -711,7 +901,17 @@
         let lastDriverPosition = null;
         let trackingUpdateInterval = null;
         
-        // Mode simulation pour les tests
+        // Evaluation variables
+        let evaluationData = {
+            noteGlobale: 0,
+            conduite: 0,
+            ponctualite: 0,
+            proprete: 0,
+            amabilite: 0,
+            commentaire: ''
+        };
+        
+        // Mode simulation
         let simulationMode = false;
         let simulatedDriverPosition = null;
 
@@ -736,24 +936,17 @@
 
             trafficLayer = new google.maps.TrafficLayer();
 
-            // Search autocomplete
             const searchInput = document.getElementById('searchInput');
             autocomplete = new google.maps.places.Autocomplete(searchInput, {
                 componentRestrictions: { country: 'sn' }
             });
             autocomplete.addListener('place_changed', onPlaceSelected);
 
-            // Booking autocompletes
             initBookingAutocomplete();
-            
-            // Map click for selection
             map.addListener('click', handleMapClick);
-
-            // Auto-detect user location
             autoDetectLocation();
-
-            // Init date/time
             initDateTime();
+            initEvaluationListeners();
 
             console.log('✅ Map initialized');
         }
@@ -823,25 +1016,21 @@
             }
         }
 
-        // Nouvelle fonction pour récupérer la position en temps réel avec feedback
         async function getCurrentPosition() {
             const gpsBtn = event.currentTarget;
             const gpsIcon = document.getElementById('gpsIcon');
             const fromInput = document.getElementById('bookingFrom');
             
-            // Vérifier si on est dans un iframe (artifact viewer, etc.)
             if (window.self !== window.top) {
                 showNotification('⚠️ GPS désactivé dans cette prévisualisation', 'error');
                 gpsBtn.classList.add('error');
                 setTimeout(() => {
                     gpsBtn.classList.remove('error');
-                    // Proposer une alternative
                     showTestLocationModal();
                 }, 1500);
                 return;
             }
             
-            // Vérifier si la géolocalisation est disponible
             if (!navigator.geolocation) {
                 showNotification('❌ Géolocalisation non disponible sur cet appareil', 'error');
                 gpsBtn.classList.add('error');
@@ -852,7 +1041,6 @@
                 return;
             }
 
-            // Vérifier l'état de la permission avec l'API Permissions (si disponible)
             if (navigator.permissions && navigator.permissions.query) {
                 try {
                     const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
@@ -864,17 +1052,15 @@
                         return;
                     }
                 } catch (e) {
-                    console.log('Permissions API non supportée, on continue normalement');
+                    console.log('Permissions API non supportée');
                 }
             }
 
-            // Afficher l'état de chargement
             gpsBtn.classList.add('loading');
             gpsBtn.disabled = true;
             fromInput.placeholder = '📍 Récupération de votre position...';
             showNotification('📍 Localisation en cours...', 'info');
 
-            // Options de géolocalisation haute précision
             const options = {
                 enableHighAccuracy: true,
                 timeout: 15000,
@@ -888,17 +1074,13 @@
                         lng: position.coords.longitude
                     };
                     
-                    console.log('📍 Position GPS récupérée:', userPos);
-                    console.log('📊 Précision:', position.coords.accuracy, 'mètres');
-                    
                     departureCoords = userPos;
                     map.setCenter(userPos);
                     map.setZoom(16);
                     
                     geocoder.geocode({ location: userPos }, (results, status) => {
                         if (status === 'OK' && results[0]) {
-                            const address = results[0].formatted_address;
-                            fromInput.value = address;
+                            fromInput.value = results[0].formatted_address;
                             updateMarker('departure', userPos);
                             
                             if (destinationCoords) {
@@ -916,28 +1098,10 @@
                             setTimeout(() => {
                                 gpsBtn.classList.remove('success');
                             }, 2000);
-                            
-                        } else {
-                            console.error('Erreur géocodage:', status);
-                            fromInput.value = `Lat: ${userPos.lat.toFixed(6)}, Lng: ${userPos.lng.toFixed(6)}`;
-                            updateMarker('departure', userPos);
-                            
-                            gpsBtn.classList.remove('loading');
-                            gpsBtn.classList.add('success');
-                            gpsBtn.disabled = false;
-                            fromInput.placeholder = 'Votre position...';
-                            
-                            showNotification('✅ Position GPS OK (adresse non trouvée)', 'success');
-                            
-                            setTimeout(() => {
-                                gpsBtn.classList.remove('success');
-                            }, 2000);
                         }
                     });
                 },
                 (error) => {
-                    console.error('Erreur géolocalisation:', error.code, error.message);
-                    
                     gpsBtn.classList.remove('loading');
                     gpsBtn.classList.add('error');
                     gpsBtn.disabled = false;
@@ -948,23 +1112,21 @@
                     
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMessage = '⚠️ Autorisation requise - Voir instructions';
+                            errorMessage = '⚠️ Autorisation requise';
                             showModal = true;
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMessage = '❌ Signal GPS indisponible - Réessayez';
+                            errorMessage = '❌ Signal GPS indisponible';
                             break;
                         case error.TIMEOUT:
-                            errorMessage = '⏱️ Délai dépassé - Réessayez dans un lieu dégagé';
+                            errorMessage = '⏱️ Délai dépassé';
                             break;
                     }
                     
                     showNotification(errorMessage, 'error');
                     
                     if (showModal) {
-                        setTimeout(() => {
-                            showPermissionModal();
-                        }, 1000);
+                        setTimeout(() => showPermissionModal(), 1000);
                     }
                     
                     setTimeout(() => {
@@ -975,7 +1137,6 @@
             );
         }
 
-        // Modal pour les positions de test (Dakar)
         function showTestLocationModal() {
             const testLocations = [
                 { name: 'Place de l\'Indépendance', lat: 14.6937, lng: -17.4441 },
@@ -1037,7 +1198,6 @@
             map.setCenter(userPos);
             map.setZoom(15);
             
-            // Géocodage inverse
             geocoder.geocode({ location: userPos }, (results, status) => {
                 if (status === 'OK' && results[0]) {
                     document.getElementById('bookingFrom').value = results[0].formatted_address;
@@ -1053,7 +1213,7 @@
             });
             
             closeTestLocationModal();
-            showNotification(`✅ Position test : ${name}`, 'success');
+            showNotification(`✅ Position : ${name}`, 'success');
         }
 
         function closeTestLocationModal() {
@@ -1062,7 +1222,6 @@
             document.body.style.overflow = '';
         }
 
-        // Fonctions pour gérer le modal de permissions
         function showPermissionModal() {
             document.getElementById('permissionModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1075,12 +1234,8 @@
 
         function requestLocationPermission() {
             closePermissionModal();
-            showNotification('💡 Appuyez sur "Autoriser" dans la popup du navigateur', 'info');
-            
-            // Essayer de déclencher la demande de permission
-            setTimeout(() => {
-                getCurrentPosition();
-            }, 500);
+            showNotification('💡 Appuyez sur "Autoriser"', 'info');
+            setTimeout(() => getCurrentPosition(), 500);
         }
 
         function initDateTime() {
@@ -1277,8 +1432,7 @@
                 return;
             }
 
-            // Calculate price
-            let distance = 10; // Default
+            let distance = 10;
             if (departureCoords && destinationCoords) {
                 distance = calculateDistance(departureCoords, destinationCoords);
             }
@@ -1347,10 +1501,7 @@
                 hideLoading();
                 showNotification('✅ Réservation confirmée!', 'success');
 
-                // Open tracking modal
                 openTracking();
-                
-                // Start listening for updates
                 startReservationListener(docRef.id);
 
             } catch (error) {
@@ -1365,15 +1516,12 @@
             document.getElementById('trackingModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Populate trip details
             document.getElementById('tripFrom').textContent = currentBooking.depart;
             document.getElementById('tripTo').textContent = currentBooking.destination;
             document.getElementById('tripPrice').textContent = currentBooking.prixEstime.toLocaleString() + ' FCFA';
 
-            // Set step 1 time
             document.getElementById('step1Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-            // Initialize tracking map
             setTimeout(() => initTrackingMap(), 300);
         }
 
@@ -1381,7 +1529,6 @@
             document.getElementById('trackingModal').classList.remove('active');
             document.body.style.overflow = '';
             
-            // Stop listeners
             if (reservationListener) {
                 reservationListener();
                 reservationListener = null;
@@ -1408,7 +1555,6 @@
                 polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5, strokeOpacity: 0.8 }
             });
 
-            // Client pickup marker (green)
             clientPickupMarker = new google.maps.Marker({
                 position: currentBooking.departCoords,
                 map: trackingMap,
@@ -1420,11 +1566,9 @@
                     strokeColor: 'white',
                     strokeWeight: 3
                 },
-                label: { text: '📍', fontSize: '16px' },
-                title: 'Point de prise en charge'
+                label: { text: '📍', fontSize: '16px' }
             });
 
-            // Destination marker (red) - optional display
             if (currentBooking.destinationCoords) {
                 new google.maps.Marker({
                     position: currentBooking.destinationCoords,
@@ -1436,8 +1580,7 @@
                         fillOpacity: 0.7,
                         strokeColor: 'white',
                         strokeWeight: 2
-                    },
-                    title: 'Destination'
+                    }
                 });
             }
         }
@@ -1446,160 +1589,108 @@
             console.log('👂 Écoute réservation:', reservationId);
 
             reservationListener = db.collection('reservations').doc(reservationId)
-                .onSnapshot((doc) => {
-                    if (!doc.exists) {
-                        console.log('❌ Réservation non trouvée');
-                        return;
-                    }
+                .onSnapshot(async (doc) => {
+                    if (!doc.exists) return;
 
                     const data = doc.data();
-                    console.log('📦 Mise à jour réservation:', data.statut, data);
+                    console.log('📦 Mise à jour:', data.statut);
 
                     currentBooking = { id: doc.id, ...data };
 
-                    // Update status timeline
                     updateStatusTimeline(data.statut);
 
-                    // If driver assigned, start driver tracking
-                    if (data.chauffeurAssigne) {
-                        console.log('🚗 Chauffeur assigné:', data.chauffeurAssigne);
+                    if (data.chauffeurAssigne && !driverListener) {
                         updateStep2(data);
-                        
-                        // Démarrer le tracking du chauffeur si pas déjà actif
-                        if (!driverListener) {
-                            startDriverTracking(data.chauffeurAssigne);
-                        }
+                        startDriverTracking(data.chauffeurAssigne);
                     }
 
-                    // Update driver card
                     if (data.nomChauffeur) {
-                        showDriverCard(data);
+                        await showDriverCard(data);
                     }
-                }, (error) => {
-                    console.error('❌ Erreur écoute réservation:', error);
                 });
         }
 
         function updateStep2(data) {
-            const step2Icon = document.getElementById('step2Icon');
-            const step2Text = document.getElementById('step2Text');
-            const step2Time = document.getElementById('step2Time');
-
-            step2Icon.classList.add('active');
-            step2Text.textContent = `${data.nomChauffeur || 'Chauffeur'} assigné`;
-            step2Time.textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('step2Icon').classList.add('active');
+            document.getElementById('step2Text').textContent = `${data.nomChauffeur || 'Chauffeur'} assigné`;
+            document.getElementById('step2Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
         }
 
         function startDriverTracking(driverId) {
-            console.log('🚗 Démarrage suivi chauffeur:', driverId);
+            console.log('🚗 Suivi chauffeur:', driverId);
             
-            // Arrêter l'ancien listener si existant
             if (driverListener) {
                 driverListener();
                 driverListener = null;
             }
 
-            // Écouter les mises à jour en temps réel
             driverListener = db.collection('drivers').doc(driverId)
                 .onSnapshot((doc) => {
-                    if (!doc.exists) {
-                        console.log('❌ Chauffeur non trouvé');
-                        return;
-                    }
+                    if (!doc.exists) return;
 
                     const driverData = doc.data();
-                    console.log('📍 Données chauffeur reçues:', driverData.statut, driverData.position);
                     
-                    // Vérifier si le chauffeur a une position
                     if (driverData.position && driverData.position.latitude && driverData.position.longitude) {
                         const driverPos = {
                             lat: driverData.position.latitude,
                             lng: driverData.position.longitude
                         };
                         
-                        console.log('📍 Position chauffeur:', driverPos);
-                        
-                        // Sauvegarder la dernière position
                         lastDriverPosition = driverPos;
-
-                        // Mettre à jour le marqueur et la route
                         updateDriverMarker(driverPos);
                         calculateApproachRoute(driverPos);
-                        
-                        // Mettre à jour le statut step3
                         updateStep3();
-                    } else {
-                        console.log('⚠️ Pas de position GPS pour le chauffeur');
                     }
-
-                    // Vérifier le statut du chauffeur
-                    if (driverData.statut === 'en_course') {
-                        console.log('🚗 Chauffeur en course');
-                    }
-                }, (error) => {
-                    console.error('❌ Erreur suivi chauffeur:', error);
-                    showNotification('Erreur de connexion au suivi', 'error');
                 });
 
-            // Activer le mode simulation si pas de données après 5 secondes
             setTimeout(() => {
                 if (!lastDriverPosition && currentBooking) {
-                    console.log('🧪 Activation mode simulation (pas de données chauffeur)');
                     startSimulationMode();
                 }
             }, 5000);
         }
         
-        // Mode simulation pour tester le suivi
         function startSimulationMode() {
             if (simulationMode) return;
             simulationMode = true;
             
-            console.log('🧪 Mode simulation activé');
-            showNotification('📍 Mode démo: Simulation du trajet', 'info');
+            console.log('🧪 Mode simulation');
+            showNotification('📍 Mode démo', 'info');
             
-            // Position initiale du chauffeur (à 2km du client)
             if (currentBooking && currentBooking.departCoords) {
                 simulatedDriverPosition = {
                     lat: currentBooking.departCoords.lat + 0.015,
                     lng: currentBooking.departCoords.lng + 0.015
                 };
                 
-                // Afficher la position initiale
                 updateDriverMarker(simulatedDriverPosition);
                 calculateApproachRoute(simulatedDriverPosition);
                 updateStep3();
                 
-                // Simuler le déplacement toutes les 3 secondes
                 trackingUpdateInterval = setInterval(() => {
                     if (!currentBooking || !simulatedDriverPosition) {
                         clearInterval(trackingUpdateInterval);
                         return;
                     }
                     
-                    // Déplacer le chauffeur vers le client
                     const target = currentBooking.departCoords;
-                    const speed = 0.002; // Environ 200m par mise à jour
+                    const speed = 0.002;
                     
                     const dLat = target.lat - simulatedDriverPosition.lat;
                     const dLng = target.lng - simulatedDriverPosition.lng;
                     const distance = Math.sqrt(dLat * dLat + dLng * dLng);
                     
                     if (distance < 0.001) {
-                        // Chauffeur arrivé
-                        console.log('🎯 Chauffeur arrivé (simulation)');
                         clearInterval(trackingUpdateInterval);
                         updateStatusTimeline('arrive');
                         return;
                     }
                     
-                    // Avancer vers le client
                     simulatedDriverPosition = {
                         lat: simulatedDriverPosition.lat + (dLat / distance) * speed,
                         lng: simulatedDriverPosition.lng + (dLng / distance) * speed
                     };
                     
-                    console.log('🚗 Position simulée:', simulatedDriverPosition);
                     updateDriverMarker(simulatedDriverPosition);
                     calculateApproachRoute(simulatedDriverPosition);
                     
@@ -1622,15 +1713,12 @@
                         fillColor: '#2196F3',
                         fillOpacity: 1,
                         strokeColor: 'white',
-                        strokeWeight: 2,
-                        rotation: 0
+                        strokeWeight: 2
                     },
-                    title: 'Votre chauffeur',
                     zIndex: 100
                 });
             }
 
-            // Fit bounds to show both markers
             const bounds = new google.maps.LatLngBounds();
             bounds.extend(position);
             if (currentBooking.departCoords) {
@@ -1652,17 +1740,14 @@
 
                     const leg = result.routes[0].legs[0];
                     
-                    // Update ETA display
                     const durationMinutes = Math.ceil(leg.duration.value / 60);
                     document.getElementById('driverETA').textContent = durationMinutes;
                     document.getElementById('driverDistance').textContent = leg.distance.text;
                     
-                    // Calculate arrival time
                     const arrivalTime = new Date(Date.now() + leg.duration.value * 1000);
                     document.getElementById('driverArrivalTime').textContent = 
                         arrivalTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-                    // Show approaching box
                     document.getElementById('driverApproachingBox').style.display = 'block';
                 }
             });
@@ -1686,7 +1771,6 @@
                     document.getElementById('step3Icon').classList.add('active');
                     document.getElementById('step4Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                     
-                    // Update approaching box
                     document.getElementById('driverApproachingBox').innerHTML = `
                         <div class="driver-approaching-title">✅ Chauffeur arrivé!</div>
                         <div class="driver-eta" style="font-size: 1.5em;">Rejoignez votre chauffeur</div>
@@ -1716,10 +1800,16 @@
                     `;
                     document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #9C27B0, #E91E63)';
                     
+                    // Arrêter le tracking
+                    if (trackingUpdateInterval) {
+                        clearInterval(trackingUpdateInterval);
+                        trackingUpdateInterval = null;
+                    }
+                    
+                    // Ouvrir le modal d'évaluation après 2 secondes
                     setTimeout(() => {
-                        closeTracking();
-                        showNotification('🎉 Course terminée! Merci!', 'success');
-                    }, 3000);
+                        openEvaluationModal();
+                    }, 2000);
                     break;
 
                 case 'annulee':
@@ -1729,14 +1819,93 @@
             }
         }
 
-        function showDriverCard(data) {
+        async function showDriverCard(data) {
             const driverCard = document.getElementById('driverCard');
             driverCard.style.display = 'block';
 
-            document.getElementById('driverName').textContent = data.nomChauffeur || 'Chauffeur';
-            document.getElementById('driverRating').textContent = '4.9';
+            const driverName = data.nomChauffeur || 'Chauffeur';
+            document.getElementById('driverName').textContent = driverName;
             
-            // Store phone for call
+            console.log('🚗 Affichage carte chauffeur:', driverName, 'ID:', data.chauffeurAssigne);
+            
+            // Valeurs par défaut
+            let marque = 'Véhicule';
+            let modele = '';
+            let immatriculation = 'XX-0000-XX';
+            let rating = 4.9;
+            
+            // IMPORTANT: Récupérer depuis "candidatures" au lieu de "drivers"
+            if (data.chauffeurAssigne) {
+                try {
+                    console.log('📡 Récupération depuis candidatures...');
+                    const candidatureDoc = await db.collection('candidatures').doc(data.chauffeurAssigne).get();
+                    
+                    if (candidatureDoc.exists) {
+                        const candidatureData = candidatureDoc.data();
+                        console.log('📦 Données candidature reçues:', candidatureData);
+                        
+                        // Note
+                        rating = candidatureData.noteGlobale || candidatureData.rating || 4.9;
+                        
+                        // Marque (plusieurs variantes)
+                        marque = candidatureData.vehiculeMarque || 
+                                candidatureData.marqueVehicule || 
+                                candidatureData.marque ||
+                                candidatureData.vehicleBrand ||
+                                data.vehiculeType || 
+                                'Véhicule';
+                        
+                        // Modèle
+                        modele = candidatureData.vehiculeModele || 
+                                candidatureData.modeleVehicule || 
+                                candidatureData.modele ||
+                                '';
+                        
+                        // Immatriculation
+                        immatriculation = candidatureData.immatriculation || 
+                                         candidatureData.numeroImmatriculation || 
+                                         candidatureData.plaque ||
+                                         'XX-0000-XX';
+                        
+                        console.log('✅ Infos véhicule:', {marque, modele, immatriculation, rating});
+                    } else {
+                        console.warn('⚠️ Document candidature introuvable, essai avec drivers...');
+                        
+                        // Fallback: essayer drivers
+                        const driverDoc = await db.collection('drivers').doc(data.chauffeurAssigne).get();
+                        if (driverDoc.exists) {
+                            const driverData = driverDoc.data();
+                            console.log('📦 Données driver reçues:', driverData);
+                            
+                            rating = driverData.noteGlobale || driverData.rating || 4.9;
+                            marque = driverData.vehiculeMarque || driverData.marqueVehicule || marque;
+                            modele = driverData.vehiculeModele || driverData.modeleVehicule || modele;
+                            immatriculation = driverData.immatriculation || driverData.numeroImmatriculation || immatriculation;
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Erreur récupération infos:', error);
+                }
+            }
+            
+            // Mettre à jour l'affichage
+            document.getElementById('driverRating').textContent = rating;
+            
+            const vehicleModelText = modele ? `${marque} ${modele}` : marque;
+            document.getElementById('vehicleModel').textContent = vehicleModelText;
+            document.getElementById('vehiclePlate').textContent = immatriculation;
+            
+            console.log('🎨 Affichage:', vehicleModelText, immatriculation);
+            
+            // Stocker dans currentBooking
+            if (currentBooking) {
+                currentBooking.vehiculeMarque = marque;
+                currentBooking.vehiculeModele = modele;
+                currentBooking.immatriculation = immatriculation;
+                currentBooking.noteGlobaleChauffeur = rating;
+                console.log('💾 Données sauvegardées');
+            }
+            
             driverCard.dataset.phone = data.telephoneChauffeur || '';
         }
 
@@ -1775,6 +1944,275 @@
             closeTracking();
             currentBooking = null;
             showNotification('Réservation annulée', 'info');
+        }
+
+        // ========== EVALUATION FUNCTIONS ==========
+        function initEvaluationListeners() {
+            // Overall rating
+            const overallStars = document.querySelectorAll('#overallRating .star');
+            overallStars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    evaluationData.noteGlobale = rating;
+                    updateOverallStars(rating);
+                    updateSubmitButton();
+                });
+            });
+
+            // Criteria ratings
+            const criteriaStars = document.querySelectorAll('.criteria-star');
+            criteriaStars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const criteria = star.dataset.criteria;
+                    const rating = parseInt(star.dataset.rating);
+                    evaluationData[criteria] = rating;
+                    updateCriteriaStars(criteria, rating);
+                    updateSubmitButton();
+                });
+            });
+
+            // Comment counter
+            const commentTextarea = document.getElementById('evaluationComment');
+            commentTextarea.addEventListener('input', () => {
+                const length = commentTextarea.value.length;
+                document.getElementById('commentLength').textContent = length;
+                evaluationData.commentaire = commentTextarea.value;
+            });
+
+            // Submit button
+            const submitBtn = document.getElementById('submitEvaluationBtn');
+            submitBtn.addEventListener('click', submitEvaluation);
+
+            // Skip button
+            const skipBtn = document.getElementById('skipEvaluationBtn');
+            skipBtn.addEventListener('click', skipEvaluation);
+
+            console.log('✅ Event listeners d\'évaluation initialisés');
+        }
+
+        function updateOverallStars(rating) {
+            const stars = document.querySelectorAll('#overallRating .star');
+            const labels = ['Très mauvais', 'Mauvais', 'Moyen', 'Bon', 'Excellent'];
+            
+            stars.forEach(star => {
+                const starRating = parseInt(star.dataset.rating);
+                if (starRating <= rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+
+            document.getElementById('overallRatingLabel').textContent = labels[rating - 1];
+        }
+
+        function updateCriteriaStars(criteria, rating) {
+            const stars = document.querySelectorAll(`#${criteria}Rating .criteria-star`);
+            
+            stars.forEach(star => {
+                const starRating = parseInt(star.dataset.rating);
+                if (starRating <= rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+
+            document.getElementById(`${criteria}Value`).textContent = `${rating}/5`;
+        }
+
+        function updateSubmitButton() {
+            const btn = document.getElementById('submitEvaluationBtn');
+            
+            // Vérifier que la note globale est renseignée
+            if (evaluationData.noteGlobale > 0) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        function openEvaluationModal() {
+            if (!currentBooking) {
+                console.error('❌ Pas de currentBooking disponible');
+                return;
+            }
+
+            console.log('🌟 Ouverture modal évaluation', currentBooking);
+
+            // Remplir les infos du chauffeur
+            document.getElementById('evalDriverName').textContent = 
+                currentBooking.nomChauffeur || 'Votre chauffeur';
+            
+            // Afficher les vraies infos du véhicule
+            let vehiculeText = '';
+            
+            // Essayer d'utiliser les vraies infos du véhicule
+            const marque = currentBooking.vehiculeMarque;
+            const modele = currentBooking.vehiculeModele;
+            const immat = currentBooking.immatriculation;
+            
+            if (marque && marque !== 'Véhicule' && marque !== 'XX-0000-XX') {
+                vehiculeText = modele ? `${marque} ${modele}` : marque;
+                if (immat && immat !== 'XX-0000-XX') {
+                    vehiculeText += ` • ${immat}`;
+                }
+            } else {
+                // Fallback: utiliser le type de véhicule réservé
+                const typeVehicule = currentBooking.vehiculeType || 'standard';
+                const typeNames = {
+                    standard: '🚗 Véhicule Standard',
+                    confort: '✨ Véhicule Confort',
+                    van: '🚐 Van',
+                    premium: '👑 Véhicule Premium'
+                };
+                vehiculeText = typeNames[typeVehicule] || 'Véhicule';
+            }
+            
+            document.getElementById('evalVehicle').textContent = vehiculeText;
+            console.log('🚗 Véhicule affiché:', vehiculeText);
+
+            // Reset evaluation data
+            evaluationData = {
+                noteGlobale: 0,
+                conduite: 0,
+                ponctualite: 0,
+                proprete: 0,
+                amabilite: 0,
+                commentaire: ''
+            };
+
+            // Reset UI
+            document.querySelectorAll('.star, .criteria-star').forEach(s => s.classList.remove('active'));
+            document.getElementById('overallRatingLabel').textContent = 'Sélectionnez une note';
+            document.querySelectorAll('.criteria-value').forEach(v => v.textContent = '-');
+            document.getElementById('evaluationComment').value = '';
+            document.getElementById('commentLength').textContent = '0';
+            document.getElementById('submitEvaluationBtn').disabled = true;
+
+            // Afficher le modal
+            document.getElementById('evaluationModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            console.log('✅ Modal évaluation ouvert');
+        }
+
+        function closeEvaluationModal() {
+            document.getElementById('evaluationModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function skipEvaluation() {
+            closeEvaluationModal();
+            closeTracking();
+            showNotification('Évaluation ignorée', 'info');
+            currentBooking = null;
+        }
+
+        async function submitEvaluation() {
+            console.log('🚀 submitEvaluation appelée', evaluationData);
+            
+            if (evaluationData.noteGlobale === 0) {
+                showNotification('⚠️ Veuillez noter la course', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitEvaluationBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+            
+            console.log('📤 Envoi de l\'évaluation...');
+
+            try {
+                const evaluationDoc = {
+                    reservationId: currentBooking.id,
+                    chauffeurId: currentBooking.chauffeurAssigne,
+                    nomChauffeur: currentBooking.nomChauffeur || 'Chauffeur',
+                    clientNom: currentBooking.clientNom || 'Client',
+                    clientTelephone: currentBooking.clientTelephone,
+                    noteGlobale: evaluationData.noteGlobale,
+                    conduite: evaluationData.conduite || 0,
+                    ponctualite: evaluationData.ponctualite || 0,
+                    proprete: evaluationData.proprete || 0,
+                    amabilite: evaluationData.amabilite || 0,
+                    commentaire: evaluationData.commentaire.trim(),
+                    vehiculeMarque: currentBooking.vehiculeMarque || '',
+                    vehiculeModele: currentBooking.vehiculeModele || '',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    dateEvaluation: new Date().toISOString()
+                };
+
+                console.log('📝 Données à sauvegarder:', evaluationDoc);
+
+                // Sauvegarder l'évaluation
+                const evalRef = await db.collection('evaluations').add(evaluationDoc);
+                console.log('✅ Évaluation sauvegardée avec ID:', evalRef.id);
+
+                // Mettre à jour la réservation
+                await db.collection('reservations').doc(currentBooking.id).update({
+                    evaluationSoumise: true,
+                    noteClient: evaluationData.noteGlobale,
+                    dateEvaluation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('✅ Réservation mise à jour');
+
+                // Mettre à jour la note moyenne du chauffeur dans candidatures
+                if (currentBooking.chauffeurAssigne) {
+                    try {
+                        const evaluationsSnap = await db.collection('evaluations')
+                            .where('chauffeurId', '==', currentBooking.chauffeurAssigne)
+                            .get();
+                        
+                        let totalNotes = 0;
+                        let count = 0;
+                        evaluationsSnap.forEach(doc => {
+                            totalNotes += doc.data().noteGlobale;
+                            count++;
+                        });
+                        
+                        const moyenneNote = count > 0 ? parseFloat((totalNotes / count).toFixed(1)) : 0;
+                        
+                        // Mettre à jour dans candidatures
+                        await db.collection('candidatures').doc(currentBooking.chauffeurAssigne).update({
+                            noteGlobale: moyenneNote,
+                            nombreEvaluations: count
+                        });
+                        console.log('✅ Note chauffeur mise à jour:', moyenneNote, '(', count, 'évaluations)');
+                    } catch (error) {
+                        console.error('⚠️ Erreur mise à jour note:', error);
+                    }
+                }
+
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
+                showNotification('✅ Merci pour votre évaluation!', 'success');
+                
+                console.log('🎉 Évaluation terminée avec succès');
+                
+                setTimeout(() => {
+                    closeEvaluationModal();
+                    closeTracking();
+                    currentBooking = null;
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Erreur lors de l\'évaluation:', error);
+                
+                // Gérer spécifiquement l'erreur de permissions
+                if (error.code === 'permission-denied') {
+                    showNotification('❌ Erreur de permissions Firebase - Contactez l\'admin', 'error');
+                    console.error('🔒 ERREUR PERMISSIONS: Ajoutez ces règles Firestore:');
+                    console.error(`
+allow write: if request.auth != null;
+allow read: if request.auth != null;
+                    `);
+                } else {
+                    showNotification('❌ Erreur: ' + error.message, 'error');
+                }
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         }
 
         // ========== UI HELPERS ==========
@@ -1816,7 +2254,6 @@
             addChatMessage(message, 'user');
             input.value = '';
 
-            // Simple bot response
             setTimeout(() => {
                 const response = getBotResponse(message);
                 addChatMessage(response, 'bot');
@@ -1838,22 +2275,21 @@
         function getBotResponse(message) {
             const msg = message.toLowerCase();
             if (msg.includes('prix') || msg.includes('tarif')) {
-                return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+ (+ 200-400F/km selon véhicule).';
+                return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+';
             }
-            if (msg.includes('contact') || msg.includes('téléphone')) {
-                return '📞 Appelez-nous au +221 77 123 45 67 (24h/24)';
+            if (msg.includes('contact')) {
+                return '📞 +221 77 123 45 67 (24h/24)';
             }
-            if (msg.includes('suivi') || msg.includes('chauffeur')) {
-                return 'Après confirmation, vous pouvez suivre votre chauffeur en temps réel sur la carte!';
+            if (msg.includes('suivi')) {
+                return 'Après confirmation, suivez votre chauffeur en temps réel!';
             }
-            return 'Je suis l\'assistant Al Bourakh. Posez-moi vos questions sur les tarifs, réservations ou le suivi!';
+            return 'Assistant Al Bourakh à votre service!';
         }
 
         // ========== INIT ==========
         window.initMap = initMap;
     </script>
 
-    <!-- Google Maps -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 </body>
 </html>
