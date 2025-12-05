@@ -115,7 +115,7 @@
 
         .driver-card { background: white; border: 2px solid #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .driver-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .driver-avatar { width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6em; color: white; flex-shrink: 0; }
+        .driver-avatar { width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6em; color: white; flex-shrink: 0; overflow: hidden; }
         .driver-info { flex: 1; min-width: 0; }
         .driver-info h3 { font-size: 1em; color: #333; margin-bottom: 4px; }
         .driver-info p { font-size: 0.85em; color: #666; }
@@ -156,7 +156,7 @@
         .evaluation-content { padding: 20px 15px; }
         
         .evaluation-driver-summary { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .evaluation-driver-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: white; flex-shrink: 0; }
+        .evaluation-driver-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: white; flex-shrink: 0; overflow: hidden; }
         .evaluation-driver-info h3 { font-size: 1em; color: #333; margin-bottom: 4px; }
         .evaluation-driver-info p { font-size: 0.85em; color: #666; }
         
@@ -837,7 +837,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v2.2 - CORRIGÉ (drivers en priorité)');
+        console.log('🚕 Al Bourakh Client v2.3 - AVEC PHOTOS CHAUFFEURS');
 
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
         let directionsService, directionsRenderer, trackingDirectionsRenderer;
@@ -863,6 +863,154 @@
         
         let simulationMode = false;
         let simulatedDriverPosition = null;
+
+        // ========== FONCTIONS HELPER POUR TÉLÉPHONE ==========
+        function normalizePhoneForComparison(phone) {
+            if (!phone) return '';
+            return phone.replace(/\D/g, '');
+        }
+
+        function getPhoneVariants(phone) {
+            const digits = normalizePhoneForComparison(phone);
+            const variants = new Set();
+            
+            variants.add(digits);
+            const localNumber = digits.slice(-9);
+            
+            variants.add(localNumber);
+            variants.add('+221' + localNumber);
+            variants.add('221' + localNumber);
+            variants.add('00221' + localNumber);
+            
+            if (digits.startsWith('221')) {
+                variants.add('+' + digits);
+                const local = digits.substring(3);
+                variants.add(local);
+                variants.add('+221' + local);
+            }
+            
+            if (digits.startsWith('+221')) {
+                variants.add(digits.substring(1));
+                variants.add(digits.substring(4));
+            }
+            
+            return [...variants].filter(v => {
+                const cleaned = v.replace(/\D/g, '');
+                return cleaned.length >= 9;
+            });
+        }
+
+        // ========== RÉCUPÉRATION PHOTO CHAUFFEUR (CLIENT SIDE) ==========
+        async function fetchDriverPhoto(driverId, driverPhone, driverNom, driverPrenom) {
+            console.log('📸 Recherche photo chauffeur:', { driverId, driverPhone, driverNom, driverPrenom });
+            
+            // ✅ ÉTAPE 1 : Chercher dans collection "drivers" (PRIORITÉ)
+            try {
+                console.log('📡 Recherche dans drivers...');
+                const driverDoc = await db.collection('drivers').doc(driverId).get();
+                
+                if (driverDoc.exists) {
+                    const driverData = driverDoc.data();
+                    
+                    // Chercher la photo dans différents champs possibles
+                    const photoUrl = driverData.photoProfil ||
+                                   driverData.photoIdentite || 
+                                   driverData.photoUrl || 
+                                   driverData.photos?.photoProfil ||
+                                   driverData.photos?.photoIdentite ||
+                                   driverData.photos?.photo_identite;
+                    
+                    if (photoUrl) {
+                        console.log('✅ Photo trouvée dans drivers:', photoUrl);
+                        return photoUrl;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erreur recherche dans drivers:', error);
+            }
+            
+            // ✅ ÉTAPE 2 : Chercher dans collection "candidatures" par téléphone
+            if (driverPhone) {
+                try {
+                    console.log('📡 Recherche dans candidatures par téléphone...');
+                    
+                    // Générer variantes du numéro de téléphone
+                    const phoneVariants = getPhoneVariants(driverPhone);
+                    
+                    const candidaturesSnapshot = await db.collection('candidatures')
+                        .where('statut', '==', 'acceptee')
+                        .get();
+                    
+                    for (const doc of candidaturesSnapshot.docs) {
+                        const candidature = doc.data();
+                        const candidaturePhone = candidature.telephone || candidature.phone || '';
+                        const candidatureDigits = normalizePhoneForComparison(candidaturePhone);
+                        
+                        // Comparer avec toutes les variantes
+                        for (const variant of phoneVariants) {
+                            const variantDigits = normalizePhoneForComparison(variant);
+                            
+                            if (candidatureDigits === variantDigits || 
+                                candidatureDigits.endsWith(variantDigits.slice(-9)) ||
+                                variantDigits.endsWith(candidatureDigits.slice(-9))) {
+                                
+                                const photoUrl = candidature.photoProfil ||
+                                               candidature.photos?.photoProfil ||
+                                               candidature.photos?.photoIdentite || 
+                                               candidature.photos?.photo_identite ||
+                                               candidature.photoIdentite || 
+                                               candidature.photoUrl ||
+                                               candidature.photo;
+                                
+                                if (photoUrl) {
+                                    console.log('✅ Photo trouvée dans candidatures (téléphone):', photoUrl);
+                                    return photoUrl;
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Erreur recherche dans candidatures:', error);
+                }
+            }
+            
+            // ✅ ÉTAPE 3 : Chercher dans candidatures par nom/prénom
+            if (driverNom && driverPrenom) {
+                try {
+                    console.log('📡 Recherche dans candidatures par nom/prénom...');
+                    
+                    const candidaturesSnapshot = await db.collection('candidatures')
+                        .where('statut', '==', 'acceptee')
+                        .get();
+                    
+                    for (const doc of candidaturesSnapshot.docs) {
+                        const candidature = doc.data();
+                        const nomMatch = candidature.nom?.toLowerCase().trim() === driverNom?.toLowerCase().trim();
+                        const prenomMatch = candidature.prenom?.toLowerCase().trim() === driverPrenom?.toLowerCase().trim();
+                        
+                        if (nomMatch && prenomMatch) {
+                            const photoUrl = candidature.photoProfil ||
+                                           candidature.photos?.photoProfil ||
+                                           candidature.photos?.photoIdentite || 
+                                           candidature.photos?.photo_identite ||
+                                           candidature.photoIdentite || 
+                                           candidature.photoUrl ||
+                                           candidature.photo;
+                            
+                            if (photoUrl) {
+                                console.log('✅ Photo trouvée dans candidatures (nom):', photoUrl);
+                                return photoUrl;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Erreur recherche par nom:', error);
+                }
+            }
+            
+            console.log('❌ AUCUNE PHOTO TROUVÉE');
+            return null;
+        }
 
         function initMap() {
             const dakar = { lat: 14.6937, lng: -17.4441 };
@@ -1766,9 +1914,46 @@
             driverCard.style.display = 'block';
 
             const driverName = data.nomChauffeur || 'Chauffeur';
+            
+            // 🔍 Extraire prénom et nom pour la recherche
+            const nameParts = driverName.split(' ');
+            const driverPrenom = nameParts[0] || '';
+            const driverNom = nameParts.slice(1).join(' ') || '';
+            
             document.getElementById('driverName').textContent = driverName;
             
             console.log('🚗 Affichage carte chauffeur:', driverName, 'ID:', data.chauffeurAssigne);
+            
+            // 📸 RÉCUPÉRATION DE LA PHOTO
+            let photoUrl = null;
+            if (data.chauffeurAssigne) {
+                showLoading('Chargement photo...');
+                photoUrl = await fetchDriverPhoto(
+                    data.chauffeurAssigne,
+                    data.telephoneChauffeur,
+                    driverNom,
+                    driverPrenom
+                );
+                hideLoading();
+            }
+            
+            // 🎨 AFFICHAGE DE LA PHOTO
+            const driverAvatar = document.querySelector('.driver-avatar');
+            const evalDriverAvatar = document.querySelector('.evaluation-driver-avatar');
+            
+            if (photoUrl) {
+                console.log('✅ Affichage photo:', photoUrl);
+                driverAvatar.innerHTML = `<img src="${photoUrl}" alt="${driverName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.parentElement.innerHTML='👤'">`;
+                if (evalDriverAvatar) {
+                    evalDriverAvatar.innerHTML = `<img src="${photoUrl}" alt="${driverName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.parentElement.innerHTML='👤'">`;
+                }
+            } else {
+                console.log('⚠️ Pas de photo, affichage emoji par défaut');
+                driverAvatar.innerHTML = '👤';
+                if (evalDriverAvatar) {
+                    evalDriverAvatar.innerHTML = '👤';
+                }
+            }
             
             let marque = 'Véhicule';
             let modele = '';
@@ -1841,7 +2026,8 @@
                 currentBooking.vehiculeModele = modele;
                 currentBooking.immatriculation = immatriculation;
                 currentBooking.noteGlobaleChauffeur = rating;
-                console.log('💾 Données sauvegardées');
+                currentBooking.photoChauffeur = photoUrl; // 💾 Sauvegarder la photo
+                console.log('💾 Données sauvegardées (avec photo)');
             }
             
             driverCard.dataset.phone = data.telephoneChauffeur || '';
@@ -1999,6 +2185,14 @@
             document.getElementById('evalVehicle').textContent = vehiculeText;
             console.log('🚗 Véhicule affiché:', vehiculeText);
 
+            // 📸 Afficher la photo dans le modal d'évaluation
+            const evalDriverAvatar = document.querySelector('.evaluation-driver-avatar');
+            if (currentBooking.photoChauffeur) {
+                evalDriverAvatar.innerHTML = `<img src="${currentBooking.photoChauffeur}" alt="${currentBooking.nomChauffeur}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.parentElement.innerHTML='👤'">`;
+            } else {
+                evalDriverAvatar.innerHTML = '👤';
+            }
+
             evaluationData = {
                 noteGlobale: 0,
                 conduite: 0,
@@ -2033,179 +2227,177 @@
             currentBooking = null;
         }
 
-        async function submitEvaluation() {
-            console.log('🚀 submitEvaluation appelée', evaluationData);
-            
-            if (evaluationData.noteGlobale === 0) {
-                showNotification('⚠️ Veuillez noter la course', 'error');
-                return;
-            }
+async function submitEvaluation() {
+    console.log('🚀 submitEvaluation appelée', evaluationData);
+    
+    if (evaluationData.noteGlobale === 0) {
+        showNotification('⚠️ Veuillez noter la course', 'error');
+        return;
+    }
 
-            const submitBtn = document.getElementById('submitEvaluationBtn');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
-            
-            console.log('📤 Envoi de l\'évaluation...');
+    const submitBtn = document.getElementById('submitEvaluationBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Envoi...';
+    
+    console.log('📤 Envoi de l\'évaluation...');
 
+    try {
+        const evaluationDoc = {
+            reservationId: currentBooking.id,
+            chauffeurId: currentBooking.chauffeurAssigne,
+            nomChauffeur: currentBooking.nomChauffeur || 'Chauffeur',
+            clientNom: currentBooking.clientNom || 'Client',
+            clientTelephone: currentBooking.clientTelephone,
+            noteGlobale: evaluationData.noteGlobale,
+            conduite: evaluationData.conduite || 0,
+            ponctualite: evaluationData.ponctualite || 0,
+            proprete: evaluationData.proprete || 0,
+            amabilite: evaluationData.amabilite || 0,
+            commentaire: evaluationData.commentaire.trim(),
+            vehiculeMarque: currentBooking.vehiculeMarque || '',
+            vehiculeModele: currentBooking.vehiculeModele || '',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            dateEvaluation: new Date().toISOString()
+        };
+
+        console.log('📝 Données à sauvegarder:', evaluationDoc);
+
+        const evalRef = await db.collection('evaluations').add(evaluationDoc);
+        console.log('✅ Évaluation sauvegardée avec ID:', evalRef.id);
+
+        await db.collection('reservations').doc(currentBooking.id).update({
+            evaluationSoumise: true,
+            noteClient: evaluationData.noteGlobale,
+            dateEvaluation: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('✅ Réservation mise à jour');
+
+        if (currentBooking.chauffeurAssigne) {
             try {
-                const evaluationDoc = {
-                    reservationId: currentBooking.id,
-                    chauffeurId: currentBooking.chauffeurAssigne,
-                    nomChauffeur: currentBooking.nomChauffeur || 'Chauffeur',
-                    clientNom: currentBooking.clientNom || 'Client',
-                    clientTelephone: currentBooking.clientTelephone,
-                    noteGlobale: evaluationData.noteGlobale,
-                    conduite: evaluationData.conduite || 0,
-                    ponctualite: evaluationData.ponctualite || 0,
-                    proprete: evaluationData.proprete || 0,
-                    amabilite: evaluationData.amabilite || 0,
-                    commentaire: evaluationData.commentaire.trim(),
-                    vehiculeMarque: currentBooking.vehiculeMarque || '',
-                    vehiculeModele: currentBooking.vehiculeModele || '',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    dateEvaluation: new Date().toISOString()
-                };
-
-                console.log('📝 Données à sauvegarder:', evaluationDoc);
-
-                const evalRef = await db.collection('evaluations').add(evaluationDoc);
-                console.log('✅ Évaluation sauvegardée avec ID:', evalRef.id);
-
-                await db.collection('reservations').doc(currentBooking.id).update({
-                    evaluationSoumise: true,
-                    noteClient: evaluationData.noteGlobale,
-                    dateEvaluation: firebase.firestore.FieldValue.serverTimestamp()
+                const evaluationsSnap = await db.collection('evaluations')
+                    .where('chauffeurId', '==', currentBooking.chauffeurAssigne)
+                    .get();
+                
+                let totalNotes = 0;
+                let count = 0;
+                evaluationsSnap.forEach(doc => {
+                    totalNotes += doc.data().noteGlobale;
+                    count++;
                 });
-                console.log('✅ Réservation mise à jour');
-
-                if (currentBooking.chauffeurAssigne) {
-                    try {
-                        const evaluationsSnap = await db.collection('evaluations')
-                            .where('chauffeurId', '==', currentBooking.chauffeurAssigne)
-                            .get();
-                        
-                        let totalNotes = 0;
-                        let count = 0;
-                        evaluationsSnap.forEach(doc => {
-                            totalNotes += doc.data().noteGlobale;
-                            count++;
-                        });
-                        
-                        const moyenneNote = count > 0 ? parseFloat((totalNotes / count).toFixed(1)) : 0;
-                        
-                        await db.collection('candidatures').doc(currentBooking.chauffeurAssigne).update({
-                            noteGlobale: moyenneNote,
-                            nombreEvaluations: count
-                        });
-                        console.log('✅ Note chauffeur mise à jour:', moyenneNote, '(', count, 'évaluations)');
-                    } catch (error) {
-                        console.error('⚠️ Erreur mise à jour note:', error);
-                    }
-                }
-
-                submitBtn.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
-                showNotification('✅ Merci pour votre évaluation!', 'success');
                 
-                console.log('🎉 Évaluation terminée avec succès');
+                const moyenneNote = count > 0 ? parseFloat((totalNotes / count).toFixed(1)) : 0;
                 
-                setTimeout(() => {
-                    closeEvaluationModal();
-                    closeTracking();
-                    currentBooking = null;
-                }, 1500);
-
+                await db.collection('candidatures').doc(currentBooking.chauffeurAssigne).update({
+                    noteGlobale: moyenneNote,
+                    nombreEvaluations: count
+                });
+                console.log('✅ Note chauffeur mise à jour:', moyenneNote, '(', count, 'évaluations)');
             } catch (error) {
-                console.error('❌ Erreur lors de l\'évaluation:', error);
-                
-                if (error.code === 'permission-denied') {
-                    showNotification('❌ Erreur de permissions Firebase - Contactez l\'admin', 'error');
-                    console.error('🔒 ERREUR PERMISSIONS: Ajoutez ces règles Firestore:');
-                    console.error(`
+                console.error('⚠️ Erreur mise à jour note:', error);
+            }
+        }
+
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
+        showNotification('✅ Merci pour votre évaluation!', 'success');
+        
+        console.log('🎉 Évaluation terminée avec succès');
+        
+        setTimeout(() => {
+            closeEvaluationModal();
+            closeTracking();
+            currentBooking = null;
+        }, 1500);
+
+    } catch (error) {
+        console.error('❌ Erreur lors de l\'évaluation:', error);
+        
+        if (error.code === 'permission-denied') {
+            showNotification('❌ Erreur de permissions Firebase - Contactez l\'admin', 'error');
+            console.error('🔒 ERREUR PERMISSIONS: Ajoutez ces règles Firestore:');
+            console.error(`
 allow write: if request.auth != null;
 allow read: if request.auth != null;
-                    `);
-                } else {
-                    showNotification('❌ Erreur: ' + error.message, 'error');
-                }
-                
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            }
+            `);
+        } else {
+            showNotification('❌ Erreur: ' + error.message, 'error');
         }
+        
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+    function scrollToBooking() {
+        document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth' });
+    }
 
-        function scrollToBooking() {
-            document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth' });
+    function showNotification(message, type = 'info') {
+        const notif = document.createElement('div');
+        notif.className = `notification ${type}`;
+        notif.textContent = message;
+        document.body.appendChild(notif);
+        setTimeout(() => {
+            notif.style.opacity = '0';
+            setTimeout(() => notif.remove(), 300);
+        }, 3000);
+    }
+
+    function showLoading(text = 'Chargement...') {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.querySelector('.loading-text').textContent = text;
+        overlay.style.display = 'flex';
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    function toggleChatbot() {
+        document.getElementById('chatbotWindow').classList.toggle('active');
+    }
+
+    function sendChatMessage() {
+        const input = document.getElementById('chatbotInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        addChatMessage(message, 'user');
+        input.value = '';
+
+        setTimeout(() => {
+            const response = getBotResponse(message);
+            addChatMessage(response, 'bot');
+        }, 500);
+    }
+
+    function addChatMessage(text, sender) {
+        const container = document.getElementById('chatbotMessages');
+        const div = document.createElement('div');
+        div.className = `chatbot-message message-${sender}`;
+        div.innerHTML = `
+            <div class="message-avatar avatar-${sender}">${sender === 'bot' ? '🚕' : '👤'}</div>
+            <div class="message-content content-${sender}">${text}</div>
+        `;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function getBotResponse(message) {
+        const msg = message.toLowerCase();
+        if (msg.includes('prix') || msg.includes('tarif')) {
+            return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+';
         }
-
-        function showNotification(message, type = 'info') {
-            const notif = document.createElement('div');
-            notif.className = `notification ${type}`;
-            notif.textContent = message;
-            document.body.appendChild(notif);
-            setTimeout(() => {
-                notif.style.opacity = '0';
-                setTimeout(() => notif.remove(), 300);
-            }, 3000);
+        if (msg.includes('contact')) {
+            return '📞 +221 77 123 45 67 (24h/24)';
         }
-
-        function showLoading(text = 'Chargement...') {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.querySelector('.loading-text').textContent = text;
-            overlay.style.display = 'flex';
+        if (msg.includes('suivi')) {
+            return 'Après confirmation, suivez votre chauffeur en temps réel!';
         }
+        return 'Assistant Al Bourakh à votre service!';
+    }
 
-        function hideLoading() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
+    window.initMap = initMap;
+</script>
 
-        function toggleChatbot() {
-            document.getElementById('chatbotWindow').classList.toggle('active');
-        }
-
-        function sendChatMessage() {
-            const input = document.getElementById('chatbotInput');
-            const message = input.value.trim();
-            if (!message) return;
-
-            addChatMessage(message, 'user');
-            input.value = '';
-
-            setTimeout(() => {
-                const response = getBotResponse(message);
-                addChatMessage(response, 'bot');
-            }, 500);
-        }
-
-        function addChatMessage(text, sender) {
-            const container = document.getElementById('chatbotMessages');
-            const div = document.createElement('div');
-            div.className = `chatbot-message message-${sender}`;
-            div.innerHTML = `
-                <div class="message-avatar avatar-${sender}">${sender === 'bot' ? '🚕' : '👤'}</div>
-                <div class="message-content content-${sender}">${text}</div>
-            `;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function getBotResponse(message) {
-            const msg = message.toLowerCase();
-            if (msg.includes('prix') || msg.includes('tarif')) {
-                return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+';
-            }
-            if (msg.includes('contact')) {
-                return '📞 +221 77 123 45 67 (24h/24)';
-            }
-            if (msg.includes('suivi')) {
-                return 'Après confirmation, suivez votre chauffeur en temps réel!';
-            }
-            return 'Assistant Al Bourakh à votre service!';
-        }
-
-        window.initMap = initMap;
-    </script>
-
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
-</body>
-</html>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script> 
+</body> </html>
