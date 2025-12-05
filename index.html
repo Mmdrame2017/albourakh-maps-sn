@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh - Réservation & Suivi en Temps Réel</title>
+    <title>Al Bourakh - Réservation & Suivi en Temps Réel v2.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -91,6 +91,25 @@
         #trackingMap { height: 280px; width: 100%; }
         
         .tracking-info { padding: 15px; }
+        
+        /* ✅ NOUVEAU : Badge de mode trajet */
+        .route-mode-badge { 
+            background: linear-gradient(135deg, #2196F3, #00BCD4); 
+            padding: 10px 15px; 
+            border-radius: 12px; 
+            color: white; 
+            margin-bottom: 15px; 
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .route-mode-badge.course-mode { 
+            background: linear-gradient(135deg, #00A854, #FECB00); 
+        }
         
         .driver-approaching-box { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; }
         .driver-approaching-title { font-size: 0.95em; opacity: 0.9; margin-bottom: 8px; }
@@ -539,6 +558,12 @@
             <div id="trackingMap"></div>
 
             <div class="tracking-info">
+                <!-- ✅ NOUVEAU : Badge indiquant le mode de trajet -->
+                <div class="route-mode-badge" id="routeModeBadge" style="display: none;">
+                    <i class="fas fa-car-side"></i>
+                    <span id="routeModeText">Chauffeur en approche</span>
+                </div>
+
                 <div class="driver-approaching-box" id="driverApproachingBox">
                     <div class="driver-approaching-title">🚗 Votre chauffeur arrive</div>
                     <div class="driver-eta" id="driverETA">--</div>
@@ -837,7 +862,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v2.3 - AVEC PHOTOS CHAUFFEURS');
+        console.log('🚕 Al Bourakh Client v2.4 - SYNCHRONISATION TRAJETS');
 
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
         let directionsService, directionsRenderer, trackingDirectionsRenderer;
@@ -852,6 +877,9 @@
         let lastDriverPosition = null;
         let trackingUpdateInterval = null;
         
+        // ✅ NOUVEAU : Variable pour gérer le mode de trajet
+        let currentTrackingMode = 'approche'; // 'approche' ou 'course'
+        
         let evaluationData = {
             noteGlobale: 0,
             conduite: 0,
@@ -864,7 +892,6 @@
         let simulationMode = false;
         let simulatedDriverPosition = null;
 
-        // ========== FONCTIONS HELPER POUR TÉLÉPHONE ==========
         function normalizePhoneForComparison(phone) {
             if (!phone) return '';
             return phone.replace(/\D/g, '');
@@ -900,11 +927,9 @@
             });
         }
 
-        // ========== RÉCUPÉRATION PHOTO CHAUFFEUR (CLIENT SIDE) ==========
         async function fetchDriverPhoto(driverId, driverPhone, driverNom, driverPrenom) {
             console.log('📸 Recherche photo chauffeur:', { driverId, driverPhone, driverNom, driverPrenom });
             
-            // ✅ ÉTAPE 1 : Chercher dans collection "drivers" (PRIORITÉ)
             try {
                 console.log('📡 Recherche dans drivers...');
                 const driverDoc = await db.collection('drivers').doc(driverId).get();
@@ -912,7 +937,6 @@
                 if (driverDoc.exists) {
                     const driverData = driverDoc.data();
                     
-                    // Chercher la photo dans différents champs possibles
                     const photoUrl = driverData.photoProfil ||
                                    driverData.photoIdentite || 
                                    driverData.photoUrl || 
@@ -929,12 +953,10 @@
                 console.error('❌ Erreur recherche dans drivers:', error);
             }
             
-            // ✅ ÉTAPE 2 : Chercher dans collection "candidatures" par téléphone
             if (driverPhone) {
                 try {
                     console.log('📡 Recherche dans candidatures par téléphone...');
                     
-                    // Générer variantes du numéro de téléphone
                     const phoneVariants = getPhoneVariants(driverPhone);
                     
                     const candidaturesSnapshot = await db.collection('candidatures')
@@ -946,7 +968,6 @@
                         const candidaturePhone = candidature.telephone || candidature.phone || '';
                         const candidatureDigits = normalizePhoneForComparison(candidaturePhone);
                         
-                        // Comparer avec toutes les variantes
                         for (const variant of phoneVariants) {
                             const variantDigits = normalizePhoneForComparison(variant);
                             
@@ -974,7 +995,6 @@
                 }
             }
             
-            // ✅ ÉTAPE 3 : Chercher dans candidatures par nom/prénom
             if (driverNom && driverPrenom) {
                 try {
                     console.log('📡 Recherche dans candidatures par nom/prénom...');
@@ -1614,6 +1634,10 @@
 
             document.getElementById('step1Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
+            // ✅ INITIALISER EN MODE APPROCHE
+            currentTrackingMode = 'approche';
+            updateTrackingModeDisplay();
+
             setTimeout(() => initTrackingMap(), 300);
         }
 
@@ -1689,6 +1713,14 @@
 
                     currentBooking = { id: doc.id, ...data };
 
+                    // ✅ DÉTECTION AUTOMATIQUE DU CHANGEMENT DE MODE
+                    if (data.statut === 'en_cours' && currentTrackingMode === 'approche') {
+                        console.log('🔄 BASCULEMENT VERS MODE COURSE');
+                        currentTrackingMode = 'course';
+                        updateTrackingModeDisplay();
+                        calculateCourseRoute(); // ✅ Calculer le trajet de la course
+                    }
+
                     updateStatusTimeline(data.statut);
 
                     if (data.chauffeurAssigne && !driverListener) {
@@ -1700,6 +1732,82 @@
                         await showDriverCard(data);
                     }
                 });
+        }
+
+        // ✅ NOUVELLE FONCTION : Mise à jour de l'affichage selon le mode
+        function updateTrackingModeDisplay() {
+            const badge = document.getElementById('routeModeBadge');
+            const text = document.getElementById('routeModeText');
+            
+            if (currentTrackingMode === 'approche') {
+                badge.classList.remove('course-mode');
+                badge.style.display = 'flex';
+                text.innerHTML = '<i class="fas fa-car-side"></i> Chauffeur en approche';
+            } else if (currentTrackingMode === 'course') {
+                badge.classList.add('course-mode');
+                badge.style.display = 'flex';
+                text.innerHTML = '<i class="fas fa-route"></i> Course en cours - Direction destination';
+            }
+        }
+
+        // ✅ NOUVELLE FONCTION : Calculer le trajet de la course (départ → destination)
+        function calculateCourseRoute() {
+            if (!currentBooking.departCoords || !currentBooking.destinationCoords || !directionsService) {
+                console.error('❌ Impossible de calculer le trajet de la course');
+                return;
+            }
+
+            console.log('🗺️ Calcul du trajet de course:', currentBooking.departCoords, '→', currentBooking.destinationCoords);
+
+            directionsService.route({
+                origin: currentBooking.departCoords,
+                destination: currentBooking.destinationCoords,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === 'OK') {
+                    console.log('✅ Trajet de course calculé');
+                    
+                    // ✅ AFFICHER LE TRAJET DE LA COURSE
+                    trackingDirectionsRenderer.setDirections(result);
+                    trackingDirectionsRenderer.setOptions({
+                        polylineOptions: { 
+                            strokeColor: '#00A854', // Vert pour la course
+                            strokeWeight: 5, 
+                            strokeOpacity: 0.8 
+                        }
+                    });
+
+                    const leg = result.routes[0].legs[0];
+                    
+                    // ✅ Mettre à jour l'affichage avec les infos de la course
+                    document.getElementById('driverApproachingBox').innerHTML = `
+                        <div class="driver-approaching-title">🚗 Course en cours</div>
+                        <div class="driver-eta" style="font-size: 1.5em;">${leg.distance.text}</div>
+                        <div class="driver-eta-label">Distance restante</div>
+                        <div class="driver-details-row">
+                            <div class="driver-detail">
+                                <div class="driver-detail-value">${leg.duration.text}</div>
+                                <div class="driver-detail-label">Temps estimé</div>
+                            </div>
+                            <div class="driver-detail">
+                                <div class="driver-detail-value">${new Date(Date.now() + leg.duration.value * 1000).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+                                <div class="driver-detail-label">Arrivée prévue</div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #00A854, #FECB00)';
+
+                    // ✅ Ajuster la vue de la carte pour inclure tout le trajet
+                    if (trackingMap) {
+                        const bounds = new google.maps.LatLngBounds();
+                        bounds.extend(currentBooking.departCoords);
+                        bounds.extend(currentBooking.destinationCoords);
+                        trackingMap.fitBounds(bounds, { padding: 50 });
+                    }
+                } else {
+                    console.error('❌ Erreur calcul trajet course:', status);
+                }
+            });
         }
 
         function updateStep2(data) {
@@ -1730,7 +1838,13 @@
                         
                         lastDriverPosition = driverPos;
                         updateDriverMarker(driverPos);
-                        calculateApproachRoute(driverPos);
+                        
+                        // ✅ CALCULER LA ROUTE SELON LE MODE
+                        if (currentTrackingMode === 'approche') {
+                            calculateApproachRoute(driverPos);
+                        }
+                        // Si on est en mode 'course', on garde le trajet départ → destination
+                        
                         updateStep3();
                     }
                 });
@@ -1765,26 +1879,30 @@
                         return;
                     }
                     
-                    const target = currentBooking.departCoords;
-                    const speed = 0.002;
-                    
-                    const dLat = target.lat - simulatedDriverPosition.lat;
-                    const dLng = target.lng - simulatedDriverPosition.lng;
-                    const distance = Math.sqrt(dLat * dLat + dLng * dLng);
-                    
-                    if (distance < 0.001) {
-                        clearInterval(trackingUpdateInterval);
-                        updateStatusTimeline('arrive');
-                        return;
+                    // ✅ EN MODE APPROCHE : avancer vers le point de prise en charge
+                    if (currentTrackingMode === 'approche') {
+                        const target = currentBooking.departCoords;
+                        const speed = 0.002;
+                        
+                        const dLat = target.lat - simulatedDriverPosition.lat;
+                        const dLng = target.lng - simulatedDriverPosition.lng;
+                        const distance = Math.sqrt(dLat * dLat + dLng * dLng);
+                        
+                        if (distance < 0.001) {
+                            clearInterval(trackingUpdateInterval);
+                            updateStatusTimeline('arrive');
+                            return;
+                        }
+                        
+                        simulatedDriverPosition = {
+                            lat: simulatedDriverPosition.lat + (dLat / distance) * speed,
+                            lng: simulatedDriverPosition.lng + (dLng / distance) * speed
+                        };
+                        
+                        updateDriverMarker(simulatedDriverPosition);
+                        calculateApproachRoute(simulatedDriverPosition);
                     }
-                    
-                    simulatedDriverPosition = {
-                        lat: simulatedDriverPosition.lat + (dLat / distance) * speed,
-                        lng: simulatedDriverPosition.lng + (dLng / distance) * speed
-                    };
-                    
-                    updateDriverMarker(simulatedDriverPosition);
-                    calculateApproachRoute(simulatedDriverPosition);
+                    // ✅ EN MODE COURSE : ne plus mettre à jour (le trajet est fixe)
                     
                 }, 3000);
             }
@@ -1811,12 +1929,16 @@
                 });
             }
 
-            const bounds = new google.maps.LatLngBounds();
-            bounds.extend(position);
-            if (currentBooking.departCoords) {
-                bounds.extend(currentBooking.departCoords);
+            // ✅ AJUSTER LA VUE SELON LE MODE
+            if (currentTrackingMode === 'approche') {
+                const bounds = new google.maps.LatLngBounds();
+                bounds.extend(position);
+                if (currentBooking.departCoords) {
+                    bounds.extend(currentBooking.departCoords);
+                }
+                trackingMap.fitBounds(bounds, { padding: 50 });
             }
-            trackingMap.fitBounds(bounds, { padding: 50 });
+            // En mode 'course', la vue est déjà ajustée par calculateCourseRoute()
         }
 
         function calculateApproachRoute(driverPos) {
@@ -1829,6 +1951,13 @@
             }, (result, status) => {
                 if (status === 'OK') {
                     trackingDirectionsRenderer.setDirections(result);
+                    trackingDirectionsRenderer.setOptions({
+                        polylineOptions: { 
+                            strokeColor: '#2196F3', // Bleu pour l'approche
+                            strokeWeight: 5, 
+                            strokeOpacity: 0.8 
+                        }
+                    });
 
                     const leg = result.routes[0].legs[0];
                     
@@ -1875,11 +2004,7 @@
                     step5Icon.classList.add('current');
                     document.getElementById('step5Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                     
-                    document.getElementById('driverApproachingBox').innerHTML = `
-                        <div class="driver-approaching-title">🚗 Course en cours</div>
-                        <div class="driver-eta" style="font-size: 1.2em;">Direction: ${currentBooking.destination}</div>
-                    `;
-                    document.getElementById('driverApproachingBox').style.background = 'linear-gradient(135deg, #00A854, #FECB00)';
+                    // ✅ Le basculement vers le trajet de course est géré dans startReservationListener()
                     break;
 
                 case 'terminee':
@@ -1915,7 +2040,6 @@
 
             const driverName = data.nomChauffeur || 'Chauffeur';
             
-            // 🔍 Extraire prénom et nom pour la recherche
             const nameParts = driverName.split(' ');
             const driverPrenom = nameParts[0] || '';
             const driverNom = nameParts.slice(1).join(' ') || '';
@@ -1924,7 +2048,6 @@
             
             console.log('🚗 Affichage carte chauffeur:', driverName, 'ID:', data.chauffeurAssigne);
             
-            // 📸 RÉCUPÉRATION DE LA PHOTO
             let photoUrl = null;
             if (data.chauffeurAssigne) {
                 showLoading('Chargement photo...');
@@ -1937,7 +2060,6 @@
                 hideLoading();
             }
             
-            // 🎨 AFFICHAGE DE LA PHOTO
             const driverAvatar = document.querySelector('.driver-avatar');
             const evalDriverAvatar = document.querySelector('.evaluation-driver-avatar');
             
@@ -2026,7 +2148,7 @@
                 currentBooking.vehiculeModele = modele;
                 currentBooking.immatriculation = immatriculation;
                 currentBooking.noteGlobaleChauffeur = rating;
-                currentBooking.photoChauffeur = photoUrl; // 💾 Sauvegarder la photo
+                currentBooking.photoChauffeur = photoUrl;
                 console.log('💾 Données sauvegardées (avec photo)');
             }
             
@@ -2185,7 +2307,6 @@
             document.getElementById('evalVehicle').textContent = vehiculeText;
             console.log('🚗 Véhicule affiché:', vehiculeText);
 
-            // 📸 Afficher la photo dans le modal d'évaluation
             const evalDriverAvatar = document.querySelector('.evaluation-driver-avatar');
             if (currentBooking.photoChauffeur) {
                 evalDriverAvatar.innerHTML = `<img src="${currentBooking.photoChauffeur}" alt="${currentBooking.nomChauffeur}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.parentElement.innerHTML='👤'">`;
@@ -2227,177 +2348,175 @@
             currentBooking = null;
         }
 
-async function submitEvaluation() {
-    console.log('🚀 submitEvaluation appelée', evaluationData);
-    
-    if (evaluationData.noteGlobale === 0) {
-        showNotification('⚠️ Veuillez noter la course', 'error');
-        return;
-    }
+        async function submitEvaluation() {
+            console.log('🚀 submitEvaluation appelée', evaluationData);
+            
+            if (evaluationData.noteGlobale === 0) {
+                showNotification('⚠️ Veuillez noter la course', 'error');
+                return;
+            }
 
-    const submitBtn = document.getElementById('submitEvaluationBtn');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Envoi...';
-    
-    console.log('📤 Envoi de l\'évaluation...');
+            const submitBtn = document.getElementById('submitEvaluationBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Envoi...';
+            
+            console.log('📤 Envoi de l\'évaluation...');
 
-    try {
-        const evaluationDoc = {
-            reservationId: currentBooking.id,
-            chauffeurId: currentBooking.chauffeurAssigne,
-            nomChauffeur: currentBooking.nomChauffeur || 'Chauffeur',
-            clientNom: currentBooking.clientNom || 'Client',
-            clientTelephone: currentBooking.clientTelephone,
-            noteGlobale: evaluationData.noteGlobale,
-            conduite: evaluationData.conduite || 0,
-            ponctualite: evaluationData.ponctualite || 0,
-            proprete: evaluationData.proprete || 0,
-            amabilite: evaluationData.amabilite || 0,
-            commentaire: evaluationData.commentaire.trim(),
-            vehiculeMarque: currentBooking.vehiculeMarque || '',
-            vehiculeModele: currentBooking.vehiculeModele || '',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            dateEvaluation: new Date().toISOString()
-        };
-
-        console.log('📝 Données à sauvegarder:', evaluationDoc);
-
-        const evalRef = await db.collection('evaluations').add(evaluationDoc);
-        console.log('✅ Évaluation sauvegardée avec ID:', evalRef.id);
-
-        await db.collection('reservations').doc(currentBooking.id).update({
-            evaluationSoumise: true,
-            noteClient: evaluationData.noteGlobale,
-            dateEvaluation: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        console.log('✅ Réservation mise à jour');
-
-        if (currentBooking.chauffeurAssigne) {
             try {
-                const evaluationsSnap = await db.collection('evaluations')
-                    .where('chauffeurId', '==', currentBooking.chauffeurAssigne)
-                    .get();
-                
-                let totalNotes = 0;
-                let count = 0;
-                evaluationsSnap.forEach(doc => {
-                    totalNotes += doc.data().noteGlobale;
-                    count++;
+                const evaluationDoc = {
+                    reservationId: currentBooking.id,
+                    chauffeurId: currentBooking.chauffeurAssigne,
+                    nomChauffeur: currentBooking.nomChauffeur || 'Chauffeur',
+                    clientNom: currentBooking.clientNom || 'Client',
+                    clientTelephone: currentBooking.clientTelephone,
+                    noteGlobale: evaluationData.noteGlobale,
+                    conduite: evaluationData.conduite || 0,
+                    ponctualite: evaluationData.ponctualite || 0,
+                    proprete: evaluationData.proprete || 0,
+                    amabilite: evaluationData.amabilite || 0,
+                    commentaire: evaluationData.commentaire.trim(),
+                    vehiculeMarque: currentBooking.vehiculeMarque || '',
+                    vehiculeModele: currentBooking.vehiculeModele || '',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    dateEvaluation: new Date().toISOString()
+                };
+
+                console.log('📝 Données à sauvegarder:', evaluationDoc);
+
+                const evalRef = await db.collection('evaluations').add(evaluationDoc);
+                console.log('✅ Évaluation sauvegardée avec ID:', evalRef.id);
+
+                await db.collection('reservations').doc(currentBooking.id).update({
+                    evaluationSoumise: true,
+                    noteClient: evaluationData.noteGlobale,
+                    dateEvaluation: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                console.log('✅ Réservation mise à jour');
+
+                if (currentBooking.chauffeurAssigne) {
+                    try {
+                        const evaluationsSnap = await db.collection('evaluations')
+                            .where('chauffeurId', '==', currentBooking.chauffeurAssigne)
+                            .get();
+                        
+                        let totalNotes = 0;
+                        let count = 0;
+                        evaluationsSnap.forEach(doc => {
+                            totalNotes += doc.data().noteGlobale;
+                            count++;
+                        });
+                        
+                        const moyenneNote = count > 0 ? parseFloat((totalNotes / count).toFixed(1)) : 0;
+                        
+                        await db.collection('candidatures').doc(currentBooking.chauffeurAssigne).update({
+                            noteGlobale: moyenneNote,
+                            nombreEvaluations: count
+                        });
+                        console.log('✅ Note chauffeur mise à jour:', moyenneNote, '(', count, 'évaluations)');
+                    } catch (error) {
+                        console.error('⚠️ Erreur mise à jour note:', error);
+                    }
+                }
+
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
+                showNotification('✅ Merci pour votre évaluation!', 'success');
                 
-                const moyenneNote = count > 0 ? parseFloat((totalNotes / count).toFixed(1)) : 0;
+                console.log('🎉 Évaluation terminée avec succès');
                 
-                await db.collection('candidatures').doc(currentBooking.chauffeurAssigne).update({
-                    noteGlobale: moyenneNote,
-                    nombreEvaluations: count
-                });
-                console.log('✅ Note chauffeur mise à jour:', moyenneNote, '(', count, 'évaluations)');
+                setTimeout(() => {
+                    closeEvaluationModal();
+                    closeTracking();
+                    currentBooking = null;
+                }, 1500);
+
             } catch (error) {
-                console.error('⚠️ Erreur mise à jour note:', error);
+                console.error('❌ Erreur lors de l\'évaluation:', error);
+                
+                if (error.code === 'permission-denied') {
+                    showNotification('❌ Erreur de permissions Firebase - Contactez l\'admin', 'error');
+                    console.error('🔒 ERREUR PERMISSIONS: Ajoutez ces règles Firestore:');
+                } else {
+                    showNotification('❌ Erreur: ' + error.message, 'error');
+                }
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
         }
 
-        submitBtn.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
-        showNotification('✅ Merci pour votre évaluation!', 'success');
-        
-        console.log('🎉 Évaluation terminée avec succès');
-        
-        setTimeout(() => {
-            closeEvaluationModal();
-            closeTracking();
-            currentBooking = null;
-        }, 1500);
-
-    } catch (error) {
-        console.error('❌ Erreur lors de l\'évaluation:', error);
-        
-        if (error.code === 'permission-denied') {
-            showNotification('❌ Erreur de permissions Firebase - Contactez l\'admin', 'error');
-            console.error('🔒 ERREUR PERMISSIONS: Ajoutez ces règles Firestore:');
-            console.error(`
-allow write: if request.auth != null;
-allow read: if request.auth != null;
-            `);
-        } else {
-            showNotification('❌ Erreur: ' + error.message, 'error');
+        function scrollToBooking() {
+            document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth' });
         }
-        
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-    }
-}
-    function scrollToBooking() {
-        document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth' });
-    }
 
-    function showNotification(message, type = 'info') {
-        const notif = document.createElement('div');
-        notif.className = `notification ${type}`;
-        notif.textContent = message;
-        document.body.appendChild(notif);
-        setTimeout(() => {
-            notif.style.opacity = '0';
-            setTimeout(() => notif.remove(), 300);
-        }, 3000);
-    }
-
-    function showLoading(text = 'Chargement...') {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.querySelector('.loading-text').textContent = text;
-        overlay.style.display = 'flex';
-    }
-
-    function hideLoading() {
-        document.getElementById('loadingOverlay').style.display = 'none';
-    }
-
-    function toggleChatbot() {
-        document.getElementById('chatbotWindow').classList.toggle('active');
-    }
-
-    function sendChatMessage() {
-        const input = document.getElementById('chatbotInput');
-        const message = input.value.trim();
-        if (!message) return;
-
-        addChatMessage(message, 'user');
-        input.value = '';
-
-        setTimeout(() => {
-            const response = getBotResponse(message);
-            addChatMessage(response, 'bot');
-        }, 500);
-    }
-
-    function addChatMessage(text, sender) {
-        const container = document.getElementById('chatbotMessages');
-        const div = document.createElement('div');
-        div.className = `chatbot-message message-${sender}`;
-        div.innerHTML = `
-            <div class="message-avatar avatar-${sender}">${sender === 'bot' ? '🚕' : '👤'}</div>
-            <div class="message-content content-${sender}">${text}</div>
-        `;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    function getBotResponse(message) {
-        const msg = message.toLowerCase();
-        if (msg.includes('prix') || msg.includes('tarif')) {
-            return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+';
+        function showNotification(message, type = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
         }
-        if (msg.includes('contact')) {
-            return '📞 +221 77 123 45 67 (24h/24)';
-        }
-        if (msg.includes('suivi')) {
-            return 'Après confirmation, suivez votre chauffeur en temps réel!';
-        }
-        return 'Assistant Al Bourakh à votre service!';
-    }
 
-    window.initMap = initMap;
-</script>
+        function showLoading(text = 'Chargement...') {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.querySelector('.loading-text').textContent = text;
+            overlay.style.display = 'flex';
+        }
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script> 
-</body> </html>
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function toggleChatbot() {
+            document.getElementById('chatbotWindow').classList.toggle('active');
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatbotInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addChatMessage(message, 'user');
+            input.value = '';
+
+            setTimeout(() => {
+                const response = getBotResponse(message);
+                addChatMessage(response, 'bot');
+            }, 500);
+        }
+
+        function addChatMessage(text, sender) {
+            const container = document.getElementById('chatbotMessages');
+            const div = document.createElement('div');
+            div.className = `chatbot-message message-${sender}`;
+            div.innerHTML = `
+                <div class="message-avatar avatar-${sender}">${sender === 'bot' ? '🚕' : '👤'}</div>
+                <div class="message-content content-${sender}">${text}</div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function getBotResponse(message) {
+            const msg = message.toLowerCase();
+            if (msg.includes('prix') || msg.includes('tarif')) {
+                return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+';
+            }
+            if (msg.includes('contact')) {
+                return '📞 +221 77 123 45 67 (24h/24)';
+            }
+            if (msg.includes('suivi')) {
+                return 'Après confirmation, suivez votre chauffeur en temps réel!';
+            }
+            return 'Assistant Al Bourakh à votre service!';
+        }
+
+        window.initMap = initMap;
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script> 
+</body> 
+</html>
