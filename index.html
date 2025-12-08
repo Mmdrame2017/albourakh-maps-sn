@@ -2868,15 +2868,26 @@
         if (sender === 'bot') speakText(text);
     }
 
-    function speakText(text) {
-        if (synth.speaking) synth.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'fr-FR';
-        utterance.rate = 1; 
-        utterance.pitch = 1;
-        synth.speak(utterance);
-    }
-
+function speakText(text) {
+    if (synth.speaking) synth.cancel();
+    
+    // Nettoyer le texte des caractères de formatage Markdown
+    let cleanText = text
+        .replace(/\*\*/g, '')        // Enlever ** (gras)
+        .replace(/\*/g, '')           // Enlever * (italique)
+        .replace(/\_\_/g, '')         // Enlever __ (gras)
+        .replace(/\_/g, '')           // Enlever _ (italique)
+        .replace(/\#/g, '')           // Enlever # (titres)
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')  // Enlever les liens [texte](url) → texte
+        .replace(/\n+/g, '. ')        // Remplacer les sauts de ligne par des points
+        .trim();
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 1; 
+    utterance.pitch = 1;
+    synth.speak(utterance);
+}
     async function sendAbMessage() {
         const text = inputField.value.trim();
         if (!text) return;
