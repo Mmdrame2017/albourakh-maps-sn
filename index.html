@@ -2083,5 +2083,483 @@
         window.initMap = initMap;
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
+<!-- ========================================== -->
+<!-- DEBUT WIDGET CHATBOT AL BOURAKH (CORRIGÉ) -->
+<!-- Collez ce code juste avant la balise </body> -->
+<!-- ========================================== -->
+
+<style>
+    /* Importation de la police (Optionnel si déjà dans le site) */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+    /* Variables de couleurs Al Bourakh (Supposées: Bleu Nuit et Or/Jaune) */
+    :root {
+        --ab-primary: #0F172A; /* Bleu nuit professionnel */
+        --ab-secondary: #EAB308; /* Or/Jaune taxi/foudre */
+        --ab-accent: #2563EB;
+        --ab-bg: #F8FAFC;
+        --ab-text: #334155;
+        --ab-white: #ffffff;
+    }
+
+    #ab-widget-container {
+        font-family: 'Poppins', sans-serif;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    /* Bouton Flottant */
+    #ab-chat-btn {
+        background-color: var(--ab-primary);
+        color: var(--ab-secondary);
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+    }
+
+    #ab-chat-btn:hover {
+        transform: scale(1.1);
+    }
+
+    #ab-chat-btn svg {
+        width: 30px;
+        height: 30px;
+        fill: currentColor;
+    }
+
+    /* Fenêtre de Chat */
+    #ab-chat-window {
+        width: 350px;
+        height: 500px;
+        background-color: var(--ab-white);
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        display: none; /* Caché par défaut */
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 16px;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* En-tête */
+    .ab-header {
+        background-color: var(--ab-primary);
+        color: var(--ab-white);
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .ab-header-title {
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ab-status-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #22c55e;
+        border-radius: 50%;
+    }
+
+    .ab-close-btn {
+        background: none;
+        border: none;
+        color: var(--ab-white);
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    /* Zone des messages */
+    #ab-messages {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+        background-color: var(--ab-bg);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ab-msg {
+        max-width: 85%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 1.4;
+        position: relative;
+        word-wrap: break-word;
+    }
+
+    .ab-msg-bot {
+        background-color: var(--ab-white);
+        color: var(--ab-text);
+        border: 1px solid #e2e8f0;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+
+    .ab-msg-user {
+        background-color: var(--ab-primary);
+        color: var(--ab-white);
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
+
+    /* Zone de saisie */
+    .ab-input-area {
+        padding: 12px;
+        border-top: 1px solid #e2e8f0;
+        background-color: var(--ab-white);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #ab-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 20px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    #ab-input:focus {
+        border-color: var(--ab-primary);
+    }
+
+    .ab-icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ab-primary);
+        padding: 8px;
+        border-radius: 50%;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ab-icon-btn:hover {
+        background-color: #f1f5f9;
+    }
+
+    .ab-icon-btn.listening {
+        color: #ef4444; /* Rouge quand écoute */
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Responsive Mobile */
+    @media (max-width: 480px) {
+        #ab-chat-window {
+            width: 90vw;
+            height: 70vh;
+            right: 5vw;
+        }
+    }
+</style>
+
+<div id="ab-widget-container">
+    <!-- Fenêtre de Chat -->
+    <div id="ab-chat-window">
+        <div class="ab-header">
+            <div class="ab-header-title">
+                <div class="ab-status-dot"></div>
+                Assistant Al Bourakh
+            </div>
+            <button class="ab-close-btn" onclick="toggleAbChat()">×</button>
+        </div>
+        <div id="ab-messages">
+            <!-- Les messages s'afficheront ici -->
+        </div>
+        <div class="ab-input-area">
+            <input type="text" id="ab-input" placeholder="Posez votre question..." onkeypress="handleAbKeyPress(event)">
+            
+            <!-- Bouton Micro -->
+            <button class="ab-icon-btn" id="ab-mic-btn" onclick="toggleVoice()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+            </button>
+            
+            <!-- Bouton Envoyer -->
+            <button class="ab-icon-btn" onclick="sendAbMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bouton Flottant -->
+    <button id="ab-chat-btn" onclick="toggleAbChat()">
+        <!-- Icône de bulle/foudre -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+    </button>
+</div>
+
+<script>
+    /* ================= CONFIGURATION & DONNÉES ================= */
+    
+    // 1. LE SYSTEM PROMPT (Le cerveau de l'IA)
+    const SYSTEM_PROMPT = `
+    Rôle: Tu es l'Assistant Virtuel Intelligent de Al Bourakh, service VTC sénégalais.
+    Ton : Teranga (chaleureux, poli), Professionnel (rapide, fiable).
+    Langue : Français (accepte salutations Wolof).
+    Directives : 
+    - Base-toi sur la base de connaissance.
+    - Prix en FCFA uniquement.
+    - Urgences : Réfère au bouton SOS ou 77 123 45 67.
+    - Si info manquante : Réfère au support client.
+    `;
+
+    // 2. LA BASE DE CONNAISSANCE (Contenu du PDF résumé pour le script)
+    const KNOWLEDGE_BASE = `
+    SERVICES:
+    1. Standard (Kia Rio): Climatisé, 4 places. Prise en charge 1000F, 200F/km.
+    2. Moto Jakarta: Rapide, 1 place. Prise en charge 500F, 150F/km.
+    3. Confort (VW Polo) & Premium (Hyundai).
+    4. Aéroport AIBD: Tarifs fixes. Dakar Centre->AIBD 15000F. Almadies->AIBD 18000F.
+    5. Livraison & Location (heure/journée).
+
+    ZONES: Dakar, Thiès, Saint-Louis. (Mbour/Saly prévu Q2 2025).
+    
+    PAIEMENT: Cash, Orange Money, Wave, Free Money, Carte Bancaire.
+    
+    CHAUFFEUR: Inscription en ligne, 23 ans+, Permis 3 ans+, Casier vierge. Revenus 300-500k/mois.
+    
+    SECURITE: Suivi GPS, Bouton SOS, Vérification chauffeurs, Assurance incluse.
+    
+    CONTACT: +221 77 123 45 67, support@albourakh.sn.
+    `;
+
+    /* ================= LOGIQUE DU CHAT ================= */
+
+    let isChatOpen = false;
+    let isListening = false;
+    const chatWindow = document.getElementById('ab-chat-window');
+    const messagesContainer = document.getElementById('ab-messages');
+    const inputField = document.getElementById('ab-input');
+    const micBtn = document.getElementById('ab-mic-btn');
+
+    // Synthèse vocale (Le robot parle)
+    const synth = window.speechSynthesis;
+    
+    // Reconnaissance vocale (L'utilisateur parle)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'fr-FR'; // Langue française
+        recognition.continuous = false;
+        
+        recognition.onstart = function() {
+            isListening = true;
+            micBtn.classList.add('listening');
+            inputField.placeholder = "Je vous écoute...";
+        };
+
+        recognition.onend = function() {
+            isListening = false;
+            micBtn.classList.remove('listening');
+            inputField.placeholder = "Posez votre question...";
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            inputField.value = transcript;
+            sendAbMessage(); // Envoi automatique après la voix
+        };
+    } else {
+        micBtn.style.display = 'none'; // Masquer si non supporté
+        console.log("Reconnaissance vocale non supportée par ce navigateur.");
+    }
+
+    // Initialisation
+    window.onload = function() {
+        // Message de bienvenue
+        addMessage("bot", "Bonjour ! Dalal ak diam chez Al Bourakh. Je suis votre assistant virtuel. Comment puis-je vous aider pour votre trajet aujourd'hui ?");
+    };
+
+    function toggleAbChat() {
+        isChatOpen = !isChatOpen;
+        chatWindow.style.display = isChatOpen ? 'flex' : 'none';
+        if (isChatOpen) inputField.focus();
+    }
+
+    function toggleVoice() {
+        if (!recognition) return alert("Votre navigateur ne supporte pas la commande vocale.");
+        if (isListening) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    }
+
+    function handleAbKeyPress(e) {
+        if (e.key === 'Enter') sendAbMessage();
+    }
+
+    function addMessage(sender, text) {
+        const div = document.createElement('div');
+        div.classList.add('ab-msg');
+        div.classList.add(sender === 'user' ? 'ab-msg-user' : 'ab-msg-bot');
+        div.innerText = text;
+        messagesContainer.appendChild(div);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Si c'est le bot, on lit le texte à haute voix
+        if (sender === 'bot') speakText(text);
+    }
+
+function speakText(text) {
+    if (synth.speaking) synth.cancel();
+    
+    // Nettoyer le texte des caractères de formatage Markdown
+    let cleanText = text
+        .replace(/\*\*/g, '')        // Enlever ** (gras)
+        .replace(/\*/g, '')           // Enlever * (italique)
+        .replace(/\_\_/g, '')         // Enlever __ (gras)
+        .replace(/\_/g, '')           // Enlever _ (italique)
+        .replace(/\#/g, '')           // Enlever # (titres)
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')  // Enlever les liens [texte](url) → texte
+        .replace(/\n+/g, '. ')        // Remplacer les sauts de ligne par des points
+        .trim();
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 1; 
+    utterance.pitch = 1;
+    synth.speak(utterance);
+}
+    async function sendAbMessage() {
+        const text = inputField.value.trim();
+        if (!text) return;
+
+        addMessage('user', text);
+        inputField.value = '';
+
+        // OBTENIR LA RÉPONSE DE L'IA
+        const response = await getAIResponse(text);
+        addMessage('bot', response);
+    }
+
+    /* ================= LOGIQUE INTELLIGENTE (CORRIGÉE) ================= */
+    
+    async function getAIResponse(userQuery) {
+        // ---------------------------------------------------------
+        // SECTION API : METTRE VOTRE CLÉ CI-DESSOUS
+        // ---------------------------------------------------------
+        
+        let API_KEY = "AIzaSyCm49CetMRowuec2Lc0C44t3hTICu-xerM"; // <--- COLLEZ VOTRE CLÉ API ICI (ATTENTION AUX ESPACES)
+        
+        // Nettoyage de la clé au cas où il y a des espaces copiés par erreur
+        API_KEY = API_KEY.trim();
+
+        if (API_KEY) {
+            try {
+                // Changement de modèle vers gemini-2.5-flash (plus stable sur endpoint standard)
+                // Si vous avez une clé récente, gemini-2.5-flash fonctionne aussi, mais le endpoint varie parfois.
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+                
+                const payload = {
+                    contents: [{
+                        parts: [{
+                            text: `CONTEXTE: ${SYSTEM_PROMPT}\n\nDONNÉES: ${KNOWLEDGE_BASE}\n\nQUESTION UTILISATEUR: ${userQuery}`
+                        }]
+                    }]
+                };
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                // GESTION D'ERREUR ROBUSTE (Pour éviter le crash "undefined")
+                if (!response.ok) {
+                    console.error("ERREUR API GOOGLE:", data);
+                    // Si 404, on tente un fallback (optionnel) ou on affiche l'erreur
+                    if(response.status === 404) {
+                        return "Erreur technique (404). Vérifiez que le modèle gemini-2.5-flash' est bien actif sur votre clé API.";
+                    }
+                    return `Erreur API: ${data.error?.message || "Problème inconnu"}`;
+                }
+                
+                // Vérification que la réponse contient bien du texte
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    return "Je n'ai pas compris, pouvez-vous reformuler ?";
+                }
+
+            } catch (error) {
+                console.error("Erreur connexion:", error);
+                return "Désolé, je rencontre un problème de connexion. Vérifiez votre clé API et votre connexion internet.";
+            }
+        }
+
+        // ---------------------------------------------------------
+        // MODE DÉMO (SANS CLÉ API)
+        // ---------------------------------------------------------
+        
+        const q = userQuery.toLowerCase();
+
+        if (q.includes("bonjour") || q.includes("salam") || q.includes("hello")) {
+            return "Bonjour ! Comment puis-je faciliter vos déplacements avec Al Bourakh aujourd'hui ?";
+        }
+        
+        if (q.includes("prix") || q.includes("coûte") || q.includes("tarif")) {
+            if (q.includes("aéroport") || q.includes("aibd")) {
+                return "Pour l'aéroport AIBD, nous avons des tarifs fixes : 15 000 FCFA depuis Dakar Centre et 18 000 FCFA depuis les Almadies.";
+            }
+            if (q.includes("moto") || q.includes("jakarta")) {
+                return "Notre service Moto Jakarta commence à 500 FCFA la prise en charge + 150 FCFA/km.";
+            }
+            return "Nos tarifs dépendent du véhicule. Le standard (Kia Rio) est à 1000 FCFA prise en charge + 200 FCFA/km. Voulez-vous une estimation pour une destination précise ?";
+        }
+
+        if (q.includes("contact") || q.includes("téléphone") || q.includes("appeler")) {
+            return "Vous pouvez joindre notre service client 24h/7 au +221 77 123 45 67.";
+        }
+
+        if (q.includes("chauffeur") && (q.includes("devenir") || q.includes("travail"))) {
+            return "Pour devenir chauffeur Al Bourakh, vous devez avoir 23 ans minimum, un permis de plus de 3 ans et un casier judiciaire vierge. L'inscription se fait via notre site web.";
+        }
+        
+        if (q.includes("sos") || q.includes("urgence")) {
+            return "URGENCE : Appelez immédiatement le 78 785 01 01ou le 15 (SAMU).";
+        }
+
+        return "Je comprends. Pour cette demande spécifique, je vous invite à consulter l'application Al Bourakh ou à appeler notre support au 78 785 01 01.";
+    }
+
+</script>
+<!-- FIN WIDGET CHATBOT AL BOURAKH -->
+
+
 </body>
 </html>
