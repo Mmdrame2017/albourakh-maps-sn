@@ -373,13 +373,9 @@
                 <button class="wallet-close" onclick="closeWallet()">×</button>
             </div>
             <div class="wallet-content" id="walletContent">
-                <!-- Dashboard Screen -->
                 <div class="wallet-screen active" id="walletDashboard"></div>
-                <!-- Recharge Screen -->
                 <div class="wallet-screen" id="walletRecharge"></div>
-                <!-- History Screen -->
                 <div class="wallet-screen" id="walletHistory"></div>
-                <!-- Success Screen -->
                 <div class="wallet-screen" id="walletSuccess"></div>
             </div>
         </div>
@@ -760,7 +756,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -771,9 +766,8 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Unified v3.0 - VTC + Wallet');
+        console.log('🚕 Al Bourakh Unified v3.0 - VTC + Wallet (Date Validation Fixed)');
 
-        // ========== ÉTAT GLOBAL ==========
         let walletState = {
             balance: 45000,
             loyaltyPoints: 350,
@@ -799,6 +793,35 @@
         let currentTrackingMode = 'approche';
         let simulationMode = false, simulatedDriverPosition = null;
         let evaluationData = { noteGlobale: 0, conduite: 0, ponctualite: 0, proprete: 0, amabilite: 0, commentaire: '' };
+
+        // ========== VALIDATION DATE/HEURE FUNCTIONS ==========
+        function isBookingDateTimeValid(dateStr, timeStr) {
+            const bookingDateTime = new Date(`${dateStr}T${timeStr}`);
+            const now = new Date();
+            
+            // Ajouter une marge de 5 minutes pour éviter les problèmes de timing
+            const minAllowedTime = new Date(now.getTime() + 5 * 60000);
+            
+            if (bookingDateTime < minAllowedTime) {
+                return {
+                    valid: false,
+                    message: '⚠️ Impossible de réserver dans le passé. Veuillez choisir une date/heure future (au moins 5 minutes d\'avance).'
+                };
+            }
+            
+            return { valid: true };
+        }
+
+        function formatDateTimeForDisplay(dateStr, timeStr) {
+            const date = new Date(`${dateStr}T${timeStr}`);
+            return date.toLocaleString('fr-FR', { 
+                weekday: 'short', 
+                day: '2-digit', 
+                month: 'short', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
 
         // ========== DRIVER PHOTO FUNCTIONS ==========
         function normalizePhoneForComparison(phone) {
@@ -834,7 +857,6 @@
         async function fetchDriverPhoto(driverId, driverPhone, driverNom, driverPrenom) {
             console.log('📸 Recherche photo chauffeur:', { driverId, driverPhone, driverNom, driverPrenom });
             
-            // 1. Chercher dans la collection drivers
             try {
                 console.log('📡 Recherche dans drivers...');
                 const driverDoc = await db.collection('drivers').doc(driverId).get();
@@ -842,7 +864,6 @@
                     const driverData = driverDoc.data();
                     console.log('📦 Données driver:', JSON.stringify(driverData).substring(0, 500));
                     
-                    // Chercher la photo dans tous les champs possibles
                     const photoUrl = driverData.photoProfil || 
                                    driverData.photoIdentite || 
                                    driverData.photoUrl || 
@@ -866,7 +887,6 @@
                 console.error('❌ Erreur recherche dans drivers:', error);
             }
             
-            // 2. Chercher dans candidatures par ID direct
             try {
                 console.log('📡 Recherche dans candidatures par ID...');
                 const candidatureDoc = await db.collection('candidatures').doc(driverId).get();
@@ -894,7 +914,6 @@
                 console.error('❌ Erreur recherche candidature par ID:', error);
             }
             
-            // 3. Chercher dans candidatures par téléphone
             if (driverPhone) {
                 try {
                     console.log('📡 Recherche dans candidatures par téléphone...');
@@ -933,7 +952,6 @@
                 }
             }
             
-            // 4. Chercher dans candidatures par nom/prénom
             if (driverNom || driverPrenom) {
                 try {
                     console.log('📡 Recherche dans candidatures par nom/prénom...');
@@ -942,7 +960,6 @@
                     for (const doc of candidaturesSnapshot.docs) {
                         const candidature = doc.data();
                         
-                        // Vérifier le match par nom complet ou partiel
                         const fullName = `${candidature.prenom || ''} ${candidature.nom || ''}`.toLowerCase().trim();
                         const searchName = `${driverPrenom || ''} ${driverNom || ''}`.toLowerCase().trim();
                         
@@ -970,7 +987,6 @@
                 }
             }
             
-            // 5. Dernière tentative: chercher dans toutes les candidatures acceptées
             try {
                 console.log('📡 Recherche globale dans candidatures acceptées...');
                 const allCandidatures = await db.collection('candidatures').where('statut', '==', 'acceptee').limit(50).get();
@@ -1358,10 +1374,35 @@
 
         function initDateTime() {
             const now = new Date();
+            // Ajouter 30 minutes comme délai minimum
             now.setMinutes(now.getMinutes() + 30);
-            document.getElementById('bookingDate').value = now.toISOString().split('T')[0];
-            document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
-            document.getElementById('bookingTime').value = now.toTimeString().slice(0, 5);
+            
+            const dateInput = document.getElementById('bookingDate');
+            const timeInput = document.getElementById('bookingTime');
+            
+            // Définir la date minimale à aujourd'hui
+            dateInput.min = new Date().toISOString().split('T')[0];
+            dateInput.value = now.toISOString().split('T')[0];
+            timeInput.value = now.toTimeString().slice(0, 5);
+            
+            // Ajouter des listeners pour valider en temps réel
+            dateInput.addEventListener('change', validateDateTime);
+            timeInput.addEventListener('change', validateDateTime);
+        }
+
+        function validateDateTime() {
+            const dateInput = document.getElementById('bookingDate');
+            const timeInput = document.getElementById('bookingTime');
+            
+            const validation = isBookingDateTimeValid(dateInput.value, timeInput.value);
+            
+            if (!validation.valid) {
+                dateInput.style.borderColor = '#E30613';
+                timeInput.style.borderColor = '#E30613';
+            } else {
+                dateInput.style.borderColor = '#ddd';
+                timeInput.style.borderColor = '#ddd';
+            }
         }
 
         function findMyLocation() {
@@ -1466,7 +1507,24 @@
             const time = document.getElementById('bookingTime').value;
             const phone = document.getElementById('bookingPhone').value.trim();
 
-            if (!from || !to || !date || !time || !phone) { showNotification('⚠️ Remplissez tous les champs', 'error'); return; }
+            if (!from || !to || !date || !time || !phone) { 
+                showNotification('⚠️ Remplissez tous les champs', 'error'); 
+                return; 
+            }
+            
+            // VALIDATION DATE/HEURE
+            const validation = isBookingDateTimeValid(date, time);
+            if (!validation.valid) {
+                showNotification(validation.message, 'error');
+                document.getElementById('bookingDate').style.borderColor = '#E30613';
+                document.getElementById('bookingTime').style.borderColor = '#E30613';
+                return;
+            }
+            
+            // Réinitialiser les bordures si valide
+            document.getElementById('bookingDate').style.borderColor = '#ddd';
+            document.getElementById('bookingTime').style.borderColor = '#ddd';
+
             if (!selectedVehicle) { showNotification('⚠️ Sélectionnez un véhicule', 'error'); return; }
             if (!selectedPayment) { showNotification('⚠️ Sélectionnez un paiement', 'error'); return; }
 
@@ -1475,7 +1533,6 @@
             const pricePerKm = { standard: 200, confort: 250, van: 300, premium: 400 };
             const totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicle]));
 
-            // Vérifier le solde si paiement par portefeuille
             if (selectedPayment === 'wallet' && walletState.balance < totalPrice) {
                 showNotification(`⚠️ Solde insuffisant (${walletState.balance.toLocaleString()} FCFA). Rechargez votre portefeuille.`, 'error');
                 return;
@@ -1485,7 +1542,7 @@
             const paymentNames = { cash: '💵 Espèces', orange: '📱 Orange Money', wave: '💳 Wave', wallet: '👛 Portefeuille' };
 
             document.getElementById('summaryRoute').textContent = `${from.substring(0, 15)}... → ${to.substring(0, 15)}...`;
-            document.getElementById('summaryDateTime').textContent = `${date} à ${time}`;
+            document.getElementById('summaryDateTime').textContent = formatDateTimeForDisplay(date, time);
             document.getElementById('summaryVehicle').textContent = vehicleNames[selectedVehicle];
             document.getElementById('summaryPayment').textContent = paymentNames[selectedPayment];
             document.getElementById('summaryTotal').textContent = `${totalPrice.toLocaleString()} FCFA`;
@@ -1496,11 +1553,23 @@
 
         async function confirmBooking() {
             const summary = document.getElementById('bookingSummary');
-            if (summary.style.display === 'none') { showNotification('⚠️ Cliquez d\'abord sur Aperçu', 'error'); return; }
+            if (summary.style.display === 'none') { 
+                showNotification('⚠️ Cliquez d\'abord sur Aperçu', 'error'); 
+                return; 
+            }
+
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+
+            // VALIDATION FINALE DATE/HEURE
+            const validation = isBookingDateTimeValid(date, time);
+            if (!validation.valid) {
+                showNotification(validation.message, 'error');
+                return;
+            }
 
             const totalPrice = parseInt(document.getElementById('summaryTotal').textContent.replace(/\D/g, ''));
 
-            // Débiter le portefeuille si nécessaire
             if (selectedPayment === 'wallet') {
                 if (!debitWallet(totalPrice)) {
                     showNotification('⚠️ Solde insuffisant!', 'error');
@@ -1518,8 +1587,8 @@
                 destination: document.getElementById('bookingTo').value.trim(),
                 departCoords: departureCoords,
                 destinationCoords: destinationCoords,
-                dateReservation: document.getElementById('bookingDate').value,
-                heureReservation: document.getElementById('bookingTime').value,
+                dateReservation: date,
+                heureReservation: time,
                 vehiculeType: selectedVehicle,
                 modePaiement: selectedPayment === 'wallet' ? 'Portefeuille Al Bourakh' : (selectedPayment === 'cash' ? 'Espèces' : selectedPayment === 'orange' ? 'Orange Money' : 'Wave'),
                 prixEstime: totalPrice,
@@ -1534,7 +1603,6 @@
                 const docRef = await db.collection('reservations').add(bookingData);
                 currentBooking = { id: docRef.id, ...bookingData };
 
-                // Ajouter à l'historique du portefeuille
                 if (selectedPayment === 'wallet') {
                     walletState.transactions.unshift({
                         id: `TR${Date.now()}`,
@@ -1559,7 +1627,6 @@
                 hideLoading();
                 console.error('Erreur:', error);
                 showNotification('❌ Erreur: ' + error.message, 'error');
-                // Rembourser si erreur
                 if (selectedPayment === 'wallet') {
                     walletState.balance += totalPrice;
                     updateWalletBalanceDisplay();
@@ -1791,7 +1858,6 @@
             
             console.log('🚗 Affichage carte chauffeur:', driverName, 'ID:', data.chauffeurAssigne);
             
-            // Récupérer la photo du chauffeur
             let photoUrl = null;
             if (data.chauffeurAssigne) {
                 showLoading('Chargement photo...');
@@ -1814,7 +1880,6 @@
                 if (evalDriverAvatar) evalDriverAvatar.innerHTML = '👤';
             }
             
-            // Récupérer les infos du véhicule
             let marque = 'Véhicule';
             let modele = '';
             let immatriculation = 'DK-XXXX-XX';
@@ -1836,7 +1901,6 @@
                                          driverData.vehicule?.immatriculation || driverData.plaque || 'DK-XXXX-XX';
                         console.log('✅ Infos véhicule depuis drivers:', {marque, modele, immatriculation, rating});
                     } else {
-                        // Fallback: chercher dans candidatures
                         console.warn('⚠️ Document driver introuvable, essai avec candidatures...');
                         const candidatureDoc = await db.collection('candidatures').doc(data.chauffeurAssigne).get();
                         if (candidatureDoc.exists) {
@@ -1853,7 +1917,6 @@
                 }
             }
             
-            // Afficher les infos
             document.getElementById('driverRating').textContent = rating;
             const vehicleModelText = modele ? `${marque} ${modele}` : marque;
             document.getElementById('vehicleModel').textContent = vehicleModelText;
@@ -1861,7 +1924,6 @@
             
             console.log('🎨 Affichage:', vehicleModelText, immatriculation);
             
-            // Sauvegarder pour l'évaluation
             if (currentBooking) {
                 currentBooking.vehiculeMarque = marque;
                 currentBooking.vehiculeModele = modele;
@@ -1891,7 +1953,6 @@
             if (currentBooking && currentBooking.id) {
                 try {
                     await db.collection('reservations').doc(currentBooking.id).update({ statut: 'annulee', dateAnnulation: firebase.firestore.FieldValue.serverTimestamp() });
-                    // Rembourser si payé par portefeuille
                     if (currentBooking.modePaiement === 'Portefeuille Al Bourakh') {
                         walletState.balance += currentBooking.prixEstime;
                         updateWalletBalanceDisplay();
@@ -1948,10 +2009,8 @@
         function openEvaluationModal() {
             if (!currentBooking) return;
             
-            // Nom du chauffeur
             document.getElementById('evalDriverName').textContent = currentBooking.nomChauffeur || 'Votre chauffeur';
             
-            // Infos véhicule
             let vehiculeText = '';
             const marque = currentBooking.vehiculeMarque;
             const modele = currentBooking.vehiculeModele;
@@ -1967,7 +2026,6 @@
             }
             document.getElementById('evalVehicle').textContent = vehiculeText;
             
-            // Photo du chauffeur
             const evalDriverAvatar = document.querySelector('.evaluation-driver-avatar');
             if (currentBooking.photoChauffeur) {
                 evalDriverAvatar.innerHTML = `<img src="${currentBooking.photoChauffeur}" alt="${currentBooking.nomChauffeur}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.parentElement.innerHTML='👤'">`;
@@ -1975,7 +2033,6 @@
                 evalDriverAvatar.innerHTML = '👤';
             }
             
-            // Reset des évaluations
             evaluationData = { noteGlobale: 0, conduite: 0, ponctualite: 0, proprete: 0, amabilite: 0, commentaire: '' };
             document.querySelectorAll('.star, .criteria-star').forEach(s => s.classList.remove('active'));
             document.getElementById('overallRatingLabel').textContent = 'Sélectionnez une note';
@@ -2083,19 +2140,17 @@
         window.initMap = initMap;
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
+
 <!-- ========================================== -->
-<!-- DEBUT WIDGET CHATBOT AL BOURAKH (CORRIGÉ) -->
-<!-- Collez ce code juste avant la balise </body> -->
+<!-- WIDGET CHATBOT VOCAL AL BOURAKH -->
 <!-- ========================================== -->
 
 <style>
-    /* Importation de la police (Optionnel si déjà dans le site) */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-    /* Variables de couleurs Al Bourakh (Supposées: Bleu Nuit et Or/Jaune) */
     :root {
-        --ab-primary: #0F172A; /* Bleu nuit professionnel */
-        --ab-secondary: #EAB308; /* Or/Jaune taxi/foudre */
+        --ab-primary: #0F172A;
+        --ab-secondary: #EAB308;
         --ab-accent: #2563EB;
         --ab-bg: #F8FAFC;
         --ab-text: #334155;
@@ -2105,7 +2160,7 @@
     #ab-widget-container {
         font-family: 'Poppins', sans-serif;
         position: fixed;
-        bottom: 20px;
+        bottom: 90px;
         right: 20px;
         z-index: 9999;
         display: flex;
@@ -2113,7 +2168,6 @@
         align-items: flex-end;
     }
 
-    /* Bouton Flottant */
     #ab-chat-btn {
         background-color: var(--ab-primary);
         color: var(--ab-secondary);
@@ -2139,21 +2193,19 @@
         fill: currentColor;
     }
 
-    /* Fenêtre de Chat */
     #ab-chat-window {
         width: 350px;
         height: 500px;
         background-color: var(--ab-white);
         border-radius: 12px;
         box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        display: none; /* Caché par défaut */
+        display: none;
         flex-direction: column;
         overflow: hidden;
         margin-bottom: 16px;
         border: 1px solid #e2e8f0;
     }
 
-    /* En-tête */
     .ab-header {
         background-color: var(--ab-primary);
         color: var(--ab-white);
@@ -2186,7 +2238,6 @@
         font-size: 20px;
     }
 
-    /* Zone des messages */
     #ab-messages {
         flex: 1;
         padding: 16px;
@@ -2222,7 +2273,6 @@
         border-bottom-right-radius: 2px;
     }
 
-    /* Zone de saisie */
     .ab-input-area {
         padding: 12px;
         border-top: 1px solid #e2e8f0;
@@ -2263,7 +2313,7 @@
     }
 
     .ab-icon-btn.listening {
-        color: #ef4444; /* Rouge quand écoute */
+        color: #ef4444;
         animation: pulse 1.5s infinite;
     }
 
@@ -2273,7 +2323,6 @@
         100% { transform: scale(1); }
     }
 
-    /* Responsive Mobile */
     @media (max-width: 480px) {
         #ab-chat-window {
             width: 90vw;
@@ -2284,7 +2333,6 @@
 </style>
 
 <div id="ab-widget-container">
-    <!-- Fenêtre de Chat -->
     <div id="ab-chat-window">
         <div class="ab-header">
             <div class="ab-header-title">
@@ -2293,35 +2341,26 @@
             </div>
             <button class="ab-close-btn" onclick="toggleAbChat()">×</button>
         </div>
-        <div id="ab-messages">
-            <!-- Les messages s'afficheront ici -->
-        </div>
+        <div id="ab-messages"></div>
         <div class="ab-input-area">
             <input type="text" id="ab-input" placeholder="Posez votre question..." onkeypress="handleAbKeyPress(event)">
             
-            <!-- Bouton Micro -->
             <button class="ab-icon-btn" id="ab-mic-btn" onclick="toggleVoice()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
             </button>
             
-            <!-- Bouton Envoyer -->
             <button class="ab-icon-btn" onclick="sendAbMessage()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
     </div>
 
-    <!-- Bouton Flottant -->
     <button id="ab-chat-btn" onclick="toggleAbChat()">
-        <!-- Icône de bulle/foudre -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
     </button>
 </div>
 
 <script>
-    /* ================= CONFIGURATION & DONNÉES ================= */
-    
-    // 1. LE SYSTEM PROMPT (Le cerveau de l'IA)
     const SYSTEM_PROMPT = `
     Rôle: Tu es l'Assistant Virtuel Intelligent de Al Bourakh, service VTC sénégalais.
     Ton : Teranga (chaleureux, poli), Professionnel (rapide, fiable).
@@ -2333,7 +2372,6 @@
     - Si info manquante : Réfère au support client.
     `;
 
-    // 2. LA BASE DE CONNAISSANCE (Contenu du PDF résumé pour le script)
     const KNOWLEDGE_BASE = `
     SERVICES:
     1. Standard (Kia Rio): Climatisé, 4 places. Prise en charge 1000F, 200F/km.
@@ -2353,8 +2391,6 @@
     CONTACT: +221 77 123 45 67, support@albourakh.sn.
     `;
 
-    /* ================= LOGIQUE DU CHAT ================= */
-
     let isChatOpen = false;
     let isListening = false;
     const chatWindow = document.getElementById('ab-chat-window');
@@ -2362,16 +2398,14 @@
     const inputField = document.getElementById('ab-input');
     const micBtn = document.getElementById('ab-mic-btn');
 
-    // Synthèse vocale (Le robot parle)
     const synth = window.speechSynthesis;
     
-    // Reconnaissance vocale (L'utilisateur parle)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
-        recognition.lang = 'fr-FR'; // Langue française
+        recognition.lang = 'fr-FR';
         recognition.continuous = false;
         
         recognition.onstart = function() {
@@ -2389,16 +2423,14 @@
         recognition.onresult = function(event) {
             const transcript = event.results[0][0].transcript;
             inputField.value = transcript;
-            sendAbMessage(); // Envoi automatique après la voix
+            sendAbMessage();
         };
     } else {
-        micBtn.style.display = 'none'; // Masquer si non supporté
+        micBtn.style.display = 'none';
         console.log("Reconnaissance vocale non supportée par ce navigateur.");
     }
 
-    // Initialisation
     window.onload = function() {
-        // Message de bienvenue
         addMessage("bot", "Bonjour ! Dalal ak diam chez Al Bourakh. Je suis votre assistant virtuel. Comment puis-je vous aider pour votre trajet aujourd'hui ?");
     };
 
@@ -2429,30 +2461,29 @@
         messagesContainer.appendChild(div);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Si c'est le bot, on lit le texte à haute voix
         if (sender === 'bot') speakText(text);
     }
 
-function speakText(text) {
-    if (synth.speaking) synth.cancel();
-    
-    // Nettoyer le texte des caractères de formatage Markdown
-    let cleanText = text
-        .replace(/\*\*/g, '')        // Enlever ** (gras)
-        .replace(/\*/g, '')           // Enlever * (italique)
-        .replace(/\_\_/g, '')         // Enlever __ (gras)
-        .replace(/\_/g, '')           // Enlever _ (italique)
-        .replace(/\#/g, '')           // Enlever # (titres)
-        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')  // Enlever les liens [texte](url) → texte
-        .replace(/\n+/g, '. ')        // Remplacer les sauts de ligne par des points
-        .trim();
-    
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'fr-FR';
-    utterance.rate = 1; 
-    utterance.pitch = 1;
-    synth.speak(utterance);
-}
+    function speakText(text) {
+        if (synth.speaking) synth.cancel();
+        
+        let cleanText = text
+            .replace(/\*\*/g, '')
+            .replace(/\*/g, '')
+            .replace(/\_\_/g, '')
+            .replace(/\_/g, '')
+            .replace(/\#/g, '')
+            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+            .replace(/\n+/g, '. ')
+            .trim();
+        
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'fr-FR';
+        utterance.rate = 1; 
+        utterance.pitch = 1;
+        synth.speak(utterance);
+    }
+
     async function sendAbMessage() {
         const text = inputField.value.trim();
         if (!text) return;
@@ -2460,28 +2491,17 @@ function speakText(text) {
         addMessage('user', text);
         inputField.value = '';
 
-        // OBTENIR LA RÉPONSE DE L'IA
         const response = await getAIResponse(text);
         addMessage('bot', response);
     }
 
-    /* ================= LOGIQUE INTELLIGENTE (CORRIGÉE) ================= */
-    
     async function getAIResponse(userQuery) {
-        // ---------------------------------------------------------
-        // SECTION API : METTRE VOTRE CLÉ CI-DESSOUS
-        // ---------------------------------------------------------
-        
-        let API_KEY = "AIzaSyCm49CetMRowuec2Lc0C44t3hTICu-xerM"; // <--- COLLEZ VOTRE CLÉ API ICI (ATTENTION AUX ESPACES)
-        
-        // Nettoyage de la clé au cas où il y a des espaces copiés par erreur
+        let API_KEY = "AIzaSyCm49CetMRowuec2Lc0C44t3hTICu-xerM";
         API_KEY = API_KEY.trim();
 
         if (API_KEY) {
             try {
-                // Changement de modèle vers gemini-2.5-flash (plus stable sur endpoint standard)
-                // Si vous avez une clé récente, gemini-2.5-flash fonctionne aussi, mais le endpoint varie parfois.
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
                 
                 const payload = {
                     contents: [{
@@ -2499,17 +2519,14 @@ function speakText(text) {
 
                 const data = await response.json();
 
-                // GESTION D'ERREUR ROBUSTE (Pour éviter le crash "undefined")
                 if (!response.ok) {
                     console.error("ERREUR API GOOGLE:", data);
-                    // Si 404, on tente un fallback (optionnel) ou on affiche l'erreur
                     if(response.status === 404) {
-                        return "Erreur technique (404). Vérifiez que le modèle gemini-2.5-flash' est bien actif sur votre clé API.";
+                        return "Erreur technique (404). Vérifiez que le modèle gemini-2.0-flash-exp est bien actif sur votre clé API.";
                     }
                     return `Erreur API: ${data.error?.message || "Problème inconnu"}`;
                 }
                 
-                // Vérification que la réponse contient bien du texte
                 if (data.candidates && data.candidates[0] && data.candidates[0].content) {
                     return data.candidates[0].content.parts[0].text;
                 } else {
@@ -2522,10 +2539,6 @@ function speakText(text) {
             }
         }
 
-        // ---------------------------------------------------------
-        // MODE DÉMO (SANS CLÉ API)
-        // ---------------------------------------------------------
-        
         const q = userQuery.toLowerCase();
 
         if (q.includes("bonjour") || q.includes("salam") || q.includes("hello")) {
@@ -2551,15 +2564,12 @@ function speakText(text) {
         }
         
         if (q.includes("sos") || q.includes("urgence")) {
-            return "URGENCE : Appelez immédiatement le 78 785 01 01ou le 15 (SAMU).";
+            return "URGENCE : Appelez immédiatement le 78 785 01 01 ou le 15 (SAMU).";
         }
 
         return "Je comprends. Pour cette demande spécifique, je vous invite à consulter l'application Al Bourakh ou à appeler notre support au 78 785 01 01.";
     }
-
 </script>
-<!-- FIN WIDGET CHATBOT AL BOURAKH -->
-
 
 </body>
 </html>
