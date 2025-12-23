@@ -301,27 +301,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: white; font-size: 1.1em; margin-top: 18px; }
 
-        .chatbot-button { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.4em; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.3); z-index: 9998; animation: bounce 2s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .chatbot-window { position: fixed; bottom: 80px; right: 15px; left: 15px; max-width: 400px; height: 450px; background: white; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); z-index: 9999; display: none; flex-direction: column; overflow: hidden; margin: 0 auto; }
-        .chatbot-window.active { display: flex; }
-        .chatbot-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 12px; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .chatbot-header div { font-size: 0.95em; font-weight: bold; }
-        .chatbot-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1.1em; }
-        .chatbot-messages { flex: 1; overflow-y: auto; padding: 12px; background: #f5f5f5; }
-        .chatbot-message { margin-bottom: 10px; }
-        .message-bot, .message-user { display: flex; gap: 8px; align-items: flex-start; }
-        .message-user { flex-direction: row-reverse; }
-        .message-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9em; }
-        .avatar-bot { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
-        .avatar-user { background: #667eea; color: white; }
-        .message-content { max-width: 70%; padding: 9px 12px; border-radius: 12px; line-height: 1.4; font-size: 0.85em; word-wrap: break-word; }
-        .content-bot { background: white; border-bottom-left-radius: 4px; }
-        .content-user { background: linear-gradient(135deg, #00A854, #FECB00); color: white; border-bottom-right-radius: 4px; }
-        .chatbot-input-container { padding: 10px; background: white; display: flex; gap: 8px; }
-        .chatbot-input { flex: 1; padding: 9px 12px; border: 2px solid #ddd; border-radius: 18px; font-size: 0.9em; min-width: 0; }
-        .chatbot-input:focus { outline: none; border-color: #00A854; }
-        .chatbot-send { width: 36px; height: 36px; background: #00A854; color: white; border: none; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 0.9em; }
+
 
         .hidden { display: none !important; }
 
@@ -733,24 +713,7 @@
         </div>
     </div>
 
-    <!-- Chatbot -->
-    <div class="chatbot-button" onclick="toggleChatbot()">💬</div>
-    <div class="chatbot-window" id="chatbotWindow">
-        <div class="chatbot-header">
-            <div>🤖 Assistant Al Bourakh</div>
-            <button class="chatbot-close" onclick="toggleChatbot()">×</button>
-        </div>
-        <div class="chatbot-messages" id="chatbotMessages">
-            <div class="chatbot-message message-bot">
-                <div class="message-avatar avatar-bot">🚕</div>
-                <div class="message-content content-bot">Bonjour! Je suis l'assistant Al Bourakh. Comment puis-je vous aider?</div>
-            </div>
-        </div>
-        <div class="chatbot-input-container">
-            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Votre question..." onkeypress="if(event.key==='Enter')sendChatMessage()">
-            <button class="chatbot-send" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
+
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -2106,36 +2069,7 @@
         function closePermissionModal() { document.getElementById('permissionModal').classList.remove('active'); document.body.style.overflow = ''; }
         function requestLocationPermission() { closePermissionModal(); showNotification('💡 Appuyez sur "Autoriser"', 'info'); setTimeout(() => getCurrentPosition(), 500); }
 
-        // ========== CHATBOT ==========
-        function toggleChatbot() { document.getElementById('chatbotWindow').classList.toggle('active'); }
-        
-        function sendChatMessage() {
-            const input = document.getElementById('chatbotInput');
-            const message = input.value.trim();
-            if (!message) return;
-            addChatMessage(message, 'user');
-            input.value = '';
-            setTimeout(() => { addChatMessage(getBotResponse(message), 'bot'); }, 500);
-        }
 
-        function addChatMessage(text, sender) {
-            const container = document.getElementById('chatbotMessages');
-            const div = document.createElement('div');
-            div.className = `chatbot-message message-${sender}`;
-            div.innerHTML = `<div class="message-avatar avatar-${sender}">${sender === 'bot' ? '🚕' : '👤'}</div><div class="message-content content-${sender}">${text}</div>`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function getBotResponse(message) {
-            const msg = message.toLowerCase();
-            if (msg.includes('prix') || msg.includes('tarif')) return 'Nos tarifs: Standard 1500F+, Confort 2000F+, Van 2500F+, Premium 3500F+';
-            if (msg.includes('portefeuille') || msg.includes('solde')) return `Votre solde actuel est de ${walletState.balance.toLocaleString()} FCFA. Cliquez sur "Mon Portefeuille" pour recharger.`;
-            if (msg.includes('contact')) return '📞 +221 77 123 45 67 (24h/24)';
-            if (msg.includes('suivi')) return 'Après confirmation, suivez votre chauffeur en temps réel!';
-            if (msg.includes('paiement')) return 'Nous acceptons: Espèces, Orange Money, Wave et votre Portefeuille Al Bourakh!';
-            return 'Assistant Al Bourakh à votre service! Posez-moi vos questions sur les tarifs, le portefeuille, ou les réservations.';
-        }
 
         window.initMap = initMap;
     </script>
@@ -2160,9 +2094,9 @@
     #ab-widget-container {
         font-family: 'Poppins', sans-serif;
         position: fixed;
-        bottom: 90px;
+        bottom: 20px;
         right: 20px;
-        z-index: 9999;
+        z-index: 9998;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
