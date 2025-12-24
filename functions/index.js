@@ -12,6 +12,7 @@ const TRACKING_CONFIG = {
     speedThreshold: 120,            // Vitesse max acceptée (km/h)
     accuracyThreshold: 50,          // Précision GPS max acceptée (m)
     batchUpdateInterval: 5,         // Intervalle de batch en secondes
+    minSoldeRequis: 1000            // Solde minimum pour recevoir une course
 };
 
 async function getSystemParams() {
@@ -50,17 +51,17 @@ exports.assignerChauffeurAutomatique = functions.firestore
     const reservation = snap.data();
     const reservationId = context.params.reservationId;
     
-    console.log(`🚕 [${new Date().toISOString()}] Nouvelle réservation: ${reservationId}`);
-
+    console.log(` 🚕  [${new Date().toISOString()}] Nouvelle réservation: ${reservationId}`);
+    
     if (reservation.statut !== 'en_attente') {
-      console.log('⚠️ Réservation déjà traitée');
+      console.log(' ⚠️  Réservation déjà traitée');
       return null;
     }
 
     const params = await getSystemParams();
-
+    
     if (!params.assignationAutomatique) {
-      console.log('🔴 MODE MANUEL activé');
+      console.log(' 🔴  MODE MANUEL activé');
       
       await db.collection('notifications_admin').add({
         type: 'nouvelle_reservation_manuelle',
@@ -76,15 +77,15 @@ exports.assignerChauffeurAutomatique = functions.firestore
       return null;
     }
 
-    console.log('🟢 MODE AUTO activé');
-
+    console.log(' 🟢  MODE AUTO activé');
+    
     try {
       const chauffeursSnapshot = await db.collection('drivers')
         .where('statut', '==', 'disponible')
         .get();
       
       if (chauffeursSnapshot.empty) {
-        console.log('❌ Aucun chauffeur disponible');
+        console.log(' ❌  Aucun chauffeur disponible');
         
         await db.collection('notifications_admin').add({
           type: 'aucun_chauffeur',
@@ -104,7 +105,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
       if (reservation.departCoords && reservation.departCoords.lat && reservation.departCoords.lng) {
         departCoords = reservation.departCoords;
       } else {
-        console.log(`⚠️ Coordonnées manquantes pour: ${reservation.depart}`);
+        console.log(` ⚠️  Coordonnées manquantes pour: ${reservation.depart}`);
         departCoords = getDefaultCoordsForAddress(reservation.depart);
         coordonneesApproximatives = true;
         
@@ -120,14 +121,22 @@ exports.assignerChauffeurAutomatique = functions.firestore
         const chauffeur = doc.data();
         
         if (!chauffeur.position || !chauffeur.position.latitude) {
-          console.log(`⚠️ ${doc.id}: pas de GPS`);
+          console.log(` ⚠️  ${doc.id}: pas de GPS`);
           return;
         }
         
         if (chauffeur.reservationEnCours || chauffeur.currentBookingId) {
-          console.log(`⚠️ ${doc.id}: déjà en course`);
+          console.log(` ⚠️  ${doc.id}: déjà en course`);
           return;
         }
+
+        // --- NOUVELLE FONCTIONNALITÉ : VÉRIFICATION SOLDE ---
+        const solde = chauffeur.soldeDisponible || 0;
+        if (solde < TRACKING_CONFIG.minSoldeRequis) {
+            console.log(` ⚠️  ${doc.id}: Solde insuffisant (${solde} FCFA)`);
+            return; // On ignore ce chauffeur car solde < 1000 FCFA
+        }
+        // ----------------------------------------------------
         
         const distance = calculerDistance(
           departCoords.lat,
@@ -136,7 +145,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
           chauffeur.position.longitude
         );
         
-        console.log(`📍 ${chauffeur.prenom} ${chauffeur.nom}: ${distance.toFixed(2)} km`);
+        console.log(` 📍  ${chauffeur.prenom} ${chauffeur.nom}: ${distance.toFixed(2)} km`);
         
         if (distance <= params.rayonRecherche) {
           chauffeurs.push({
@@ -148,12 +157,12 @@ exports.assignerChauffeurAutomatique = functions.firestore
       });
       
       if (chauffeurs.length === 0) {
-        console.log(`❌ Aucun chauffeur dans ${params.rayonRecherche} km`);
+        console.log(` ❌  Aucun chauffeur éligible dans ${params.rayonRecherche} km`);
         
         await db.collection('notifications_admin').add({
           type: 'aucun_chauffeur_proximite',
           reservationId: reservationId,
-          message: `Aucun chauffeur dans ${params.rayonRecherche} km`,
+          message: `Aucun chauffeur éligible dans ${params.rayonRecherche} km`,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           lu: false
         });
@@ -164,7 +173,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
       chauffeurs.sort((a, b) => a.distance - b.distance);
       const chauffeurChoisi = chauffeurs[0];
       
-      console.log(`✅ Sélectionné: ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km)`);
+      console.log(` ✅  S é lectionn é : ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km)`);
       
       await db.runTransaction(async (transaction) => {
         const chauffeurRef = db.collection('drivers').doc(chauffeurChoisi.id);
@@ -175,6 +184,11 @@ exports.assignerChauffeurAutomatique = functions.firestore
             chauffeurData.currentBookingId || 
             chauffeurData.reservationEnCours) {
           throw new Error('Chauffeur plus disponible');
+        }
+
+        // Double vérification du solde dans la transaction pour éviter les accès concurrents
+        if ((chauffeurData.soldeDisponible || 0) < TRACKING_CONFIG.minSoldeRequis) {
+            throw new Error('Solde devenu insuffisant');
         }
         
         transaction.update(snap.ref, {
@@ -196,7 +210,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
         });
       });
       
-      console.log('✅ TRANSACTION RÉUSSIE');
+      console.log(' ✅  TRANSACTION R É USSIE');
       
       await db.collection('notifications').add({
         destinataire: chauffeurChoisi.telephone,
@@ -215,16 +229,16 @@ exports.assignerChauffeurAutomatique = functions.firestore
       await db.collection('notifications_admin').add({
         type: 'assignation_reussie',
         reservationId: reservationId,
-        message: `✅ ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assigné (${chauffeurChoisi.distance.toFixed(1)} km)${coordonneesApproximatives ? ' - Coords approx.' : ''}`,
+        message: ` ✅  ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assign é  (${chauffeurChoisi.distance.toFixed(1)} km)${coordonneesApproximatives ? ' - Coords approx.' : ''}`,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         lu: false
       });
       
-      console.log('✅ Assignation automatique réussie!');
+      console.log(' ✅  Assignation automatique r é ussie!');
       return null;
       
     } catch (error) {
-      console.error('❌ Erreur assignation:', error);
+      console.error(' ❌  Erreur assignation:', error);
       
       await db.collection('erreurs_systeme').add({
         type: 'erreur_assignation_auto',
@@ -260,9 +274,9 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
     }
     
     const reservation = reservationDoc.data();
-
+    
     if (reservation.chauffeurAssigne && reservation.chauffeurAssigne !== chauffeurId) {
-      console.log('🔄 Libération ancien chauffeur');
+      console.log(' 🔄  Libération ancien chauffeur');
       
       try {
         await db.collection('drivers').doc(reservation.chauffeurAssigne).update({
@@ -271,24 +285,34 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
           reservationEnCours: null
         });
       } catch (err) {
-        console.warn('⚠️ Impossible de libérer:', err.message);
+        console.warn(' ⚠️  Impossible de libérer:', err.message);
       }
     }
-
+    
     const chauffeurDoc = await db.collection('drivers').doc(chauffeurId).get();
     
     if (!chauffeurDoc.exists) {
       throw new functions.https.HttpsError('not-found', 'Chauffeur non trouvé');
     }
-
+    
     const chauffeur = chauffeurDoc.data();
-
+    
     if (chauffeur.reservationEnCours || chauffeur.currentBookingId) {
       throw new functions.https.HttpsError(
         'failed-precondition', 
         `Chauffeur déjà en course`
       );
     }
+
+    // --- NOUVELLE FONCTIONNALITÉ : VÉRIFICATION SOLDE ---
+    const solde = chauffeur.soldeDisponible || 0;
+    if (solde < TRACKING_CONFIG.minSoldeRequis) {
+        throw new functions.https.HttpsError(
+            'failed-precondition', 
+            `Solde insuffisant (${solde} FCFA). Minimum requis: 1000 FCFA.`
+        );
+    }
+    // ----------------------------------------------------
 
     let distance = 5;
     if (chauffeur.position && chauffeur.position.latitude && reservation.departCoords) {
@@ -299,7 +323,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
         chauffeur.position.longitude
       );
     }
-
+    
     await db.runTransaction(async (transaction) => {
       const chauffeurRef = db.collection('drivers').doc(chauffeurId);
       const chauffeurCheck = await transaction.get(chauffeurRef);
@@ -320,7 +344,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
         modeAssignation: 'manuel',
         assignePar: context.auth ? context.auth.email : 'admin'
       });
-
+      
       transaction.update(chauffeurRef, {
         statut: 'en_course',
         currentBookingId: reservationId,
@@ -328,9 +352,9 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
         derniereAssignation: admin.firestore.FieldValue.serverTimestamp()
       });
     });
-
-    console.log('✅ Assignation manuelle réussie');
-
+    
+    console.log(' ✅  Assignation manuelle r é ussie');
+    
     await db.collection('notifications').add({
       chauffeurId: chauffeurId,
       destinataire: chauffeur.telephone,
@@ -344,7 +368,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       lu: false
     });
-
+    
     return { 
       success: true, 
       message: `${chauffeur.prenom} ${chauffeur.nom} assigné`,
@@ -354,8 +378,9 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
         distance: distance.toFixed(2)
       }
     };
+    
   } catch (error) {
-    console.error('❌ Erreur:', error);
+    console.error(' ❌  Erreur:', error);
     throw new functions.https.HttpsError('internal', error.message);
   }
 });
@@ -366,11 +391,10 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
 exports.verifierAssignationTimeout = functions.pubsub
   .schedule('every 5 minutes')
   .onRun(async (context) => {
-    console.log('🔍 Vérification timeouts...');
+    console.log(' 🔍  Vérification timeouts...');
     const params = await getSystemParams();
     const maintenant = Date.now();
     const timeout = params.delaiReassignation * 60 * 1000;
-
     try {
       const snapshot = await db.collection('reservations')
         .where('statut', '==', 'assignee')
@@ -385,7 +409,7 @@ exports.verifierAssignationTimeout = functions.pubsub
           const tempsEcoule = maintenant - reservation.dateAssignation.toMillis();
           
           if (tempsEcoule > timeout) {
-            console.log(`⚠️ Timeout: ${doc.id}`);
+            console.log(` ⚠️  Timeout: ${doc.id}`);
             promesses.push(reassignerChauffeur(doc.id, reservation));
           }
         }
@@ -394,13 +418,12 @@ exports.verifierAssignationTimeout = functions.pubsub
       await Promise.all(promesses);
       
       if (promesses.length > 0) {
-        console.log(`✅ ${promesses.length} réassignations`);
+        console.log(` ✅  ${promesses.length} r é assignations`);
       }
       
     } catch (error) {
-      console.error('❌ Erreur timeout:', error);
+      console.error(' ❌  Erreur timeout:', error);
     }
-
     return null;
   });
 
@@ -422,7 +445,6 @@ async function reassignerChauffeur(reservationId, reservation) {
         lu: false
       });
     }
-
     await db.collection('reservations').doc(reservationId).update({
       statut: 'en_attente',
       chauffeurAssigne: null,
@@ -432,10 +454,9 @@ async function reassignerChauffeur(reservationId, reservation) {
       chauffeursRefuses: admin.firestore.FieldValue.arrayUnion(reservation.chauffeurAssigne || ''),
       tentativesAssignation: admin.firestore.FieldValue.increment(1)
     });
-
-    console.log(`✅ Réservation ${reservationId} réinitialisée`);
+    console.log(` ✅  R é servation ${reservationId} r é initialis é e`);
   } catch (error) {
-    console.error(`❌ Erreur réassignation ${reservationId}:`, error);
+    console.error(` ❌  Erreur r é assignation ${reservationId}:`, error);
   }
 }
 
@@ -461,7 +482,6 @@ exports.terminerCourse = functions.https.onCall(async (data, context) => {
       reservationEnCours: null,
       coursesCompletees: admin.firestore.FieldValue.increment(1)
     });
-
     return { success: true, message: 'Course terminée' };
   } catch (error) {
     throw new functions.https.HttpsError('internal', error.message);
@@ -489,14 +509,12 @@ exports.annulerReservation = functions.https.onCall(async (data, context) => {
         reservationEnCours: null
       });
     }
-
     await db.collection('reservations').doc(reservationId).update({
       statut: 'annulee',
       raisonAnnulation: raison || 'Non spécifiée',
       dateAnnulation: admin.firestore.FieldValue.serverTimestamp(),
       annuleePar: context.auth ? context.auth.email : 'admin'
     });
-
     return { success: true, message: 'Réservation annulée' };
   } catch (error) {
     throw new functions.https.HttpsError('internal', error.message);
@@ -509,7 +527,7 @@ exports.annulerReservation = functions.https.onCall(async (data, context) => {
 exports.verifierCoherenceChauffeurs = functions.pubsub
   .schedule('every 1 hours')
   .onRun(async (context) => {
-    console.log('🔍 Vérification cohérence...');
+    console.log(' 🔍  Vérification cohérence...');
     
     try {
       const snapshot = await db.collection('drivers').get();
@@ -531,7 +549,7 @@ exports.verifierCoherenceChauffeurs = functions.pubsub
             return;
           }
           
-          console.log(`🔧 Correction: ${doc.id}`);
+          console.log(` 🔧  Correction: ${doc.id}`);
           
           corrections.push(
             db.collection('drivers').doc(doc.id).update({
@@ -544,13 +562,12 @@ exports.verifierCoherenceChauffeurs = functions.pubsub
       
       if (corrections.length > 0) {
         await Promise.all(corrections);
-        console.log(`✅ ${corrections.length} corrections`);
+        console.log(` ✅  ${corrections.length} corrections`);
       }
       
     } catch (error) {
-      console.error('❌ Erreur cohérence:', error);
+      console.error(' ❌  Erreur coh é rence:', error);
     }
-
     return null;
   });
 
@@ -567,21 +584,16 @@ exports.onDriverPositionUpdate = functions.firestore
         const before = change.before.data();
         const after = change.after.data();
         const driverId = context.params.driverId;
-
         // Vérifier si la position a changé
         if (!after.position || !before.position) return null;
-
         const oldPos = before.position;
         const newPos = after.position;
-
         // Si pas de changement significatif, ignorer
         if (oldPos.latitude === newPos.latitude && 
             oldPos.longitude === newPos.longitude) {
             return null;
         }
-
-        console.log(`📍 Position mise à jour: ${driverId}`);
-
+        console.log(` 📍  Position mise à jour: ${driverId}`);
         try {
             // Calculer la distance parcourue
             const distance = calculerDistance(
@@ -590,23 +602,18 @@ exports.onDriverPositionUpdate = functions.firestore
                 newPos.latitude,
                 newPos.longitude
             );
-
             // Calculer la vitesse
             const timeDiff = (newPos.timestamp?.toMillis() || Date.now()) - 
                             (oldPos.timestamp?.toMillis() || Date.now() - 3000);
             const vitesse = (distance / (timeDiff / 1000)) * 3.6; // km/h
-
             // Vérifications de cohérence
             const anomalies = [];
-
             if (vitesse > TRACKING_CONFIG.speedThreshold) {
                 anomalies.push(`Vitesse excessive: ${vitesse.toFixed(0)} km/h`);
             }
-
             if (newPos.accuracy > TRACKING_CONFIG.accuracyThreshold) {
                 anomalies.push(`Précision GPS faible: ${newPos.accuracy}m`);
             }
-
             // Logger les anomalies
             if (anomalies.length > 0) {
                 await db.collection('tracking_anomalies').add({
@@ -617,7 +624,6 @@ exports.onDriverPositionUpdate = functions.firestore
                     calculatedSpeed: vitesse
                 });
             }
-
             // Mettre à jour les statistiques
             await db.collection('driver_stats').doc(driverId).set({
                 lastPosition: newPos,
@@ -625,16 +631,13 @@ exports.onDriverPositionUpdate = functions.firestore
                 calculatedSpeed: vitesse,
                 totalDistanceToday: admin.firestore.FieldValue.increment(distance)
             }, { merge: true });
-
             // Si le chauffeur est en course, mettre à jour les détails de la course
             if (after.currentBookingId) {
                 await updateCourseTracking(after.currentBookingId, newPos, distance);
             }
-
         } catch (error) {
-            console.error('❌ Erreur traitement position:', error);
+            console.error(' ❌  Erreur traitement position:', error);
         }
-
         return null;
     });
 
@@ -645,11 +648,8 @@ async function updateCourseTracking(courseId, position, distanceIncrement) {
     try {
         const courseRef = db.collection('reservations').doc(courseId);
         const courseDoc = await courseRef.get();
-
         if (!courseDoc.exists) return;
-
         const course = courseDoc.data();
-
         // Calculer l'ETA si on a une destination
         let eta = null;
         if (course.destinationCoords && position) {
@@ -659,13 +659,10 @@ async function updateCourseTracking(courseId, position, distanceIncrement) {
                 course.destinationCoords.lat,
                 course.destinationCoords.lng
             );
-
             const vitesseMoyenne = position.speed ? position.speed * 3.6 : 40; // km/h
             const tempsRestant = (distanceRestante / vitesseMoyenne) * 60; // minutes
-
             eta = new Date(Date.now() + tempsRestant * 60000);
         }
-
         // Mettre à jour
         await courseRef.update({
             chauffeurPosition: position,
@@ -673,11 +670,9 @@ async function updateCourseTracking(courseId, position, distanceIncrement) {
             distanceReelleParcourue: admin.firestore.FieldValue.increment(distanceIncrement * 1000),
             estimatedArrival: eta
         });
-
-        console.log(`✅ Course ${courseId} trackée`);
-
+        console.log(` ✅  Course ${courseId} track é e`);
     } catch (error) {
-        console.error('❌ Erreur update course tracking:', error);
+        console.error(' ❌  Erreur update course tracking:', error);
     }
 }
 
@@ -687,22 +682,17 @@ async function updateCourseTracking(courseId, position, distanceIncrement) {
 exports.detectInactiveDrivers = functions.pubsub
     .schedule('every 5 minutes')
     .onRun(async (context) => {
-        console.log('🔍 Vérification chauffeurs inactifs...');
-
+        console.log(' 🔍  Vérification chauffeurs inactifs...');
         const cutoffTime = new Date(Date.now() - TRACKING_CONFIG.maxInactivityMinutes * 60000);
-
         try {
             const snapshot = await db.collection('drivers')
                 .where('statut', 'in', ['disponible', 'en_course'])
                 .get();
-
             const inactiveDrivers = [];
-
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const lastUpdate = data.derniereActivite?.toDate() || 
                                   data.position?.timestamp?.toDate();
-
                 if (lastUpdate && lastUpdate < cutoffTime) {
                     inactiveDrivers.push({
                         id: doc.id,
@@ -712,10 +702,8 @@ exports.detectInactiveDrivers = functions.pubsub
                     });
                 }
             });
-
             if (inactiveDrivers.length > 0) {
-                console.log(`⚠️ ${inactiveDrivers.length} chauffeurs inactifs détectés`);
-
+                console.log(` ⚠️  ${inactiveDrivers.length} chauffeurs inactifs détectés`);
                 // Créer une notification admin
                 await db.collection('notifications_admin').add({
                     type: 'chauffeurs_inactifs',
@@ -724,7 +712,6 @@ exports.detectInactiveDrivers = functions.pubsub
                     timestamp: admin.firestore.FieldValue.serverTimestamp(),
                     lu: false
                 });
-
                 // Passer les chauffeurs en "hors ligne suspect"
                 const batch = db.batch();
                 inactiveDrivers.forEach(driver => {
@@ -736,11 +723,9 @@ exports.detectInactiveDrivers = functions.pubsub
                 });
                 await batch.commit();
             }
-
         } catch (error) {
-            console.error('❌ Erreur détection inactivité:', error);
+            console.error(' ❌  Erreur d é tection inactivit é :', error);
         }
-
         return null;
     });
 
@@ -752,17 +737,13 @@ exports.checkGeofences = functions.firestore
     .onCreate(async (snap, context) => {
         const position = snap.data();
         const driverId = position.driverId;
-
         try {
             // Récupérer les zones de géofence
             const geofencesSnapshot = await db.collection('geofences')
                 .where('active', '==', true)
                 .get();
-
             if (geofencesSnapshot.empty) return null;
-
             const alerts = [];
-
             geofencesSnapshot.forEach(doc => {
                 const zone = doc.data();
                 const distance = calculerDistance(
@@ -771,7 +752,6 @@ exports.checkGeofences = functions.firestore
                     zone.center.latitude,
                     zone.center.longitude
                 );
-
                 // Si dans la zone
                 if (distance <= zone.radius / 1000) { // convertir m en km
                     alerts.push({
@@ -782,7 +762,6 @@ exports.checkGeofences = functions.firestore
                     });
                 }
             });
-
             // Si des alertes, les créer
             if (alerts.length > 0) {
                 await db.collection('geofence_events').add({
@@ -791,14 +770,11 @@ exports.checkGeofences = functions.firestore
                     alerts: alerts,
                     timestamp: admin.firestore.FieldValue.serverTimestamp()
                 });
-
-                console.log(`🚨 ${alerts.length} alertes géofence pour ${driverId}`);
+                console.log(` 🚨  ${alerts.length} alertes géofence pour ${driverId}`);
             }
-
         } catch (error) {
-            console.error('❌ Erreur géofencing:', error);
+            console.error(' ❌  Erreur g é ofencing:', error);
         }
-
         return null;
     });
 
@@ -809,21 +785,16 @@ exports.calculateDailyTrackingStats = functions.pubsub
     .schedule('every day 00:01')
     .timeZone('Africa/Dakar')
     .onRun(async (context) => {
-        console.log('📊 Calcul stats tracking quotidiennes...');
-
+        console.log(' 📊  Calcul stats tracking quotidiennes...');
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         yesterday.setHours(0, 0, 0, 0);
-
         const today = new Date(yesterday);
         today.setDate(today.getDate() + 1);
-
         try {
             const driversSnapshot = await db.collection('drivers').get();
-
             const statsPromises = driversSnapshot.docs.map(async (driverDoc) => {
                 const driverId = driverDoc.id;
-
                 // Récupérer toutes les positions d'hier
                 const positionsSnapshot = await db.collection('position_history')
                     .where('driverId', '==', driverId)
@@ -831,39 +802,30 @@ exports.calculateDailyTrackingStats = functions.pubsub
                     .where('timestamp', '<', today)
                     .orderBy('timestamp', 'asc')
                     .get();
-
                 if (positionsSnapshot.empty) return null;
-
                 let totalDistance = 0;
                 let totalTime = 0;
                 let maxSpeed = 0;
                 let positionsCount = positionsSnapshot.size;
-
                 const positions = [];
                 positionsSnapshot.forEach(doc => positions.push(doc.data()));
-
                 // Calculer les stats
                 for (let i = 1; i < positions.length; i++) {
                     const prev = positions[i - 1];
                     const curr = positions[i];
-
                     const distance = calculerDistance(
                         prev.position.latitude,
                         prev.position.longitude,
                         curr.position.latitude,
                         curr.position.longitude
                     );
-
                     totalDistance += distance;
-
                     const speed = curr.speed || 0;
                     if (speed > maxSpeed) maxSpeed = speed;
-
                     const timeDiff = (curr.timestamp?.toMillis() || 0) - 
                                     (prev.timestamp?.toMillis() || 0);
                     totalTime += timeDiff;
                 }
-
                 // Sauvegarder les stats
                 await db.collection('daily_tracking_stats').add({
                     driverId: driverId,
@@ -875,24 +837,18 @@ exports.calculateDailyTrackingStats = functions.pubsub
                     positionsCount: positionsCount,
                     createdAt: admin.firestore.FieldValue.serverTimestamp()
                 });
-
-                console.log(`✅ Stats calculées pour ${driverId}: ${totalDistance.toFixed(2)} km`);
-
+                console.log(` ✅  Stats calcul é es pour ${driverId}: ${totalDistance.toFixed(2)} km`);
                 return {
                     driverId: driverId,
                     distance: totalDistance
                 };
             });
-
             const results = await Promise.all(statsPromises);
             const validResults = results.filter(r => r !== null);
-
-            console.log(`✅ Stats calculées pour ${validResults.length} chauffeurs`);
-
+            console.log(` ✅  Stats calcul é es pour ${validResults.length} chauffeurs`);
         } catch (error) {
-            console.error('❌ Erreur calcul stats:', error);
+            console.error(' ❌  Erreur calcul stats:', error);
         }
-
         return null;
     });
 
@@ -903,39 +859,30 @@ exports.cleanupOldPositionHistory = functions.pubsub
     .schedule('every day 02:00')
     .timeZone('Africa/Dakar')
     .onRun(async (context) => {
-        console.log('🧹 Nettoyage historique positions...');
-
+        console.log(' 🧹  Nettoyage historique positions...');
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - 7);
-
         try {
             let deletedCount = 0;
             let hasMore = true;
-
             while (hasMore) {
                 const snapshot = await db.collection('position_history')
                     .where('timestamp', '<', cutoffDate)
                     .limit(500)
                     .get();
-
                 if (snapshot.empty) {
                     hasMore = false;
                     break;
                 }
-
                 const batch = db.batch();
                 snapshot.docs.forEach(doc => {
                     batch.delete(doc.ref);
                 });
-
                 await batch.commit();
                 deletedCount += snapshot.size;
-
-                console.log(`🗑️ ${deletedCount} positions supprimées...`);
+                console.log(` 🗑️  ${deletedCount} positions supprimées...`);
             }
-
-            console.log(`✅ Nettoyage terminé: ${deletedCount} positions supprimées`);
-
+            console.log(` ✅  Nettoyage termin é : ${deletedCount} positions supprim é es`);
             // Logger le nettoyage
             await db.collection('system_logs').add({
                 type: 'cleanup_position_history',
@@ -943,11 +890,9 @@ exports.cleanupOldPositionHistory = functions.pubsub
                 cutoffDate: cutoffDate,
                 timestamp: admin.firestore.FieldValue.serverTimestamp()
             });
-
         } catch (error) {
-            console.error('❌ Erreur nettoyage:', error);
+            console.error(' ❌  Erreur nettoyage:', error);
         }
-
         return null;
     });
 
@@ -960,31 +905,23 @@ exports.cleanupOldPositionHistory = functions.pubsub
  */
 exports.getDriverTrackingHistory = functions.https.onCall(async (data, context) => {
     const { driverId, startDate, endDate, sessionId } = data;
-
     if (!driverId) {
         throw new functions.https.HttpsError('invalid-argument', 'Driver ID requis');
     }
-
     try {
         let query = db.collection('position_history')
             .where('driverId', '==', driverId);
-
         if (sessionId) {
             query = query.where('sessionId', '==', sessionId);
         }
-
         if (startDate) {
             query = query.where('timestamp', '>=', new Date(startDate));
         }
-
         if (endDate) {
             query = query.where('timestamp', '<=', new Date(endDate));
         }
-
         query = query.orderBy('timestamp', 'asc').limit(1000);
-
         const snapshot = await query.get();
-
         const positions = [];
         snapshot.forEach(doc => {
             const data = doc.data();
@@ -996,15 +933,13 @@ exports.getDriverTrackingHistory = functions.https.onCall(async (data, context) 
                 timestamp: data.timestamp?.toDate()
             });
         });
-
         return {
             success: true,
             count: positions.length,
             positions: positions
         };
-
     } catch (error) {
-        console.error('❌ Erreur:', error);
+        console.error(' ❌  Erreur:', error);
         throw new functions.https.HttpsError('internal', error.message);
     }
 });
@@ -1014,11 +949,9 @@ exports.getDriverTrackingHistory = functions.https.onCall(async (data, context) 
  */
 exports.getDriverTrackingStats = functions.https.onCall(async (data, context) => {
     const { driverId, period } = data;
-
     if (!driverId) {
         throw new functions.https.HttpsError('invalid-argument', 'Driver ID requis');
     }
-
     try {
         const stats = {
             today: {},
@@ -1026,49 +959,38 @@ exports.getDriverTrackingStats = functions.https.onCall(async (data, context) =>
             month: {},
             total: {}
         };
-
         // Stats aujourd'hui
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
         const todaySnapshot = await db.collection('position_history')
             .where('driverId', '==', driverId)
             .where('timestamp', '>=', today)
             .get();
-
         stats.today = await calculateStatsFromPositions(todaySnapshot);
-
         // Stats dernière semaine
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         weekAgo.setHours(0, 0, 0, 0);
-
         const weekSnapshot = await db.collection('daily_tracking_stats')
             .where('driverId', '==', driverId)
             .where('date', '>=', weekAgo)
             .get();
-
         stats.week = aggregateDailyStats(weekSnapshot);
-
         // Stats mois
         const monthAgo = new Date();
         monthAgo.setDate(monthAgo.getDate() - 30);
         monthAgo.setHours(0, 0, 0, 0);
-
         const monthSnapshot = await db.collection('daily_tracking_stats')
             .where('driverId', '==', driverId)
             .where('date', '>=', monthAgo)
             .get();
-
         stats.month = aggregateDailyStats(monthSnapshot);
-
         return {
             success: true,
             stats: stats
         };
-
     } catch (error) {
-        console.error('❌ Erreur:', error);
+        console.error(' ❌  Erreur:', error);
         throw new functions.https.HttpsError('internal', error.message);
     }
 });
@@ -1102,30 +1024,23 @@ async function calculateStatsFromPositions(snapshot) {
             positionsCount: 0
         };
     }
-
     let totalDistance = 0;
     let maxSpeed = 0;
     const positions = [];
-
     snapshot.forEach(doc => positions.push(doc.data()));
-
     for (let i = 1; i < positions.length; i++) {
         const prev = positions[i - 1];
         const curr = positions[i];
-
         const distance = calculerDistance(
             prev.position.latitude,
             prev.position.longitude,
             curr.position.latitude,
             curr.position.longitude
         );
-
         totalDistance += distance;
-
         const speed = (curr.speed || 0) * 3.6;
         if (speed > maxSpeed) maxSpeed = speed;
     }
-
     return {
         totalDistance: totalDistance,
         averageSpeed: positions.length > 0 ? 
@@ -1144,13 +1059,11 @@ function aggregateDailyStats(snapshot) {
             totalTime: 0
         };
     }
-
     let totalDistance = 0;
     let totalTime = 0;
     let maxSpeed = 0;
     let speedSum = 0;
     let count = 0;
-
     snapshot.forEach(doc => {
         const data = doc.data();
         totalDistance += data.totalDistance || 0;
@@ -1159,7 +1072,6 @@ function aggregateDailyStats(snapshot) {
         speedSum += data.averageSpeed || 0;
         count++;
     });
-
     return {
         totalDistance: totalDistance,
         averageSpeed: count > 0 ? speedSum / count : 0,
@@ -1172,7 +1084,6 @@ function aggregateDailyStats(snapshot) {
 // COORDONNÉES COMPLÈTES - 174 QUARTIERS DE DAKAR
 // (129 quartiers de base + 45 quartiers de Keur Massar)
 // ==========================================
-
 function getDefaultCoordsForAddress(address) {
   const coords = {
     // ====================================
@@ -1379,7 +1290,7 @@ function getDefaultCoordsForAddress(address) {
     'ndiarem': { lat: 14.7720, lng: -17.4050 },
     
     // ====================================
-    // ZONE 10: KEUR MASSAR (45+ quartiers) ⭐ NOUVEAU ⭐
+    // ZONE 10: KEUR MASSAR (45+ quartiers)  ⭐  NOUVEAU  ⭐
     // ====================================
     
     // Zone Centrale
@@ -1479,15 +1390,14 @@ function getDefaultCoordsForAddress(address) {
   // Recherche exacte
   for (const [quartier, coordonnees] of Object.entries(coords)) {
     if (addressLower.includes(quartier)) {
-      console.log(`✅ Quartier: "${quartier}" → [${coordonnees.lat}, ${coordonnees.lng}]`);
+      console.log(` ✅  Quartier: "${quartier}"  →  [${coordonnees.lat}, ${coordonnees.lng}]`);
       return coordonnees;
     }
   }
   
   // Fallback
-  console.warn(`⚠️ Adresse non reconnue: "${address}" - Utilisation Plateau par défaut`);
+  console.warn(` ⚠️  Adresse non reconnue: "${address}" - Utilisation Plateau par défaut`);
   return { lat: 14.6928, lng: -17.4467 };
 }
-
 // Export pour utilisation dans d'autres modules
 module.exports = { getDefaultCoordsForAddress };
