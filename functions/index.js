@@ -133,12 +133,16 @@ exports.assignerChauffeurAutomatique = functions.firestore
         }
 
         // --- SÉCURITÉ RENFORCÉE : VÉRIFICATION SOLDE ---
-        // On force la conversion en nombre pour éviter les erreurs de type string ("500" > 1000)
-        const soldeActuel = Number(chauffeur.soldeDisponible);
-        const soldeValid = !isNaN(soldeActuel) ? soldeActuel : 0; // Si NaN ou undefined, devient 0
+        // Utilisation de Number() et gestion explicite des undefined/null
+        let soldeActuel = 0;
+        if (chauffeur.soldeDisponible !== undefined && chauffeur.soldeDisponible !== null) {
+            soldeActuel = Number(chauffeur.soldeDisponible);
+        }
+        
+        const soldeValid = !isNaN(soldeActuel) ? soldeActuel : 0; 
 
         if (soldeValid < TRACKING_CONFIG.minSoldeRequis) {
-            console.log(` ⛔  ${doc.id}: IGNORÉ - Solde insuffisant (${soldeValid} FCFA < ${TRACKING_CONFIG.minSoldeRequis} FCFA)`);
+            console.log(` ⛔  ${doc.id}: IGNORÉ - Solde insuffisant (${soldeValid} FCFA < ${TRACKING_CONFIG.minSoldeRequis} FCFA) [Raw: ${chauffeur.soldeDisponible}]`);
             return; // Arrêt immédiat pour ce chauffeur
         }
         // ----------------------------------------------------
@@ -195,8 +199,10 @@ exports.assignerChauffeurAutomatique = functions.firestore
         }
 
         // DOUBLE VÉRIFICATION DE SÉCURITÉ DANS LA TRANSACTION
-        // Empêche les cas où le solde change pendant le traitement
-        const soldeTransaction = Number(chauffeurData.soldeDisponible);
+        let soldeTransaction = 0;
+        if (chauffeurData.soldeDisponible !== undefined && chauffeurData.soldeDisponible !== null) {
+            soldeTransaction = Number(chauffeurData.soldeDisponible);
+        }
         const soldeFinal = !isNaN(soldeTransaction) ? soldeTransaction : 0;
 
         if (soldeFinal < TRACKING_CONFIG.minSoldeRequis) {
@@ -317,11 +323,14 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
     }
 
     // --- SÉCURITÉ RENFORCÉE : VÉRIFICATION SOLDE ---
-    const soldeActuel = Number(chauffeur.soldeDisponible);
+    let soldeActuel = 0;
+    if (chauffeur.soldeDisponible !== undefined && chauffeur.soldeDisponible !== null) {
+        soldeActuel = Number(chauffeur.soldeDisponible);
+    }
     const soldeValid = !isNaN(soldeActuel) ? soldeActuel : 0;
 
     if (soldeValid < TRACKING_CONFIG.minSoldeRequis) {
-        console.warn(`Tentative assignation manuelle rejetée. Solde: ${soldeValid}`);
+        console.warn(`Tentative assignation manuelle rejetée. Solde: ${soldeValid} [Raw: ${chauffeur.soldeDisponible}]`);
         throw new functions.https.HttpsError(
             'failed-precondition', 
             `Solde insuffisant (${soldeValid} FCFA). Le chauffeur doit avoir au moins ${TRACKING_CONFIG.minSoldeRequis} FCFA.`
@@ -349,10 +358,14 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       }
 
       // Double vérification solde transactionnelle
-      const soldeTrans = Number(chauffeurCheckData.soldeDisponible);
+      let soldeTrans = 0;
+      if (chauffeurCheckData.soldeDisponible !== undefined && chauffeurCheckData.soldeDisponible !== null) {
+          soldeTrans = Number(chauffeurCheckData.soldeDisponible);
+      }
       const soldeTransValid = !isNaN(soldeTrans) ? soldeTrans : 0;
+      
       if (soldeTransValid < TRACKING_CONFIG.minSoldeRequis) {
-          throw new Error('Solde insuffisant au moment de la transaction');
+          throw new Error(`Solde insuffisant au moment de la transaction (${soldeTransValid} FCFA)`);
       }
       
       transaction.update(reservationDoc.ref, {
