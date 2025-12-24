@@ -6,10 +6,6 @@ const db = admin.firestore();
 // ==========================================
 // CONFIGURATION SYSTÈME
 // ==========================================
-
-// ⭐ NOUVEAU : Seuil minimum de portefeuille pour assignation
-const MINIMUM_WALLET_BALANCE = 1000; // en FCFA
-
 async function getSystemParams() {
   try {
     const doc = await db.collection('parametres').doc('config').get();
@@ -34,7 +30,7 @@ async function getSystemParams() {
 }
 
 // ==========================================
-// 1. ASSIGNATION AUTOMATIQUE (avec contrôle portefeuille)
+// 1. ASSIGNATION AUTOMATIQUE
 // ==========================================
 exports.assignerChauffeurAutomatique = functions.firestore
   .document('reservations/{reservationId}')
@@ -107,19 +103,9 @@ exports.assignerChauffeurAutomatique = functions.firestore
       }
       
       const chauffeurs = [];
-      let chauffeursExclusParSolde = 0;
       
       chauffeursSnapshot.forEach(doc => {
         const chauffeur = doc.data();
-        
-        // ✅ NOUVEAU : Vérification du solde du portefeuille
-        const walletBalance = chauffeur.portefeuille?.solde || 0;
-        
-        if (walletBalance < MINIMUM_WALLET_BALANCE) {
-          console.log(`💰 ${doc.id} (${chauffeur.prenom} ${chauffeur.nom}): EXCLU - Solde insuffisant (${walletBalance} FCFA < ${MINIMUM_WALLET_BALANCE} FCFA)`);
-          chauffeursExclusParSolde++;
-          return; // Passer au suivant
-        }
         
         if (!chauffeur.position || !chauffeur.position.latitude) {
           console.log(`⚠️ ${doc.id}: pas de GPS`);
@@ -138,42 +124,24 @@ exports.assignerChauffeurAutomatique = functions.firestore
           chauffeur.position.longitude
         );
         
-        console.log(`📍 ${chauffeur.prenom} ${chauffeur.nom}: ${distance.toFixed(2)} km | 💰 Solde: ${walletBalance} FCFA`);
+        console.log(`📍 ${chauffeur.prenom} ${chauffeur.nom}: ${distance.toFixed(2)} km`);
         
         if (distance <= params.rayonRecherche) {
           chauffeurs.push({
             id: doc.id,
             ...chauffeur,
-            distance: distance,
-            walletBalance: walletBalance
+            distance: distance
           });
         }
       });
       
-      // ✅ NOUVEAU : Notification si des chauffeurs exclus pour solde insuffisant
-      if (chauffeursExclusParSolde > 0) {
-        console.log(`⚠️ ${chauffeursExclusParSolde} chauffeur(s) exclu(s) pour solde insuffisant`);
-        
-        await db.collection('notifications_admin').add({
-          type: 'chauffeurs_exclus_solde',
-          reservationId: reservationId,
-          message: `${chauffeursExclusParSolde} chauffeur(s) disponible(s) mais avec solde < ${MINIMUM_WALLET_BALANCE} FCFA`,
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          lu: false
-        });
-      }
-      
       if (chauffeurs.length === 0) {
-        console.log(`❌ Aucun chauffeur éligible dans ${params.rayonRecherche} km`);
-        
-        const messageDetail = chauffeursExclusParSolde > 0 
-          ? `Aucun chauffeur dans ${params.rayonRecherche} km avec solde suffisant (${chauffeursExclusParSolde} exclu(s))`
-          : `Aucun chauffeur dans ${params.rayonRecherche} km`;
+        console.log(`❌ Aucun chauffeur dans ${params.rayonRecherche} km`);
         
         await db.collection('notifications_admin').add({
           type: 'aucun_chauffeur_proximite',
           reservationId: reservationId,
-          message: messageDetail,
+          message: `Aucun chauffeur dans ${params.rayonRecherche} km`,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           lu: false
         });
@@ -184,19 +152,12 @@ exports.assignerChauffeurAutomatique = functions.firestore
       chauffeurs.sort((a, b) => a.distance - b.distance);
       const chauffeurChoisi = chauffeurs[0];
       
-      console.log(`✅ Sélectionné: ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km | 💰 ${chauffeurChoisi.walletBalance} FCFA)`);
+      console.log(`✅ Sélectionné: ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km)`);
       
       await db.runTransaction(async (transaction) => {
         const chauffeurRef = db.collection('drivers').doc(chauffeurChoisi.id);
         const chauffeurDoc = await transaction.get(chauffeurRef);
         const chauffeurData = chauffeurDoc.data();
-        
-        // ✅ NOUVEAU : Vérification finale du solde avant assignation
-        const finalWalletBalance = chauffeurData.portefeuille?.solde || 0;
-        
-        if (finalWalletBalance < MINIMUM_WALLET_BALANCE) {
-          throw new Error(`Solde insuffisant: ${finalWalletBalance} FCFA < ${MINIMUM_WALLET_BALANCE} FCFA`);
-        }
         
         if (chauffeurData.statut !== 'disponible' || 
             chauffeurData.currentBookingId || 
@@ -212,8 +173,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
           dateAssignation: admin.firestore.FieldValue.serverTimestamp(),
           distanceChauffeur: Math.round(chauffeurChoisi.distance * 1000),
           tempsArriveeChauffeur: Math.round(chauffeurChoisi.distance * 3),
-          modeAssignation: 'automatique',
-          chauffeurWalletBalance: finalWalletBalance // ✅ NOUVEAU : Tracer le solde au moment de l'assignation
+          modeAssignation: 'automatique'
         });
         
         transaction.update(chauffeurRef, {
@@ -243,7 +203,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
       await db.collection('notifications_admin').add({
         type: 'assignation_reussie',
         reservationId: reservationId,
-        message: `✅ ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assigné (${chauffeurChoisi.distance.toFixed(1)} km | 💰 ${chauffeurChoisi.walletBalance} FCFA)${coordonneesApproximatives ? ' - Coords approx.' : ''}`,
+        message: `✅ ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assigné (${chauffeurChoisi.distance.toFixed(1)} km)${coordonneesApproximatives ? ' - Coords approx.' : ''}`,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         lu: false
       });
@@ -267,7 +227,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
   });
 
 // ==========================================
-// 2. ASSIGNATION MANUELLE (avec contrôle portefeuille)
+// 2. ASSIGNATION MANUELLE
 // ==========================================
 exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) => {
   if (!context.auth && !data.adminToken) {
@@ -311,23 +271,14 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
 
     const chauffeur = chauffeurDoc.data();
 
-    // ✅ NOUVEAU : Vérification du solde du portefeuille
-    const walletBalance = chauffeur.portefeuille?.solde || 0;
-    
-    if (walletBalance < MINIMUM_WALLET_BALANCE) {
-      console.log(`❌ Assignation manuelle refusée: ${chauffeur.prenom} ${chauffeur.nom} - Solde insuffisant (${walletBalance} FCFA < ${MINIMUM_WALLET_BALANCE} FCFA)`);
-      
+    if (chauffeur.reservationEnCours || chauffeur.currentBookingId) {
       throw new functions.https.HttpsError(
         'failed-precondition', 
-        `Solde du portefeuille insuffisant: ${walletBalance} FCFA (minimum requis: ${MINIMUM_WALLET_BALANCE} FCFA)`
+        `Chauffeur déjà en course`
       );
-      }
-      
-      if (chauffeurCheckData.currentBookingId || chauffeurCheckData.reservationEnCours) {
-        throw new Error('Chauffeur plus disponible');
-      }
-      
-      transaction.update(reservationDoc.ref, {
+    }
+
+    let distance = 5;
     if (chauffeur.position && chauffeur.position.latitude && reservation.departCoords) {
       distance = calculerDistance(
         reservation.departCoords.lat,
@@ -342,13 +293,6 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       const chauffeurCheck = await transaction.get(chauffeurRef);
       const chauffeurCheckData = chauffeurCheck.data();
       
-      // ✅ NOUVEAU : Vérification finale du solde dans la transaction
-      const finalWalletBalance = chauffeurCheckData.portefeuille?.solde || 0;
-      
-      if (finalWalletBalance < MINIMUM_WALLET_BALANCE) {
-        throw new Error(`Solde insuffisant: ${finalWalletBalance} FCFA < ${MINIMUM_WALLET_BALANCE} FCFA`);
-      }
-      
       if (chauffeurCheckData.currentBookingId || chauffeurCheckData.reservationEnCours) {
         throw new Error('Chauffeur plus disponible');
       }
@@ -362,8 +306,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
         distanceChauffeur: Math.round(distance * 1000),
         tempsArriveeChauffeur: Math.round(distance * 3),
         modeAssignation: 'manuel',
-        assignePar: context.auth ? context.auth.email : 'admin',
-        chauffeurWalletBalance: finalWalletBalance // ✅ NOUVEAU : Tracer le solde
+        assignePar: context.auth ? context.auth.email : 'admin'
       });
 
       transaction.update(chauffeurRef, {
@@ -374,7 +317,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       });
     });
 
-    console.log(`✅ Assignation manuelle réussie: ${chauffeur.prenom} ${chauffeur.nom} (💰 ${walletBalance} FCFA)`);
+    console.log('✅ Assignation manuelle réussie');
 
     await db.collection('notifications').add({
       chauffeurId: chauffeurId,
@@ -396,8 +339,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       chauffeur: {
         nom: `${chauffeur.prenom} ${chauffeur.nom}`,
         telephone: chauffeur.telephone,
-        distance: distance.toFixed(2),
-        walletBalance: walletBalance // ✅ NOUVEAU : Retourner le solde
+        distance: distance.toFixed(2)
       }
     };
   } catch (error) {
@@ -620,6 +562,9 @@ function toRad(valeur) {
 }
 
 // ==========================================
+// 129 QUARTIERS DE DAKAR
+// ==========================================
+// ==========================================
 // COORDONNÉES COMPLÈTES - 174 QUARTIERS DE DAKAR
 // (129 quartiers de base + 45 quartiers de Keur Massar)
 // ==========================================
@@ -830,7 +775,7 @@ function getDefaultCoordsForAddress(address) {
     'ndiarem': { lat: 14.7720, lng: -17.4050 },
     
     // ====================================
-    // ZONE 10: KEUR MASSAR (45+ quartiers)
+    // ZONE 10: KEUR MASSAR (45+ quartiers) ⭐ NOUVEAU ⭐
     // ====================================
     
     // Zone Centrale
