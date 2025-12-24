@@ -12,7 +12,7 @@ const TRACKING_CONFIG = {
     speedThreshold: 120,            // Vitesse max acceptée (km/h)
     accuracyThreshold: 50,          // Précision GPS max acceptée (m)
     batchUpdateInterval: 5,         // Intervalle de batch en secondes
-    minSoldeRequis: 1000            // Solde minimum pour recevoir une course
+    minSoldeRequis: 1000            // Solde minimum strict pour recevoir une course
 };
 
 async function getSystemParams() {
@@ -120,21 +120,26 @@ exports.assignerChauffeurAutomatique = functions.firestore
       chauffeursSnapshot.forEach(doc => {
         const chauffeur = doc.data();
         
+        // Vérification GPS
         if (!chauffeur.position || !chauffeur.position.latitude) {
           console.log(` ⚠️  ${doc.id}: pas de GPS`);
           return;
         }
         
+        // Vérification Disponibilité
         if (chauffeur.reservationEnCours || chauffeur.currentBookingId) {
           console.log(` ⚠️  ${doc.id}: déjà en course`);
           return;
         }
 
-        // --- NOUVELLE FONCTIONNALITÉ : VÉRIFICATION SOLDE ---
-        const solde = chauffeur.soldeDisponible || 0;
-        if (solde < TRACKING_CONFIG.minSoldeRequis) {
-            console.log(` ⚠️  ${doc.id}: Solde insuffisant (${solde} FCFA)`);
-            return; // On ignore ce chauffeur car solde < 1000 FCFA
+        // --- SÉCURITÉ RENFORCÉE : VÉRIFICATION SOLDE ---
+        // On force la conversion en nombre pour éviter les erreurs de type string ("500" > 1000)
+        const soldeActuel = Number(chauffeur.soldeDisponible);
+        const soldeValid = !isNaN(soldeActuel) ? soldeActuel : 0; // Si NaN ou undefined, devient 0
+
+        if (soldeValid < TRACKING_CONFIG.minSoldeRequis) {
+            console.log(` ⛔  ${doc.id}: IGNORÉ - Solde insuffisant (${soldeValid} FCFA < ${TRACKING_CONFIG.minSoldeRequis} FCFA)`);
+            return; // Arrêt immédiat pour ce chauffeur
         }
         // ----------------------------------------------------
         
@@ -145,7 +150,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
           chauffeur.position.longitude
         );
         
-        console.log(` 📍  ${chauffeur.prenom} ${chauffeur.nom}: ${distance.toFixed(2)} km`);
+        console.log(` 📍  ${chauffeur.prenom} ${chauffeur.nom}: ${distance.toFixed(2)} km (Solde: ${soldeValid} F)`);
         
         if (distance <= params.rayonRecherche) {
           chauffeurs.push({
@@ -157,12 +162,12 @@ exports.assignerChauffeurAutomatique = functions.firestore
       });
       
       if (chauffeurs.length === 0) {
-        console.log(` ❌  Aucun chauffeur éligible dans ${params.rayonRecherche} km`);
+        console.log(` ❌  Aucun chauffeur éligible (Solde > 1000F & Zone ${params.rayonRecherche}km)`);
         
         await db.collection('notifications_admin').add({
           type: 'aucun_chauffeur_proximite',
           reservationId: reservationId,
-          message: `Aucun chauffeur éligible dans ${params.rayonRecherche} km`,
+          message: `Aucun chauffeur éligible (Solde ou Distance) dans le secteur`,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           lu: false
         });
@@ -173,11 +178,14 @@ exports.assignerChauffeurAutomatique = functions.firestore
       chauffeurs.sort((a, b) => a.distance - b.distance);
       const chauffeurChoisi = chauffeurs[0];
       
-      console.log(` ✅  S é lectionn é : ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km)`);
+      console.log(` ✅  Sélectionné : ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} (${chauffeurChoisi.distance.toFixed(2)} km)`);
       
       await db.runTransaction(async (transaction) => {
         const chauffeurRef = db.collection('drivers').doc(chauffeurChoisi.id);
         const chauffeurDoc = await transaction.get(chauffeurRef);
+        
+        if (!chauffeurDoc.exists) throw new Error("Chauffeur introuvable !");
+        
         const chauffeurData = chauffeurDoc.data();
         
         if (chauffeurData.statut !== 'disponible' || 
@@ -186,9 +194,13 @@ exports.assignerChauffeurAutomatique = functions.firestore
           throw new Error('Chauffeur plus disponible');
         }
 
-        // Double vérification du solde dans la transaction pour éviter les accès concurrents
-        if ((chauffeurData.soldeDisponible || 0) < TRACKING_CONFIG.minSoldeRequis) {
-            throw new Error('Solde devenu insuffisant');
+        // DOUBLE VÉRIFICATION DE SÉCURITÉ DANS LA TRANSACTION
+        // Empêche les cas où le solde change pendant le traitement
+        const soldeTransaction = Number(chauffeurData.soldeDisponible);
+        const soldeFinal = !isNaN(soldeTransaction) ? soldeTransaction : 0;
+
+        if (soldeFinal < TRACKING_CONFIG.minSoldeRequis) {
+            throw new Error(`Solde insuffisant détecté lors de la transaction (${soldeFinal} FCFA)`);
         }
         
         transaction.update(snap.ref, {
@@ -210,7 +222,7 @@ exports.assignerChauffeurAutomatique = functions.firestore
         });
       });
       
-      console.log(' ✅  TRANSACTION R É USSIE');
+      console.log(' ✅  TRANSACTION RÉUSSIE');
       
       await db.collection('notifications').add({
         destinataire: chauffeurChoisi.telephone,
@@ -229,12 +241,12 @@ exports.assignerChauffeurAutomatique = functions.firestore
       await db.collection('notifications_admin').add({
         type: 'assignation_reussie',
         reservationId: reservationId,
-        message: ` ✅  ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assign é  (${chauffeurChoisi.distance.toFixed(1)} km)${coordonneesApproximatives ? ' - Coords approx.' : ''}`,
+        message: ` ✅  ${chauffeurChoisi.prenom} ${chauffeurChoisi.nom} assigné (${chauffeurChoisi.distance.toFixed(1)} km)${coordonneesApproximatives ? ' - Coords approx.' : ''}`,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         lu: false
       });
       
-      console.log(' ✅  Assignation automatique r é ussie!');
+      console.log(' ✅  Assignation automatique réussie!');
       return null;
       
     } catch (error) {
@@ -304,12 +316,15 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       );
     }
 
-    // --- NOUVELLE FONCTIONNALITÉ : VÉRIFICATION SOLDE ---
-    const solde = chauffeur.soldeDisponible || 0;
-    if (solde < TRACKING_CONFIG.minSoldeRequis) {
+    // --- SÉCURITÉ RENFORCÉE : VÉRIFICATION SOLDE ---
+    const soldeActuel = Number(chauffeur.soldeDisponible);
+    const soldeValid = !isNaN(soldeActuel) ? soldeActuel : 0;
+
+    if (soldeValid < TRACKING_CONFIG.minSoldeRequis) {
+        console.warn(`Tentative assignation manuelle rejetée. Solde: ${soldeValid}`);
         throw new functions.https.HttpsError(
             'failed-precondition', 
-            `Solde insuffisant (${solde} FCFA). Minimum requis: 1000 FCFA.`
+            `Solde insuffisant (${soldeValid} FCFA). Le chauffeur doit avoir au moins ${TRACKING_CONFIG.minSoldeRequis} FCFA.`
         );
     }
     // ----------------------------------------------------
@@ -332,6 +347,13 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       if (chauffeurCheckData.currentBookingId || chauffeurCheckData.reservationEnCours) {
         throw new Error('Chauffeur plus disponible');
       }
+
+      // Double vérification solde transactionnelle
+      const soldeTrans = Number(chauffeurCheckData.soldeDisponible);
+      const soldeTransValid = !isNaN(soldeTrans) ? soldeTrans : 0;
+      if (soldeTransValid < TRACKING_CONFIG.minSoldeRequis) {
+          throw new Error('Solde insuffisant au moment de la transaction');
+      }
       
       transaction.update(reservationDoc.ref, {
         chauffeurAssigne: chauffeurId,
@@ -353,7 +375,7 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       });
     });
     
-    console.log(' ✅  Assignation manuelle r é ussie');
+    console.log(' ✅  Assignation manuelle réussie');
     
     await db.collection('notifications').add({
       chauffeurId: chauffeurId,
