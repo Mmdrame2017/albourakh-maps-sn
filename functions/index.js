@@ -132,25 +132,32 @@ exports.assignerChauffeurAutomatique = functions.firestore
           return;
         }
 
-        // --- SÉCURITÉ RENFORCÉE (CORRECTION CRITIQUE) : VÉRIFICATION SOLDE ---
-        // 1. Récupération brute
-        const rawSolde = chauffeur.soldeDisponible;
+        // --- SÉCURITÉ RENFORCÉE (CORRECTION NOM DE CHAMP) ---
+        // On récupère la valeur peu importe si c'est 'soldeDisponible' ou 'SoldeDisponible'
+        let rawSolde = undefined;
+        if (chauffeur.SoldeDisponible !== undefined) {
+            rawSolde = chauffeur.SoldeDisponible;
+        } else if (chauffeur.soldeDisponible !== undefined) {
+            rawSolde = chauffeur.soldeDisponible;
+        } else {
+            rawSolde = 0; // Valeur par défaut si champ manquant
+        }
         
-        // 2. Conversion sécurisée en nombre (gestion des strings "5000", null, undefined)
+        // Conversion sécurisée en nombre
         let soldeActuel = 0;
         if (rawSolde !== undefined && rawSolde !== null && rawSolde !== '') {
             soldeActuel = Number(rawSolde);
         }
         
-        // 3. Sécurité finale anti-NaN
+        // Sécurité finale anti-NaN
         if (isNaN(soldeActuel)) {
             soldeActuel = 0;
         }
 
-        // 4. Log de débogage pour comprendre ce qui se passe
+        // Log de débogage précis
         console.log(` 🔍  Check Solde ${doc.id} (${chauffeur.prenom}): Brut="${rawSolde}" -> Converti=${soldeActuel}`);
 
-        // 5. Comparaison stricte
+        // Comparaison stricte
         if (soldeActuel < TRACKING_CONFIG.minSoldeRequis) {
             console.log(` ⛔  ${doc.id}: IGNORÉ - Solde insuffisant (${soldeActuel} < ${TRACKING_CONFIG.minSoldeRequis})`);
             return; // Arrêt immédiat pour ce chauffeur, on passe au suivant
@@ -209,8 +216,15 @@ exports.assignerChauffeurAutomatique = functions.firestore
         }
 
         // DOUBLE VÉRIFICATION DE SÉCURITÉ DANS LA TRANSACTION
+        // Gestion double casse ici aussi
+        let rawSoldeTrans = 0;
+        if (chauffeurData.SoldeDisponible !== undefined) {
+             rawSoldeTrans = chauffeurData.SoldeDisponible;
+        } else if (chauffeurData.soldeDisponible !== undefined) {
+             rawSoldeTrans = chauffeurData.soldeDisponible;
+        }
+
         let soldeTransaction = 0;
-        const rawSoldeTrans = chauffeurData.soldeDisponible;
         if (rawSoldeTrans !== undefined && rawSoldeTrans !== null && rawSoldeTrans !== '') {
             soldeTransaction = Number(rawSoldeTrans);
         }
@@ -334,16 +348,21 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
     }
 
     // --- SÉCURITÉ RENFORCÉE : VÉRIFICATION SOLDE ---
-    // 1. Récupération brute
-    const rawSolde = chauffeur.soldeDisponible;
-    
-    // 2. Conversion sécurisée
+    // Gestion double casse (SoldeDisponible ou soldeDisponible)
+    let rawSolde = undefined;
+    if (chauffeur.SoldeDisponible !== undefined) {
+         rawSolde = chauffeur.SoldeDisponible;
+    } else if (chauffeur.soldeDisponible !== undefined) {
+         rawSolde = chauffeur.soldeDisponible;
+    } else {
+         rawSolde = 0;
+    }
+
     let soldeActuel = 0;
     if (rawSolde !== undefined && rawSolde !== null && rawSolde !== '') {
         soldeActuel = Number(rawSolde);
     }
     
-    // 3. Sécurité anti-NaN
     if (isNaN(soldeActuel)) {
         soldeActuel = 0;
     }
@@ -379,8 +398,14 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       }
 
       // Double vérification solde transactionnelle
+      let rawSoldeTrans = 0;
+      if (chauffeurCheckData.SoldeDisponible !== undefined) {
+           rawSoldeTrans = chauffeurCheckData.SoldeDisponible;
+      } else if (chauffeurCheckData.soldeDisponible !== undefined) {
+           rawSoldeTrans = chauffeurCheckData.soldeDisponible;
+      }
+
       let soldeTrans = 0;
-      const rawSoldeTrans = chauffeurCheckData.soldeDisponible;
       if (rawSoldeTrans !== undefined && rawSoldeTrans !== null && rawSoldeTrans !== '') {
           soldeTrans = Number(rawSoldeTrans);
       }
