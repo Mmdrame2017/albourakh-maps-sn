@@ -321,16 +321,13 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
         'failed-precondition', 
         `Solde du portefeuille insuffisant: ${walletBalance} FCFA (minimum requis: ${MINIMUM_WALLET_BALANCE} FCFA)`
       );
-    }
-
-    if (chauffeur.reservationEnCours || chauffeur.currentBookingId) {
-      throw new functions.https.HttpsError(
-        'failed-precondition', 
-        `Chauffeur déjà en course`
-      );
-    }
-
-    let distance = 5;
+      }
+      
+      if (chauffeurCheckData.currentBookingId || chauffeurCheckData.reservationEnCours) {
+        throw new Error('Chauffeur plus disponible');
+      }
+      
+      transaction.update(reservationDoc.ref, {
     if (chauffeur.position && chauffeur.position.latitude && reservation.departCoords) {
       distance = calculerDistance(
         reservation.departCoords.lat,
