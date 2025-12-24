@@ -38,6 +38,15 @@ async function getSystemParams() {
   }
 }
 
+// Fonction utilitaire pour nettoyer et parser les montants financiers
+function parseMoney(value) {
+    if (value === undefined || value === null) return 0;
+    // Convertir en chaîne, supprimer tout ce qui n'est pas chiffre, point ou signe moins (ex: "1 500 FCFA" -> "1500")
+    const cleanStr = String(value).replace(/[^0-9.-]+/g, ""); 
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? 0 : num;
+}
+
 // ==========================================
 // SECTION 1: ASSIGNATION AUTOMATIQUE
 // ==========================================
@@ -132,30 +141,20 @@ exports.assignerChauffeurAutomatique = functions.firestore
           return;
         }
 
-        // --- SÉCURITÉ RENFORCÉE (CORRECTION NOM DE CHAMP) ---
+        // --- SÉCURITÉ RENFORCÉE (CORRECTION PARSING) ---
         // On récupère la valeur peu importe si c'est 'soldeDisponible' ou 'SoldeDisponible'
         let rawSolde = undefined;
         if (chauffeur.SoldeDisponible !== undefined) {
             rawSolde = chauffeur.SoldeDisponible;
         } else if (chauffeur.soldeDisponible !== undefined) {
             rawSolde = chauffeur.soldeDisponible;
-        } else {
-            rawSolde = 0; // Valeur par défaut si champ manquant
         }
         
-        // Conversion sécurisée en nombre
-        let soldeActuel = 0;
-        if (rawSolde !== undefined && rawSolde !== null && rawSolde !== '') {
-            soldeActuel = Number(rawSolde);
-        }
-        
-        // Sécurité finale anti-NaN
-        if (isNaN(soldeActuel)) {
-            soldeActuel = 0;
-        }
+        // Utilisation de la fonction de nettoyage robuste
+        const soldeActuel = parseMoney(rawSolde);
 
         // Log de débogage précis
-        console.log(` 🔍  Check Solde ${doc.id} (${chauffeur.prenom}): Brut="${rawSolde}" -> Converti=${soldeActuel}`);
+        console.log(` 🔍  Check Solde ${doc.id} (${chauffeur.prenom}): Brut="${rawSolde}" -> Nettoyé=${soldeActuel}`);
 
         // Comparaison stricte
         if (soldeActuel < TRACKING_CONFIG.minSoldeRequis) {
@@ -217,18 +216,14 @@ exports.assignerChauffeurAutomatique = functions.firestore
 
         // DOUBLE VÉRIFICATION DE SÉCURITÉ DANS LA TRANSACTION
         // Gestion double casse ici aussi
-        let rawSoldeTrans = 0;
+        let rawSoldeTrans = undefined;
         if (chauffeurData.SoldeDisponible !== undefined) {
              rawSoldeTrans = chauffeurData.SoldeDisponible;
         } else if (chauffeurData.soldeDisponible !== undefined) {
              rawSoldeTrans = chauffeurData.soldeDisponible;
         }
 
-        let soldeTransaction = 0;
-        if (rawSoldeTrans !== undefined && rawSoldeTrans !== null && rawSoldeTrans !== '') {
-            soldeTransaction = Number(rawSoldeTrans);
-        }
-        if (isNaN(soldeTransaction)) soldeTransaction = 0;
+        const soldeTransaction = parseMoney(rawSoldeTrans);
 
         if (soldeTransaction < TRACKING_CONFIG.minSoldeRequis) {
             throw new Error(`ABORT TRANSACTION: Solde insuffisant détecté (${soldeTransaction} FCFA < 1000)`);
@@ -354,18 +349,9 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
          rawSolde = chauffeur.SoldeDisponible;
     } else if (chauffeur.soldeDisponible !== undefined) {
          rawSolde = chauffeur.soldeDisponible;
-    } else {
-         rawSolde = 0;
-    }
-
-    let soldeActuel = 0;
-    if (rawSolde !== undefined && rawSolde !== null && rawSolde !== '') {
-        soldeActuel = Number(rawSolde);
     }
     
-    if (isNaN(soldeActuel)) {
-        soldeActuel = 0;
-    }
+    const soldeActuel = parseMoney(rawSolde);
 
     console.log(` 🔍  [MANUEL] Check Solde ${chauffeurId}: Brut="${rawSolde}" -> Converti=${soldeActuel}`);
 
@@ -398,18 +384,14 @@ exports.assignerChauffeurManuel = functions.https.onCall(async (data, context) =
       }
 
       // Double vérification solde transactionnelle
-      let rawSoldeTrans = 0;
+      let rawSoldeTrans = undefined;
       if (chauffeurCheckData.SoldeDisponible !== undefined) {
            rawSoldeTrans = chauffeurCheckData.SoldeDisponible;
       } else if (chauffeurCheckData.soldeDisponible !== undefined) {
            rawSoldeTrans = chauffeurCheckData.soldeDisponible;
       }
 
-      let soldeTrans = 0;
-      if (rawSoldeTrans !== undefined && rawSoldeTrans !== null && rawSoldeTrans !== '') {
-          soldeTrans = Number(rawSoldeTrans);
-      }
-      if (isNaN(soldeTrans)) soldeTrans = 0;
+      const soldeTrans = parseMoney(rawSoldeTrans);
       
       if (soldeTrans < TRACKING_CONFIG.minSoldeRequis) {
           throw new Error(`Solde insuffisant au moment de la transaction (${soldeTrans} FCFA)`);
