@@ -810,7 +810,7 @@
         let mapSelectionMode = null;
         let departureCoords = null, destinationCoords = null;
         let currentBooking = null;
-        let reservationListener = null, driverListener = null, rechargeListener = null;
+        let reservationListener = null, driverListener = null;
         let lastDriverPosition = null, trackingUpdateInterval = null;
         let currentTrackingMode = 'approche';
         let evaluationData = { noteGlobale: 0, conduite: 0, ponctualite: 0, proprete: 0, amabilite: 0, commentaire: '' };
@@ -895,8 +895,137 @@
             updateWalletBalanceDisplay();
             checkLogin();
             initEvaluationListeners();
+            
+            // ✅ Synchroniser les recharges validées au démarrage
+            setTimeout(() => {
+                syncValidatedRecharges();
+                startGlobalRechargeListener();
+            }, 1000);
+            
             console.log('✅ Application initialisée avec solde:', walletState.balance, 'FCFA');
         });
+
+        // ===== SYNCHRONISATION DES RECHARGES VALIDÉES =====
+        async function syncValidatedRecharges() {
+            const userPhone = getUserPhone();
+            if (!userPhone) {
+                console.log('⚠️ Sync recharges: pas de téléphone');
+                return;
+            }
+
+            console.log('🔄 Synchronisation des recharges pour:', userPhone);
+
+            try {
+                const snapshot = await db.collection('recharges')
+                    .where('clientTelephone', '==', userPhone)
+                    .where('status', '==', 'validated')
+                    .get();
+
+                let newRechargesCount = 0;
+                let totalNewAmount = 0;
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const requestId = doc.id;
+
+                    // Vérifier si déjà traité
+                    const alreadyProcessed = walletState.transactions.some(t => 
+                        (t.type === 'recharge' && t.id === requestId)
+                    );
+
+                    if (!alreadyProcessed) {
+                        console.log('✅ Nouvelle recharge détectée:', requestId, data.amount, 'FCFA');
+                        
+                        walletState.balance += data.amount;
+                        walletState.transactions.unshift({
+                            id: requestId,
+                            date: data.validatedAt?.toDate?.()?.toISOString() || data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+                            type: 'recharge',
+                            amount: data.amount,
+                            method: data.source,
+                            status: 'completed'
+                        });
+
+                        newRechargesCount++;
+                        totalNewAmount += data.amount;
+                    }
+                });
+
+                if (newRechargesCount > 0) {
+                    saveWalletToLocalStorage();
+                    updateWalletBalanceDisplay();
+                    showNotification(`✅ ${newRechargesCount} recharge(s) créditée(s) ! +${totalNewAmount.toLocaleString()} FCFA`, 'success');
+                    console.log(`✅ Sync terminée: ${newRechargesCount} nouvelles recharges, +${totalNewAmount} FCFA`);
+                } else {
+                    console.log('ℹ️ Sync terminée: aucune nouvelle recharge');
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur sync recharges:', error);
+            }
+        }
+
+        // ===== LISTENER GLOBAL (actif même portefeuille fermé) =====
+        let globalRechargeListener = null;
+
+        function startGlobalRechargeListener() {
+            const userPhone = getUserPhone();
+            if (!userPhone) return;
+
+            if (globalRechargeListener) {
+                globalRechargeListener();
+                globalRechargeListener = null;
+            }
+
+            console.log('👂 Listener global recharges activé pour:', userPhone);
+
+            globalRechargeListener = db.collection('recharges')
+                .where('clientTelephone', '==', userPhone)
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        const data = change.doc.data();
+                        const requestId = change.doc.id;
+
+                        if (change.type === 'modified' && data.status === 'validated') {
+                            const alreadyProcessed = walletState.transactions.some(t => 
+                                t.type === 'recharge' && t.id === requestId
+                            );
+
+                            if (!alreadyProcessed) {
+                                console.log('🎉 Recharge validée en temps réel:', requestId, data.amount, 'FCFA');
+                                
+                                walletState.balance += data.amount;
+                                walletState.transactions.unshift({
+                                    id: requestId,
+                                    date: new Date().toISOString(),
+                                    type: 'recharge',
+                                    amount: data.amount,
+                                    method: data.source,
+                                    status: 'completed'
+                                });
+
+                                saveWalletToLocalStorage();
+                                updateWalletBalanceDisplay();
+                                
+                                if (walletState.currentScreen === 'dashboard') {
+                                    renderWalletDashboard();
+                                }
+                                
+                                showNotification(`✅ Recharge validée ! +${data.amount.toLocaleString()} FCFA`, 'success');
+                            }
+                        }
+                    });
+
+                    // Mettre à jour le compteur de demandes en attente
+                    walletState.pendingRecharges = snapshot.docs.filter(doc => doc.data().status === 'pending').length;
+                    
+                }, (error) => {
+                    console.error('❌ Erreur listener global:', error);
+                });
+        }
+
+        // Rendre la sync accessible globalement
+        window.syncValidatedRecharges = syncValidatedRecharges;
 
         // ===== SYSTÈME DE CONNEXION =====
         function checkLogin() {
@@ -1119,42 +1248,9 @@
         }
 
         function startRechargeListener() {
-            const userPhone = getUserPhone();
-            if (!userPhone) return;
-            if (rechargeListener) { rechargeListener(); rechargeListener = null; }
-
-            rechargeListener = db.collection('recharges')
-                .where('clientTelephone', '==', userPhone)
-                .onSnapshot((snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        const data = change.doc.data();
-                        const requestId = change.doc.id;
-                        
-                        if ((change.type === 'added' || change.type === 'modified') && data.status === 'validated') {
-                            const alreadyProcessed = walletState.transactions.some(t => t.type === 'recharge' && t.id === requestId);
-                            
-                            if (!alreadyProcessed) {
-                                walletState.balance += data.amount;
-                                walletState.transactions.unshift({
-                                    id: requestId,
-                                    date: data.validatedAt?.toDate().toISOString() || new Date().toISOString(),
-                                    type: 'recharge',
-                                    amount: data.amount,
-                                    method: data.source,
-                                    status: 'completed'
-                                });
-                                
-                                saveWalletToLocalStorage();
-                                updateWalletBalanceDisplay();
-                                if (walletState.currentScreen === 'dashboard') renderWalletDashboard();
-                                showNotification(`✅ Recharge validée ! +${data.amount.toLocaleString()} FCFA`, 'success');
-                            }
-                        }
-                    });
-                    
-                    walletState.pendingRecharges = snapshot.docs.filter(doc => doc.data().status === 'pending').length;
-                    if (walletState.currentScreen === 'dashboard') renderWalletDashboard();
-                });
+            // Le listener global gère déjà les recharges
+            // Cette fonction synchronise simplement au cas où
+            syncValidatedRecharges();
         }
 
         async function validatePayment() {
@@ -1287,7 +1383,7 @@
         function closeWallet() {
             document.getElementById('walletModal').classList.remove('active');
             document.body.style.overflow = '';
-            if (rechargeListener) { rechargeListener(); rechargeListener = null; }
+            // Le listener global reste actif pour détecter les recharges
         }
 
         function showWalletScreen(screen) {
