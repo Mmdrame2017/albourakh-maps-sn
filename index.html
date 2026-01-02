@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh - VTC & Paiement v3.6 (Persistance Corrigée)</title>
+    <title>Al Bourakh - VTC & Paiement v3.7</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -52,6 +52,10 @@
         .loyalty-points { font-size: 1.875rem; font-weight: 700; color: white; margin-top: 0.25rem; }
         .loyalty-label { color: white; font-size: 0.875rem; font-weight: 500; }
         .loyalty-badge { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 0.5rem 1rem; color: white; font-size: 0.75rem; }
+
+        .welcome-bonus { background: linear-gradient(135deg, #10b981, #059669); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; color: white; text-align: center; }
+        .welcome-bonus h4 { font-size: 1rem; margin-bottom: 0.5rem; }
+        .welcome-bonus p { font-size: 0.85rem; opacity: 0.9; }
 
         .card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
         .section-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; }
@@ -299,21 +303,6 @@
         .btn-submit-evaluation { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
         .btn-submit-evaluation:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .permission-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10002; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .permission-modal.active { display: flex; }
-        .permission-content { background: white; border-radius: 15px; padding: 25px 20px; max-width: 400px; width: 100%; text-align: center; }
-        .permission-icon { font-size: 3em; margin-bottom: 15px; }
-        .permission-title { font-size: 1.3em; font-weight: bold; color: #333; margin-bottom: 12px; }
-        .permission-text { color: #666; line-height: 1.5; margin-bottom: 20px; font-size: 0.95em; }
-        .permission-steps { background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
-        .permission-steps h4 { font-size: 0.9em; color: #333; margin-bottom: 10px; }
-        .permission-steps ol { margin-left: 20px; color: #666; font-size: 0.85em; }
-        .permission-steps li { margin-bottom: 6px; }
-        .permission-actions { display: flex; gap: 10px; }
-        .permission-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.95em; }
-        .btn-allow { background: linear-gradient(135deg, #4CAF50, #8BC34A); color: white; }
-        .btn-cancel { background: #f5f5f5; color: #666; }
-
         .notification { position: fixed; top: 15px; right: 15px; left: 15px; max-width: 400px; margin: 0 auto; padding: 12px 20px; border-radius: 10px; color: white; font-weight: 600; z-index: 10001; animation: slideIn 0.3s; box-shadow: 0 8px 25px rgba(0,0,0,0.3); font-size: 0.9em; }
         @keyframes slideIn { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .notification.success { background: #4CAF50; }
@@ -536,6 +525,9 @@
         <div class="modal-content" style="max-width: 400px; background: white; border-radius: 15px; padding: 30px; text-align: center;">
             <h2 style="color: #00A854; margin-bottom: 20px;">👋 Bienvenue sur Al Bourakh</h2>
             <p style="color: #666; margin-bottom: 25px;">Pour continuer, veuillez entrer vos informations</p>
+            <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; padding: 12px; margin-bottom: 20px; color: white;">
+                <p style="font-weight: bold;">🎁 Bonus de bienvenue : 500 FCFA offerts !</p>
+            </div>
             <div class="form-group" style="text-align: left; margin-bottom: 15px;">
                 <label style="font-weight: 600; margin-bottom: 8px; display: block;"><i class="fas fa-phone"></i> Téléphone *</label>
                 <input type="tel" id="loginPhone" placeholder="+221 77 XXX XX XX" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
@@ -790,23 +782,25 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v3.6 (Persistance Corrigée) - Portefeuille sauvegardé');
+        console.log('🚕 Al Bourakh Client v3.7 - Bonus 500 FCFA pour nouveaux clients');
+
+        // ===== CONFIGURATION BONUS DE BIENVENUE =====
+        const WELCOME_BONUS = 500; // 500 FCFA offerts à la première connexion
 
         // ===== VARIABLES GLOBALES =====
-        // Valeurs par défaut pour nouveaux utilisateurs
         const DEFAULT_WALLET_STATE = {
-            balance: 45000,
-            loyaltyPoints: 350,
+            balance: WELCOME_BONUS, // ✅ 500 FCFA pour les nouveaux clients
+            loyaltyPoints: 0,
             transactions: [],
             pendingRecharges: 0,
             rechargeAmount: '',
             rechargeMethod: 'Orange Money',
             currentScreen: 'dashboard',
             userPhone: '',
-            clientId: null
+            clientId: null,
+            isNewUser: true // ✅ Flag pour identifier les nouveaux utilisateurs
         };
 
-        // État du portefeuille - sera chargé depuis localStorage
         let walletState = { ...DEFAULT_WALLET_STATE };
 
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
@@ -819,24 +813,24 @@
         let reservationListener = null, driverListener = null, rechargeListener = null;
         let lastDriverPosition = null, trackingUpdateInterval = null;
         let currentTrackingMode = 'approche';
-        let simulationMode = false, simulatedDriverPosition = null;
         let evaluationData = { noteGlobale: 0, conduite: 0, ponctualite: 0, proprete: 0, amabilite: 0, commentaire: '' };
         let driverPhotoUrl = null;
         let paymentValidated = false, paymentProcessing = false;
 
         const COMMISSION_RATE = 0.30;
         const DRIVER_RATE = 0.70;
-        const WALLET_STORAGE_KEY = 'albourakh_wallet_v2'; // Nouvelle clé pour éviter conflits
+        const WALLET_STORAGE_KEY = 'albourakh_wallet_v3'; // Nouvelle clé v3
 
-        // ===== FONCTIONS DE PERSISTANCE DU PORTEFEUILLE (CORRIGÉ) =====
+        // ===== FONCTIONS DE PERSISTANCE DU PORTEFEUILLE =====
         function saveWalletToLocalStorage() {
             try {
                 const dataToSave = {
                     balance: walletState.balance,
                     loyaltyPoints: walletState.loyaltyPoints,
-                    transactions: walletState.transactions.slice(0, 100), // Limiter à 100 transactions
+                    transactions: walletState.transactions.slice(0, 100),
                     lastUpdate: new Date().toISOString(),
-                    version: '3.6'
+                    isNewUser: false, // ✅ Une fois sauvegardé, ce n'est plus un nouvel utilisateur
+                    version: '3.7'
                 };
                 localStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(dataToSave));
                 console.log('💾 Portefeuille sauvegardé:', dataToSave.balance, 'FCFA');
@@ -853,7 +847,6 @@
                 if (savedData) {
                     const data = JSON.parse(savedData);
                     
-                    // Valider les données chargées
                     if (typeof data.balance === 'number' && !isNaN(data.balance)) {
                         walletState.balance = data.balance;
                     }
@@ -863,14 +856,28 @@
                     if (Array.isArray(data.transactions)) {
                         walletState.transactions = data.transactions;
                     }
+                    walletState.isNewUser = false; // ✅ Utilisateur existant
                     
-                    console.log('📂 Portefeuille chargé:', walletState.balance, 'FCFA');
-                    console.log('   - Points fidélité:', walletState.loyaltyPoints);
-                    console.log('   - Transactions:', walletState.transactions.length);
-                    console.log('   - Dernière mise à jour:', data.lastUpdate);
+                    console.log('📂 Portefeuille chargé:', walletState.balance, 'FCFA (utilisateur existant)');
                     return true;
                 } else {
-                    console.log('📂 Aucune donnée sauvegardée - Utilisation des valeurs par défaut');
+                    // ✅ NOUVEAU CLIENT : Créer le portefeuille avec le bonus de bienvenue
+                    console.log('🎁 Nouveau client détecté ! Bonus de bienvenue:', WELCOME_BONUS, 'FCFA');
+                    walletState.balance = WELCOME_BONUS;
+                    walletState.loyaltyPoints = 0;
+                    walletState.transactions = [{
+                        id: 'welcome_bonus_' + Date.now(),
+                        date: new Date().toISOString(),
+                        type: 'bonus',
+                        amount: WELCOME_BONUS,
+                        description: 'Bonus de bienvenue',
+                        status: 'completed'
+                    }];
+                    walletState.isNewUser = true;
+                    
+                    // Sauvegarder immédiatement
+                    saveWalletToLocalStorage();
+                    
                     return false;
                 }
             } catch (error) {
@@ -879,24 +886,15 @@
             }
         }
 
-        // Rendre les fonctions accessibles globalement pour le debug
         window.saveWalletToLocalStorage = saveWalletToLocalStorage;
         window.loadWalletFromLocalStorage = loadWalletFromLocalStorage;
 
         // ===== INITIALISATION AU CHARGEMENT =====
         window.addEventListener('load', () => {
-            // 1. Charger le portefeuille AVANT tout le reste
             loadWalletFromLocalStorage();
-            
-            // 2. Mettre à jour l'affichage du solde
             updateWalletBalanceDisplay();
-            
-            // 3. Vérifier la connexion
             checkLogin();
-            
-            // 4. Initialiser le système d'évaluation
             initEvaluationListeners();
-            
             console.log('✅ Application initialisée avec solde:', walletState.balance, 'FCFA');
         });
 
@@ -935,7 +933,13 @@
             if (name) document.getElementById('bookingName').value = name;
             
             document.getElementById('loginModal').style.display = 'none';
-            showNotification('✅ Connexion réussie !', 'success');
+            
+            // ✅ Afficher le message de bienvenue avec bonus si nouvel utilisateur
+            if (walletState.isNewUser) {
+                showNotification(`🎁 Bienvenue ! ${WELCOME_BONUS} FCFA offerts sur votre portefeuille !`, 'success');
+            } else {
+                showNotification('✅ Connexion réussie !', 'success');
+            }
         }
 
         // ===== UTILITAIRES PHOTOS =====
@@ -973,42 +977,32 @@
             });
             
             document.getElementById('submitEvaluationBtn').addEventListener('click', submitEvaluation);
-            console.log('✅ Système d\'évaluation initialisé');
         }
 
         function updateOverallStars(rating) {
             const stars = document.querySelectorAll('#overallRating .star');
             const labels = ['Très mauvais', 'Mauvais', 'Moyen', 'Bon', 'Excellent'];
-            const labelElement = document.getElementById('overallRatingLabel');
             stars.forEach(star => { star.classList.toggle('active', parseInt(star.dataset.rating) <= rating); });
-            if (labelElement) labelElement.textContent = labels[rating - 1] || 'Sélectionnez une note';
+            document.getElementById('overallRatingLabel').textContent = labels[rating - 1] || 'Sélectionnez une note';
         }
 
         function updateCriteriaStars(criteria, rating) {
             document.querySelectorAll(`#${criteria}Rating .criteria-star`).forEach(star => { 
                 star.classList.toggle('active', parseInt(star.dataset.rating) <= rating); 
             });
-            const valueElement = document.getElementById(`${criteria}Value`);
-            if (valueElement) valueElement.textContent = `${rating}/5`;
+            document.getElementById(`${criteria}Value`).textContent = `${rating}/5`;
         }
 
         function updateSubmitButton() {
-            const btn = document.getElementById('submitEvaluationBtn');
-            if (btn) btn.disabled = evaluationData.noteGlobale === 0;
+            document.getElementById('submitEvaluationBtn').disabled = evaluationData.noteGlobale === 0;
         }
 
         function openEvaluationModal() {
             if (!currentBooking) return;
-            console.log('🌟 Ouverture modal évaluation');
             
-            const evalDriverName = document.getElementById('evalDriverName');
-            if (evalDriverName) evalDriverName.textContent = currentBooking.nomChauffeur || 'Votre chauffeur';
-            
-            const evalDriverAvatar = document.getElementById('evalDriverAvatar');
-            if (evalDriverAvatar) {
-                evalDriverAvatar.innerHTML = driverPhotoUrl ? 
-                    `<img src="${driverPhotoUrl}" alt="Chauffeur" onerror="this.parentElement.innerHTML='👤'">` : '👤';
-            }
+            document.getElementById('evalDriverName').textContent = currentBooking.nomChauffeur || 'Votre chauffeur';
+            document.getElementById('evalDriverAvatar').innerHTML = driverPhotoUrl ? 
+                `<img src="${driverPhotoUrl}" alt="Chauffeur" onerror="this.parentElement.innerHTML='👤'">` : '👤';
             
             let vehiculeText = '';
             const marque = currentBooking.vehiculeMarque;
@@ -1019,28 +1013,18 @@
                 vehiculeText = modele ? `${marque} ${modele}` : marque;
                 if (immat && immat !== 'DK-XXXX-XX') vehiculeText += ` • ${immat}`;
             } else {
-                const typeVehicule = currentBooking.vehiculeType || 'standard';
                 const typeNames = { standard: '🚗 Standard', confort: '✨ Confort', van: '🚐 Van', premium: '👑 Premium' };
-                vehiculeText = typeNames[typeVehicule] || 'Véhicule';
+                vehiculeText = typeNames[currentBooking.vehiculeType] || 'Véhicule';
             }
-            
-            const evalVehicle = document.getElementById('evalVehicle');
-            if (evalVehicle) evalVehicle.textContent = vehiculeText;
+            document.getElementById('evalVehicle').textContent = vehiculeText;
             
             evaluationData = { noteGlobale: 0, conduite: 0, ponctualite: 0, proprete: 0, amabilite: 0, commentaire: '' };
             document.querySelectorAll('.star, .criteria-star').forEach(s => s.classList.remove('active'));
-            
-            const overallRatingLabel = document.getElementById('overallRatingLabel');
-            if (overallRatingLabel) overallRatingLabel.textContent = 'Sélectionnez une note';
+            document.getElementById('overallRatingLabel').textContent = 'Sélectionnez une note';
             document.querySelectorAll('.criteria-value').forEach(v => v.textContent = '-');
-            
-            const evaluationComment = document.getElementById('evaluationComment');
-            const commentLength = document.getElementById('commentLength');
-            if (evaluationComment) evaluationComment.value = '';
-            if (commentLength) commentLength.textContent = '0';
-            
-            const submitEvaluationBtn = document.getElementById('submitEvaluationBtn');
-            if (submitEvaluationBtn) submitEvaluationBtn.disabled = true;
+            document.getElementById('evaluationComment').value = '';
+            document.getElementById('commentLength').textContent = '0';
+            document.getElementById('submitEvaluationBtn').disabled = true;
             
             document.getElementById('evaluationModal').classList.add('active');
         }
@@ -1050,7 +1034,6 @@
         }
 
         function skipEvaluation() {
-            console.log('⏭️ Évaluation ignorée');
             closeEvaluationModal();
             closeTracking();
             showNotification('Évaluation ignorée', 'info');
@@ -1114,25 +1097,14 @@
                 const evaluationsSnapshot = await db.collection('evaluations').where('chauffeurId', '==', driverId).get();
                 if (evaluationsSnapshot.empty) return;
                 
-                let totalNote = 0, totalConduite = 0, totalPonctualite = 0, totalProprete = 0, totalAmabilite = 0, count = 0;
-                
-                evaluationsSnapshot.forEach(doc => {
-                    const eval_ = doc.data();
-                    totalNote += eval_.noteGlobale || 0;
-                    totalConduite += eval_.conduite || 0;
-                    totalPonctualite += eval_.ponctualite || 0;
-                    totalProprete += eval_.proprete || 0;
-                    totalAmabilite += eval_.amabilite || 0;
-                    count++;
-                });
+                let totalNote = 0, count = 0;
+                evaluationsSnapshot.forEach(doc => { totalNote += doc.data().noteGlobale || 0; count++; });
                 
                 await db.collection('drivers').doc(driverId).update({
                     rating: parseFloat((totalNote / count).toFixed(1)),
                     nombreEvaluations: count,
                     derniereMiseAJourRating: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
-                console.log(`✅ Rating chauffeur mis à jour: ${(totalNote / count).toFixed(1)}/5`);
             } catch (error) {
                 console.error('❌ Erreur mise à jour rating:', error);
             }
@@ -1151,8 +1123,6 @@
             if (!userPhone) return;
             if (rechargeListener) { rechargeListener(); rechargeListener = null; }
 
-            console.log('👂 Écoute recharges pour:', userPhone);
-            
             rechargeListener = db.collection('recharges')
                 .where('clientTelephone', '==', userPhone)
                 .onSnapshot((snapshot) => {
@@ -1160,40 +1130,30 @@
                         const data = change.doc.data();
                         const requestId = change.doc.id;
                         
-                        if (change.type === 'added' || change.type === 'modified') {
-                            if (data.status === 'validated') {
-                                const alreadyProcessed = walletState.transactions.some(t => t.type === 'recharge' && t.id === requestId);
+                        if ((change.type === 'added' || change.type === 'modified') && data.status === 'validated') {
+                            const alreadyProcessed = walletState.transactions.some(t => t.type === 'recharge' && t.id === requestId);
+                            
+                            if (!alreadyProcessed) {
+                                walletState.balance += data.amount;
+                                walletState.transactions.unshift({
+                                    id: requestId,
+                                    date: data.validatedAt?.toDate().toISOString() || new Date().toISOString(),
+                                    type: 'recharge',
+                                    amount: data.amount,
+                                    method: data.source,
+                                    status: 'completed'
+                                });
                                 
-                                if (!alreadyProcessed) {
-                                    walletState.balance += data.amount;
-                                    walletState.transactions.unshift({
-                                        id: requestId,
-                                        date: data.validatedAt?.toDate().toISOString() || new Date().toISOString(),
-                                        type: 'recharge',
-                                        amount: data.amount,
-                                        method: data.source,
-                                        status: 'completed'
-                                    });
-                                    
-                                    // ✅ SAUVEGARDER APRÈS RECHARGE VALIDÉE
-                                    saveWalletToLocalStorage();
-                                    
-                                    updateWalletBalanceDisplay();
-                                    if (walletState.currentScreen === 'dashboard') renderWalletDashboard();
-                                    showNotification(`✅ Recharge validée ! +${data.amount.toLocaleString()} FCFA`, 'success');
-                                }
-                            } else if (data.status === 'rejected') {
-                                showNotification(`❌ Recharge refusée: ${data.commentaireRejet || 'Raison non spécifiée'}`, 'error');
+                                saveWalletToLocalStorage();
+                                updateWalletBalanceDisplay();
+                                if (walletState.currentScreen === 'dashboard') renderWalletDashboard();
+                                showNotification(`✅ Recharge validée ! +${data.amount.toLocaleString()} FCFA`, 'success');
                             }
                         }
                     });
                     
-                    const pendingCount = snapshot.docs.filter(doc => doc.data().status === 'pending').length;
-                    walletState.pendingRecharges = pendingCount;
-                    
+                    walletState.pendingRecharges = snapshot.docs.filter(doc => doc.data().status === 'pending').length;
                     if (walletState.currentScreen === 'dashboard') renderWalletDashboard();
-                }, (error) => {
-                    console.error('❌ Erreur listener recharges:', error);
                 });
         }
 
@@ -1217,9 +1177,7 @@
                 return;
             }
 
-            if (!confirm(`Confirmer le paiement de ${amount.toLocaleString()} FCFA via ${paymentMethod}?\n\nRépartition:\n- Chauffeur (70%): ${driverShare.toLocaleString()} FCFA\n- Commission Al Bourakh (30%): ${commission.toLocaleString()} FCFA`)) {
-                return;
-            }
+            if (!confirm(`Confirmer le paiement de ${amount.toLocaleString()} FCFA via ${paymentMethod}?`)) return;
 
             paymentProcessing = true;
             const btn = document.getElementById('validatePaymentBtn');
@@ -1227,16 +1185,13 @@
             
             btn.classList.add('processing');
             btn.disabled = true;
-            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement en cours...';
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
 
             showLoading('Validation du paiement...');
 
             try {
-                // Débiter le portefeuille si paiement wallet
                 if (paymentMethod === 'wallet' || paymentMethod === 'Portefeuille Al Bourakh') {
                     walletState.balance -= amount;
-                    
-                    // Ajouter la transaction
                     walletState.transactions.unshift({
                         id: 'ride_' + Date.now(),
                         date: new Date().toISOString(),
@@ -1246,28 +1201,22 @@
                         destination: currentBooking.destination,
                         status: 'completed'
                     });
-                    
-                    // ✅ SAUVEGARDER IMMÉDIATEMENT APRÈS DÉBIT
                     saveWalletToLocalStorage();
                     updateWalletBalanceDisplay();
-                    console.log('✅ Client débité et sauvegardé:', amount, 'FCFA - Nouveau solde:', walletState.balance);
                 }
 
-                const reservationRef = db.collection('reservations').doc(currentBooking.id);
-                await reservationRef.update({
+                await db.collection('reservations').doc(currentBooking.id).update({
                     paiementValide: true,
                     datePaiement: firebase.firestore.FieldValue.serverTimestamp(),
                     modePaiementUtilise: paymentMethod,
                     montantPaye: amount,
                     partChauffeur: driverShare,
                     commissionAlBourakh: commission,
-                    paiementEnAttente: false,
                     paiementStatut: 'completed'
                 });
 
                 if (currentBooking.chauffeurAssigne) {
-                    const driverRef = db.collection('drivers').doc(currentBooking.chauffeurAssigne);
-                    await driverRef.update({
+                    await db.collection('drivers').doc(currentBooking.chauffeurAssigne).update({
                         soldeDisponible: firebase.firestore.FieldValue.increment(driverShare),
                         revenusTotal: firebase.firestore.FieldValue.increment(driverShare)
                     });
@@ -1297,7 +1246,7 @@
                 document.getElementById('step6Text').textContent = 'Paiement effectué ✓';
                 document.getElementById('step6Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-                showNotification(`✅ Paiement validé!\n💰 -${amount.toLocaleString()} FCFA`, 'success');
+                showNotification(`✅ Paiement validé! -${amount.toLocaleString()} FCFA`, 'success');
                 document.getElementById('cancelBookingBtn').style.display = 'none';
 
                 setTimeout(() => openEvaluationModal(), 2000);
@@ -1306,29 +1255,25 @@
                 console.error('❌ Erreur paiement:', error);
                 hideLoading();
                 
-                // ✅ ROLLBACK: Annuler le débit en cas d'erreur
                 if (paymentMethod === 'wallet' || paymentMethod === 'Portefeuille Al Bourakh') {
                     walletState.balance += amount;
-                    // Retirer la transaction ajoutée
-                    walletState.transactions = walletState.transactions.filter(t => t.id !== 'ride_' + Date.now());
+                    walletState.transactions.shift();
                     saveWalletToLocalStorage();
                     updateWalletBalanceDisplay();
-                    console.log('🔄 Débit annulé - Solde restauré:', walletState.balance, 'FCFA');
                 }
 
                 btn.classList.remove('processing');
                 btn.disabled = false;
                 btnText.innerHTML = '<i class="fas fa-check-circle"></i> Valider le paiement';
                 
-                showNotification('❌ Erreur lors du paiement: ' + error.message, 'error');
+                showNotification('❌ Erreur: ' + error.message, 'error');
             } finally {
                 paymentProcessing = false;
             }
         }
 
         function isDigitalPayment(paymentMethod) {
-            const digitalMethods = ['orange', 'wave', 'wallet', 'Orange Money', 'Wave', 'Portefeuille Al Bourakh'];
-            return digitalMethods.includes(paymentMethod);
+            return ['orange', 'wave', 'wallet', 'Orange Money', 'Wave', 'Portefeuille Al Bourakh'].includes(paymentMethod);
         }
 
         // ===== FONCTIONS PORTEFEUILLE =====
@@ -1342,10 +1287,6 @@
         function closeWallet() {
             document.getElementById('walletModal').classList.remove('active');
             document.body.style.overflow = '';
-            stopRechargeListener();
-        }
-
-        function stopRechargeListener() {
             if (rechargeListener) { rechargeListener(); rechargeListener = null; }
         }
 
@@ -1368,8 +1309,6 @@
                 backBtn.classList.remove('hidden');
                 title.textContent = 'Historique';
                 renderWalletHistory();
-            } else if (screen === 'success') {
-                backBtn.classList.add('hidden');
             }
             
             document.getElementById(`wallet${screen.charAt(0).toUpperCase() + screen.slice(1)}`).classList.add('active');
@@ -1379,7 +1318,7 @@
         window.closeWallet = closeWallet;
         window.showWalletScreen = showWalletScreen;
 
-        async function renderWalletDashboard() {
+        function renderWalletDashboard() {
             const totalSpent = walletState.transactions.filter(t => t.type === 'ride').reduce((sum, t) => sum + (t.amount || 0), 0);
             const rideCount = walletState.transactions.filter(t => t.type === 'ride').length;
 
@@ -1389,35 +1328,34 @@
                 if (savedData) {
                     const data = JSON.parse(savedData);
                     if (data.lastUpdate) {
-                        const lastUpdate = new Date(data.lastUpdate);
-                        const now = new Date();
-                        const diffMinutes = Math.floor((now - lastUpdate) / 60000);
-                        if (diffMinutes < 1) {
-                            lastSaveInfo = '<small style="color: #10b981; font-size: 0.7em;">💾 Sauvegardé à l\'instant</small>';
-                        } else if (diffMinutes < 60) {
-                            lastSaveInfo = `<small style="color: #6b7280; font-size: 0.7em;">💾 Sauvegardé il y a ${diffMinutes}min</small>`;
-                        } else {
-                            lastSaveInfo = `<small style="color: #6b7280; font-size: 0.7em;">💾 ${lastUpdate.toLocaleString('fr-FR')}</small>`;
-                        }
+                        const diffMinutes = Math.floor((new Date() - new Date(data.lastUpdate)) / 60000);
+                        lastSaveInfo = diffMinutes < 1 ? '<small style="color: #10b981; font-size: 0.7em;">💾 Sauvegardé</small>' : 
+                            `<small style="color: #6b7280; font-size: 0.7em;">💾 il y a ${diffMinutes}min</small>`;
                     }
                 }
             } catch (e) {}
 
-            let pendingAlert = '';
-            if (walletState.pendingRecharges > 0) {
-                pendingAlert = `
-                    <div class="pending-requests-alert">
-                        <i class="fas fa-clock"></i>
-                        <div class="pending-requests-info">
-                            <h4>${walletState.pendingRecharges} demande(s) en attente</h4>
-                            <p>Vos recharges seront validées sous peu par notre équipe</p>
-                        </div>
+            let pendingAlert = walletState.pendingRecharges > 0 ? `
+                <div class="pending-requests-alert">
+                    <i class="fas fa-clock"></i>
+                    <div class="pending-requests-info">
+                        <h4>${walletState.pendingRecharges} demande(s) en attente</h4>
+                        <p>Vos recharges seront validées sous peu</p>
                     </div>
-                `;
-            }
+                </div>
+            ` : '';
+
+            // ✅ Afficher le bonus de bienvenue pour les nouveaux utilisateurs
+            let welcomeBonus = walletState.isNewUser ? `
+                <div class="welcome-bonus">
+                    <h4>🎁 Bonus de bienvenue crédité !</h4>
+                    <p>Vous avez reçu ${WELCOME_BONUS} FCFA pour votre première course</p>
+                </div>
+            ` : '';
 
             document.getElementById('walletDashboard').innerHTML = `
                 ${pendingAlert}
+                ${welcomeBonus}
                 <div class="wallet-card">
                     <div class="wallet-card-header">
                         <div>
@@ -1460,14 +1398,14 @@
                         <p class="loyalty-label">Points de Fidélité</p>
                         <p class="loyalty-points">${walletState.loyaltyPoints} pts</p>
                     </div>
-                    <div class="loyalty-badge">Niveau Or</div>
+                    <div class="loyalty-badge">${walletState.loyaltyPoints >= 500 ? 'Niveau Or' : 'Niveau Bronze'}</div>
                 </div>
             `;
         }
 
         function renderWalletRecharge() {
             walletState.rechargeAmount = '';
-            const quickAmounts = [5000, 10000, 20000, 50000];
+            const quickAmounts = [1000, 2000, 5000, 10000];
 
             document.getElementById('walletRecharge').innerHTML = `
                 <div class="card">
@@ -1502,7 +1440,7 @@
             `;
         }
 
-        async function renderWalletHistory() {
+        function renderWalletHistory() {
             const recentTransactions = walletState.transactions.slice(0, 20);
             
             let historyHtml = '<div class="card">';
@@ -1513,17 +1451,19 @@
                 historyHtml += '<div class="transaction-list">';
                 recentTransactions.forEach(t => {
                     const isDebit = t.type === 'ride';
-                    const icon = isDebit ? '🚗' : '💰';
+                    const isBonus = t.type === 'bonus';
+                    const icon = isDebit ? '🚗' : (isBonus ? '🎁' : '💰');
                     const amountColor = isDebit ? '#E30613' : '#16a34a';
                     const amountPrefix = isDebit ? '-' : '+';
                     const date = new Date(t.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    const label = isBonus ? t.description : (t.type === 'ride' ? 'Course' : 'Recharge');
                     
                     historyHtml += `
                         <div class="transaction-item">
                             <div class="transaction-header">
                                 <div>
-                                    <div class="transaction-route">${icon} ${t.type === 'ride' ? 'Course' : 'Recharge'}</div>
-                                    <div class="transaction-driver">${t.depart ? t.depart.substring(0, 25) + '...' : (t.method || '')}</div>
+                                    <div class="transaction-route">${icon} ${label}</div>
+                                    <div class="transaction-driver">${t.depart ? t.depart.substring(0, 25) + '...' : (t.method || t.description || '')}</div>
                                 </div>
                                 <div class="transaction-amount" style="color: ${amountColor};">${amountPrefix}${t.amount.toLocaleString()} FCFA</div>
                             </div>
@@ -1557,16 +1497,15 @@
             showLoading('Envoi de la demande...');
 
             try {
-                const requestData = {
+                await db.collection('recharges').add({
                     clientTelephone: userPhone,
                     clientNom: document.getElementById('bookingName').value.trim() || 'Client',
                     amount: amount,
                     source: walletState.rechargeMethod,
                     status: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                await db.collection('recharges').add(requestData);
+                });
+                
                 hideLoading();
                 
                 document.getElementById('walletSuccess').innerHTML = `
@@ -1588,29 +1527,24 @@
         }
 
         function updateWalletBalanceDisplay() {
-            const walletBalanceMini = document.getElementById('walletBalanceMini');
-            if (walletBalanceMini) {
-                walletBalanceMini.textContent = walletState.balance.toLocaleString() + ' FCFA';
-            }
+            const el = document.getElementById('walletBalanceMini');
+            if (el) el.textContent = walletState.balance.toLocaleString() + ' FCFA';
         }
 
         // ===== FONCTIONS GOOGLE MAPS =====
         function initMap() {
             const dakar = { lat: 14.6937, lng: -17.4441 };
-            map = new google.maps.Map(document.getElementById('map'), { 
-                center: dakar, zoom: 12, disableDefaultUI: true, zoomControl: true 
-            });
+            map = new google.maps.Map(document.getElementById('map'), { center: dakar, zoom: 12, disableDefaultUI: true, zoomControl: true });
             geocoder = new google.maps.Geocoder();
             directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer({ 
-                map: map, suppressMarkers: true, 
-                polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } 
-            });
+            directionsRenderer = new google.maps.DirectionsRenderer({ map: map, suppressMarkers: true, polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } });
             trafficLayer = new google.maps.TrafficLayer();
             
-            const searchInput = document.getElementById('searchInput');
-            autocomplete = new google.maps.places.Autocomplete(searchInput, { componentRestrictions: { country: 'sn' } });
-            autocomplete.addListener('place_changed', onPlaceSelected);
+            autocomplete = new google.maps.places.Autocomplete(document.getElementById('searchInput'), { componentRestrictions: { country: 'sn' } });
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.geometry) { map.setCenter(place.geometry.location); map.setZoom(15); }
+            });
             
             initBookingAutocomplete();
             map.addListener('click', handleMapClick);
@@ -1622,10 +1556,7 @@
         }
 
         function initBookingAutocomplete() {
-            const fromInput = document.getElementById('bookingFrom');
-            const toInput = document.getElementById('bookingTo');
-            
-            const autocompleteFrom = new google.maps.places.Autocomplete(fromInput, { componentRestrictions: { country: 'sn' } });
+            const autocompleteFrom = new google.maps.places.Autocomplete(document.getElementById('bookingFrom'), { componentRestrictions: { country: 'sn' } });
             autocompleteFrom.addListener('place_changed', () => {
                 const place = autocompleteFrom.getPlace();
                 if (place.geometry) {
@@ -1635,7 +1566,7 @@
                 }
             });
             
-            const autocompleteTo = new google.maps.places.Autocomplete(toInput, { componentRestrictions: { country: 'sn' } });
+            const autocompleteTo = new google.maps.places.Autocomplete(document.getElementById('bookingTo'), { componentRestrictions: { country: 'sn' } });
             autocompleteTo.addListener('place_changed', () => {
                 const place = autocompleteTo.getPlace();
                 if (place.geometry) {
@@ -1644,11 +1575,6 @@
                     calculateRoute();
                 }
             });
-        }
-
-        function onPlaceSelected() {
-            const place = autocomplete.getPlace();
-            if (place.geometry) { map.setCenter(place.geometry.location); map.setZoom(15); }
         }
 
         function autoDetectLocation() {
@@ -1670,16 +1596,10 @@
 
         function getCurrentPosition() {
             const gpsBtn = event.currentTarget;
-            const fromInput = document.getElementById('bookingFrom');
-            
-            if (!navigator.geolocation) {
-                showNotification('❌ Géolocalisation non disponible', 'error');
-                return;
-            }
+            if (!navigator.geolocation) { showNotification('❌ Géolocalisation non disponible', 'error'); return; }
 
             gpsBtn.classList.add('loading');
             gpsBtn.disabled = true;
-            showNotification('📍 Localisation en cours...', 'info');
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -1690,7 +1610,7 @@
                     
                     geocoder.geocode({ location: userPos }, (results, status) => {
                         if (status === 'OK' && results[0]) {
-                            fromInput.value = results[0].formatted_address;
+                            document.getElementById('bookingFrom').value = results[0].formatted_address;
                             updateMarker('departure', userPos);
                             if (destinationCoords) calculateRoute();
                             
@@ -1716,11 +1636,9 @@
         function initDateTime() {
             const now = new Date();
             now.setMinutes(now.getMinutes() + 30);
-            const dateInput = document.getElementById('bookingDate');
-            const timeInput = document.getElementById('bookingTime');
-            dateInput.min = new Date().toISOString().split('T')[0];
-            dateInput.value = now.toISOString().split('T')[0];
-            timeInput.value = now.toTimeString().slice(0, 5);
+            document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').value = now.toISOString().split('T')[0];
+            document.getElementById('bookingTime').value = now.toTimeString().slice(0, 5);
         }
 
         function findMyLocation() {
@@ -1779,26 +1697,16 @@
         function updateMarker(type, coords) {
             if (type === 'departure') {
                 if (departureMarker) departureMarker.setMap(null);
-                departureMarker = new google.maps.Marker({ 
-                    position: coords, map: map, 
-                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#4CAF50', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 }, 
-                    label: { text: 'A', color: 'white', fontWeight: 'bold' } 
-                });
+                departureMarker = new google.maps.Marker({ position: coords, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#4CAF50', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 }, label: { text: 'A', color: 'white', fontWeight: 'bold' } });
             } else {
                 if (destinationMarker) destinationMarker.setMap(null);
-                destinationMarker = new google.maps.Marker({ 
-                    position: coords, map: map, 
-                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#E30613', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 }, 
-                    label: { text: 'B', color: 'white', fontWeight: 'bold' } 
-                });
+                destinationMarker = new google.maps.Marker({ position: coords, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#E30613', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 }, label: { text: 'B', color: 'white', fontWeight: 'bold' } });
             }
         }
 
         function calculateRoute() {
             if (!departureCoords || !destinationCoords) return;
-            directionsService.route({ 
-                origin: departureCoords, destination: destinationCoords, travelMode: google.maps.TravelMode.DRIVING 
-            }, (result, status) => {
+            directionsService.route({ origin: departureCoords, destination: destinationCoords, travelMode: google.maps.TravelMode.DRIVING }, (result, status) => {
                 if (status === 'OK') directionsRenderer.setDirections(result);
             });
         }
@@ -1835,7 +1743,7 @@
             const time = document.getElementById('bookingTime').value;
             const phone = document.getElementById('bookingPhone').value.trim();
 
-            if (!phone) { showNotification('⚠️ Veuillez vous connecter d\'abord', 'error'); document.getElementById('loginModal').style.display = 'flex'; return; }
+            if (!phone) { showNotification('⚠️ Veuillez vous connecter', 'error'); document.getElementById('loginModal').style.display = 'flex'; return; }
             if (!from || !to || !date || !time) { showNotification('⚠️ Remplissez tous les champs', 'error'); return; }
             if (!selectedVehicle) { showNotification('⚠️ Sélectionnez un véhicule', 'error'); return; }
             if (!selectedPayment) { showNotification('⚠️ Sélectionnez un paiement', 'error'); return; }
@@ -1909,10 +1817,7 @@
 
         // ===== FONCTIONS TRACKING =====
         function openTracking() {
-            const trackingModal = document.getElementById('trackingModal');
-            if (!trackingModal) return;
-            
-            trackingModal.classList.add('active');
+            document.getElementById('trackingModal').classList.add('active');
             document.body.style.overflow = 'hidden';
             
             if (currentBooking) {
@@ -1939,19 +1844,9 @@
         function initTrackingMap() {
             if (!currentBooking || !currentBooking.departCoords) return;
             
-            trackingMap = new google.maps.Map(document.getElementById('trackingMap'), { 
-                center: currentBooking.departCoords, zoom: 14, disableDefaultUI: true, zoomControl: true 
-            });
-            
-            trackingDirectionsRenderer = new google.maps.DirectionsRenderer({ 
-                map: trackingMap, suppressMarkers: true, 
-                polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } 
-            });
-            
-            clientPickupMarker = new google.maps.Marker({ 
-                position: currentBooking.departCoords, map: trackingMap, 
-                icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#4CAF50', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 }
-            });
+            trackingMap = new google.maps.Map(document.getElementById('trackingMap'), { center: currentBooking.departCoords, zoom: 14, disableDefaultUI: true, zoomControl: true });
+            trackingDirectionsRenderer = new google.maps.DirectionsRenderer({ map: trackingMap, suppressMarkers: true, polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
+            clientPickupMarker = new google.maps.Marker({ position: currentBooking.departCoords, map: trackingMap, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#4CAF50', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 } });
         }
 
         function startReservationListener(reservationId) {
@@ -2001,13 +1896,7 @@
         function updateDriverMarker(position) {
             if (!trackingMap) return;
             if (driverMarker) { driverMarker.setPosition(position); } 
-            else { 
-                driverMarker = new google.maps.Marker({ 
-                    position: position, map: trackingMap, 
-                    icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 8, fillColor: '#2196F3', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }, 
-                    zIndex: 100 
-                }); 
-            }
+            else { driverMarker = new google.maps.Marker({ position: position, map: trackingMap, icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 8, fillColor: '#2196F3', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }, zIndex: 100 }); }
         }
 
         function calculateApproachRoute(driverPos) {
@@ -2017,13 +1906,9 @@
                 if (status === 'OK') {
                     if (trackingDirectionsRenderer) trackingDirectionsRenderer.setDirections(result);
                     const leg = result.routes[0].legs[0];
-                    const etaMinutes = Math.ceil(leg.duration.value / 60);
-                    
-                    document.getElementById('driverETA').textContent = etaMinutes;
+                    document.getElementById('driverETA').textContent = Math.ceil(leg.duration.value / 60);
                     document.getElementById('driverDistance').textContent = leg.distance.text;
-                    
-                    const arrivalTime = new Date(Date.now() + leg.duration.value * 1000);
-                    document.getElementById('driverArrivalTime').textContent = arrivalTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    document.getElementById('driverArrivalTime').textContent = new Date(Date.now() + leg.duration.value * 1000).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                     document.getElementById('driverApproachingBox').style.display = 'block';
                 }
             });
@@ -2123,32 +2008,23 @@
 
         function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
 
-        // Diagnostic function
+        // Diagnostic
         function diagWallet() {
-            console.log('=== DIAGNOSTIC PORTEFEUILLE ===');
-            console.log('Solde actuel:', walletState.balance, 'FCFA');
-            console.log('Points fidélité:', walletState.loyaltyPoints);
+            console.log('=== DIAGNOSTIC PORTEFEUILLE v3.7 ===');
+            console.log('Solde:', walletState.balance, 'FCFA');
+            console.log('Nouveau client:', walletState.isNewUser);
+            console.log('Bonus bienvenue:', WELCOME_BONUS, 'FCFA');
             console.log('Transactions:', walletState.transactions.length);
-            console.log('LocalStorage key:', WALLET_STORAGE_KEY);
             const saved = localStorage.getItem(WALLET_STORAGE_KEY);
-            if (saved) {
-                const data = JSON.parse(saved);
-                console.log('Données sauvegardées:', data);
-            } else {
-                console.log('❌ Aucune donnée en localStorage');
-            }
+            console.log('Données localStorage:', saved ? JSON.parse(saved) : 'Aucune');
             return walletState;
         }
         window.diagWallet = diagWallet;
 
         window.initMap = initMap;
 
-        console.log('%c✅ Al Bourakh Client v3.6 - PERSISTANCE CORRIGÉE', 'color: #00A854; font-size: 16px; font-weight: bold');
-        console.log('%c🔒 Le solde est maintenant sauvegardé automatiquement', 'color: #2196F3; font-size: 12px');
-        console.log('%c🛠️ Commandes de debug:', 'color: #f59e0b; font-weight: bold');
-        console.log('  • diagWallet() - Diagnostic complet');
-        console.log('  • saveWalletToLocalStorage() - Forcer une sauvegarde');
-        console.log('  • loadWalletFromLocalStorage() - Recharger depuis localStorage');
+        console.log('%c✅ Al Bourakh Client v3.7 - BONUS 500 FCFA', 'color: #00A854; font-size: 16px; font-weight: bold');
+        console.log('%c🎁 Nouveaux clients: 500 FCFA offerts à la première connexion', 'color: #10b981; font-size: 12px');
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 </body>
