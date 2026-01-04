@@ -308,7 +308,6 @@
         </div>
     </section>
 
-    <!-- WALLET MODAL -->
     <div class="wallet-modal" id="walletModal">
         <div class="wallet-container">
             <div class="wallet-header">
@@ -327,7 +326,6 @@
         </div>
     </div>
 
-    <!-- MAP -->
     <div class="map-container">
         <div class="map-header">
             <div class="map-logo">🚕 Al Bourakh GPS</div>
@@ -343,7 +341,6 @@
         <div id="map"></div>
     </div>
 
-    <!-- BOOKING SECTION -->
     <section class="booking-section">
         <div class="booking-container">
             <div class="booking-header">
@@ -458,7 +455,6 @@
         </div>
     </section>
 
-    <!-- LOGIN MODAL -->
     <div class="modal" id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20000; align-items: center; justify-content: center;">
         <div class="modal-content" style="max-width: 400px; background: white; border-radius: 15px; padding: 30px; text-align: center;">
             <h2 style="color: #00A854; margin-bottom: 20px;">👋 Bienvenue sur Al Bourakh</h2>
@@ -480,7 +476,6 @@
         </div>
     </div>
 
-    <!-- EVALUATION MODAL -->
     <div class="evaluation-modal" id="evaluationModal">
         <div class="evaluation-container">
             <div class="evaluation-header">
@@ -578,7 +573,6 @@
         </div>
     </div>
 
-    <!-- TRACKING MODAL -->
     <div class="tracking-modal" id="trackingModal">
         <div class="tracking-container">
             <div class="tracking-header">
@@ -702,7 +696,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -713,15 +706,99 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v3.8 - STATUTS CORRIGÉS');
+        console.log('🚕 Al Bourakh Client v3.8 - AVEC BIPS SONORES');
 
-        // ===== CONFIGURATION =====
         const WELCOME_BONUS = 500;
         const COMMISSION_RATE = 0.30;
         const DRIVER_RATE = 0.70;
         const WALLET_STORAGE_KEY = 'albourakh_wallet_v3';
 
-        // ===== FONCTIONS UTILITAIRES SÉCURISÉES =====
+        // ===== 🔊 SYSTÈME DE BIPS SONORES =====
+        let audioContext = null;
+        let beepInterval = null;
+        let beepTimeout = null;
+        let beepCount = 0;
+
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+
+        function playBeep(frequency = 800, duration = 200, volume = 0.3) {
+            const ctx = initAudioContext();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration / 1000);
+            
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + duration / 1000);
+        }
+
+        function playBeepSeries(seriesNumber, totalSeries) {
+            const progress = seriesNumber / totalSeries;
+            const frequency = 650 + (progress * 450);
+            const duration = 120;
+            const volume = 0.4 + (progress * 0.5);
+            const beepsInSeries = 4;
+            const delayBetweenBeeps = 150;
+            
+            for (let i = 0; i < beepsInSeries; i++) {
+                setTimeout(() => {
+                    playBeep(frequency, duration, volume);
+                }, i * delayBetweenBeeps);
+            }
+            
+            console.log(`🔔 Série ${seriesNumber}/${totalSeries} - ${beepsInSeries} bips - Fréq: ${frequency.toFixed(0)}Hz, Vol: ${(volume * 100).toFixed(0)}%`);
+        }
+
+        function playNotificationBeeps() {
+            stopNotificationBeeps();
+            
+            beepCount = 0;
+            const maxSeries = 6;
+            const seriesIntervalTime = 5000;
+            const totalDuration = 30000;
+            
+            console.log('🔊 Démarrage des bips sonores (6 séries de 4 bips sur 30 secondes)');
+            
+            const playProgressiveSeries = () => {
+                beepCount++;
+                playBeepSeries(beepCount, maxSeries);
+            };
+            
+            playProgressiveSeries();
+            
+            beepInterval = setInterval(playProgressiveSeries, seriesIntervalTime);
+            
+            beepTimeout = setTimeout(() => {
+                stopNotificationBeeps();
+                console.log('🔊 Fin des bips sonores');
+            }, totalDuration);
+        }
+
+        function stopNotificationBeeps() {
+            if (beepInterval) {
+                clearInterval(beepInterval);
+                beepInterval = null;
+            }
+            if (beepTimeout) {
+                clearTimeout(beepTimeout);
+                beepTimeout = null;
+            }
+            beepCount = 0;
+        }
+
+        // ===== FONCTIONS UTILITAIRES =====
         function safeSetText(elementId, value) {
             const el = document.getElementById(elementId);
             if (el) { el.textContent = value; return true; }
@@ -759,7 +836,6 @@
             return modal && modal.classList.contains('active');
         }
 
-        // ===== WALLET STATE =====
         const DEFAULT_WALLET_STATE = {
             balance: WELCOME_BONUS,
             loyaltyPoints: 0,
@@ -774,8 +850,6 @@
         };
 
         let walletState = { ...DEFAULT_WALLET_STATE };
-
-        // ===== VARIABLES GLOBALES =====
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
         let directionsService, directionsRenderer, trackingDirectionsRenderer;
         let userMarker, departureMarker, destinationMarker, driverMarker, clientPickupMarker;
@@ -791,7 +865,6 @@
         let paymentValidated = false, paymentProcessing = false;
         let globalRechargeListener = null;
 
-        // ===== PERSISTANCE PORTEFEUILLE =====
         function saveWalletToLocalStorage() {
             try {
                 const dataToSave = {
@@ -843,7 +916,6 @@
             }
         }
 
-        // ===== INITIALISATION =====
         window.addEventListener('load', () => {
             loadWalletFromLocalStorage();
             updateWalletBalanceDisplay();
@@ -856,7 +928,6 @@
             console.log('✅ App initialisée - Solde:', walletState.balance, 'FCFA');
         });
 
-        // ===== SYNC RECHARGES =====
         async function syncValidatedRecharges() {
             const userPhone = getUserPhone();
             if (!userPhone) return;
@@ -933,7 +1004,6 @@
                 });
         }
 
-        // ===== LOGIN =====
         function checkLogin() {
             const savedPhone = localStorage.getItem('albourakh_phone');
             const savedName = localStorage.getItem('albourakh_name');
@@ -982,7 +1052,6 @@
             return walletState.userPhone;
         }
 
-        // ===== EVALUATION =====
         function initEvaluationListeners() {
             document.querySelectorAll('#overallRating .star').forEach(star => {
                 star.addEventListener('click', () => {
@@ -1152,7 +1221,6 @@
             }
         }
 
-        // ===== PAYMENT =====
         async function validatePayment() {
             if (!currentBooking || paymentProcessing || paymentValidated) return;
             
@@ -1259,7 +1327,6 @@
             return ['orange', 'wave', 'wallet', 'Orange Money', 'Wave', 'Portefeuille Al Bourakh'].includes(method);
         }
 
-        // ===== WALLET FUNCTIONS =====
         function openWallet() {
             const modal = document.getElementById('walletModal');
             if (modal) modal.classList.add('active');
@@ -1453,7 +1520,6 @@
             safeSetText('walletBalanceMini', walletState.balance.toLocaleString() + ' FCFA');
         }
 
-        // ===== GOOGLE MAPS =====
         function initMap() {
             const dakar = { lat: 14.6937, lng: -17.4441 };
             map = new google.maps.Map(document.getElementById('map'), { center: dakar, zoom: 12, disableDefaultUI: true, zoomControl: true });
@@ -1652,7 +1718,6 @@
             });
         }
 
-        // ===== BOOKING =====
         function selectVehicle(type, price) {
             selectedVehicle = type;
             selectedVehiclePrice = price;
@@ -1766,7 +1831,6 @@
             }
         }
 
-        // ===== TRACKING =====
         function openTracking() {
             const modal = document.getElementById('trackingModal');
             if (modal) modal.classList.add('active');
@@ -1792,6 +1856,7 @@
             document.body.style.overflow = '';
             if (reservationListener) { reservationListener(); reservationListener = null; }
             if (driverListener) { driverListener(); driverListener = null; }
+            stopNotificationBeeps();
         }
 
         function initTrackingMap() {
@@ -1821,11 +1886,8 @@
             });
         }
 
-        // ===== ✅ CORRECTION PRINCIPALE: updateStatusTimeline COMPLÈTE =====
         function updateStatusTimeline(statut) {
             console.log('📊 Statut reçu:', statut);
-            
-            // ✅ Gestion de TOUS les statuts possibles
             
             if (statut === 'chauffeur_en_route' || statut === 'en_route') {
                 safeAddClass('step3Icon', 'active');
@@ -1836,36 +1898,32 @@
             }
             
             if (statut === 'chauffeur_arrive' || statut === 'arrive' || statut === 'chauffeur_sur_place') {
-                // ✅ STEP 4 : Chauffeur arrivé
                 safeAddClass('step4Icon', 'active');
                 safeRemoveClass('step3Icon', 'current');
                 safeSetText('step4Text', '✅ Chauffeur sur place !');
                 safeSetText('step4Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
                 
-                // Mettre à jour l'affichage principal
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">✅ Chauffeur arrivé !</div>
                     <div class="driver-eta" style="font-size: 1.5em; margin-top: 10px;">Votre chauffeur vous attend</div>
                     <div class="driver-eta-label" style="margin-top: 8px;">Montez à bord pour démarrer la course</div>
                 `);
                 
-                // Cacher la route d'approche
                 if (trackingDirectionsRenderer) {
                     trackingDirectionsRenderer.setMap(null);
                 }
                 
                 console.log('✅ Step 4 activé: Chauffeur arrivé');
                 showNotification('✅ Votre chauffeur est arrivé !', 'success');
+                playNotificationBeeps();
             }
             
             if (statut === 'en_cours' || statut === 'course_en_cours') {
-                // ✅ STEP 5 : Course en cours
                 safeAddClass('step5Icon', 'active');
                 safeRemoveClass('step4Icon', 'current');
                 safeSetText('step5Text', 'Direction votre destination');
                 safeSetText('step5Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
                 
-                // Changer le mode de tracking
                 currentTrackingMode = 'course';
                 
                 safeSetHtml('driverApproachingBox', `
@@ -1874,17 +1932,16 @@
                     <div class="driver-eta-label" style="margin-top: 8px;">Bon voyage !</div>
                 `);
                 
-                // Afficher la route vers la destination
                 if (currentBooking?.destinationCoords && lastDriverPosition) {
                     calculateCourseRoute(lastDriverPosition, currentBooking.destinationCoords);
                 }
                 
                 console.log('✅ Step 5 activé: Course en cours');
                 showNotification('🚗 Course en cours - Bon voyage !', 'success');
+                stopNotificationBeeps();
             }
             
             if (statut === 'terminee') {
-                // ✅ Course terminée
                 safeAddClass('step5Icon', 'active');
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">🎉 Course terminée!</div>
@@ -1892,10 +1949,10 @@
                 `);
                 showPaymentButton();
                 console.log('✅ Course terminée - Affichage paiement');
+                stopNotificationBeeps();
             }
         }
 
-        // ===== ✅ NOUVELLE FONCTION: calculateCourseRoute =====
         function calculateCourseRoute(driverPos, destinationPos) {
             if (!directionsService || !trackingDirectionsRenderer) return;
             if (!isTrackingModalOpen()) return;
@@ -2061,7 +2118,6 @@
             if (section) section.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ===== NOTIFICATIONS & LOADING =====
         function showNotification(msg, type = 'info') {
             const notif = document.createElement('div');
             notif.className = `notification ${type}`;
@@ -2084,7 +2140,6 @@
             if (overlay) overlay.style.display = 'none';
         }
 
-        // ===== EXPORTS =====
         window.openWallet = openWallet;
         window.closeWallet = closeWallet;
         window.showWalletScreen = showWalletScreen;
@@ -2093,7 +2148,6 @@
         window.syncValidatedRecharges = syncValidatedRecharges;
         window.initMap = initMap;
 
-        // ===== DIAGNOSTIC =====
         function diagWallet() {
             console.log('=== DIAGNOSTIC v3.8 ===');
             console.log('Solde:', walletState.balance, 'FCFA');
@@ -2103,8 +2157,8 @@
         }
         window.diagWallet = diagWallet;
 
-        console.log('%c✅ Al Bourakh Client v3.8 - STATUTS CORRIGÉS', 'color: #00A854; font-size: 16px; font-weight: bold');
-        console.log('%c🔧 Corrections: updateStatusTimeline complète + calculateCourseRoute', 'color: #2196F3; font-size: 12px');
+        console.log('%c✅ Al Bourakh Client v3.8 - AVEC BIPS SONORES', 'color: #00A854; font-size: 16px; font-weight: bold');
+        console.log('%c🔊 Bips sonores: 6 séries de 4 bips sur 30 secondes (Vol: 40%-90%)', 'color: #2196F3; font-size: 12px');
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 </body>
