@@ -713,7 +713,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v3.8 - CORRIGÉ');
+        console.log('🚕 Al Bourakh Client v3.8 - STATUTS CORRIGÉS');
 
         // ===== CONFIGURATION =====
         const WELCOME_BONUS = 500;
@@ -1605,7 +1605,6 @@
             showNotification(`🗺️ Cliquez sur la carte pour ${type === 'from' ? 'le départ' : 'la destination'}`, 'info');
             map.getDiv().style.cursor = 'crosshair';
             
-            // ✅ Auto-scroll vers la carte
             const mapContainer = document.querySelector('.map-container');
             if (mapContainer) {
                 mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1822,15 +1821,104 @@
             });
         }
 
+        // ===== ✅ CORRECTION PRINCIPALE: updateStatusTimeline COMPLÈTE =====
         function updateStatusTimeline(statut) {
+            console.log('📊 Statut reçu:', statut);
+            
+            // ✅ Gestion de TOUS les statuts possibles
+            
+            if (statut === 'chauffeur_en_route' || statut === 'en_route') {
+                safeAddClass('step3Icon', 'active');
+                safeRemoveClass('step3Icon', 'current');
+                safeSetText('step3Text', 'Le chauffeur est en route');
+                safeSetText('step3Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+                console.log('✅ Step 3 activé: Chauffeur en route');
+            }
+            
+            if (statut === 'chauffeur_arrive' || statut === 'arrive' || statut === 'chauffeur_sur_place') {
+                // ✅ STEP 4 : Chauffeur arrivé
+                safeAddClass('step4Icon', 'active');
+                safeRemoveClass('step3Icon', 'current');
+                safeSetText('step4Text', '✅ Chauffeur sur place !');
+                safeSetText('step4Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+                
+                // Mettre à jour l'affichage principal
+                safeSetHtml('driverApproachingBox', `
+                    <div class="driver-approaching-title">✅ Chauffeur arrivé !</div>
+                    <div class="driver-eta" style="font-size: 1.5em; margin-top: 10px;">Votre chauffeur vous attend</div>
+                    <div class="driver-eta-label" style="margin-top: 8px;">Montez à bord pour démarrer la course</div>
+                `);
+                
+                // Cacher la route d'approche
+                if (trackingDirectionsRenderer) {
+                    trackingDirectionsRenderer.setMap(null);
+                }
+                
+                console.log('✅ Step 4 activé: Chauffeur arrivé');
+                showNotification('✅ Votre chauffeur est arrivé !', 'success');
+            }
+            
+            if (statut === 'en_cours' || statut === 'course_en_cours') {
+                // ✅ STEP 5 : Course en cours
+                safeAddClass('step5Icon', 'active');
+                safeRemoveClass('step4Icon', 'current');
+                safeSetText('step5Text', 'Direction votre destination');
+                safeSetText('step5Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+                
+                // Changer le mode de tracking
+                currentTrackingMode = 'course';
+                
+                safeSetHtml('driverApproachingBox', `
+                    <div class="driver-approaching-title">🚗 Course en cours</div>
+                    <div class="driver-eta" style="font-size: 1.5em; margin-top: 10px;">Direction votre destination</div>
+                    <div class="driver-eta-label" style="margin-top: 8px;">Bon voyage !</div>
+                `);
+                
+                // Afficher la route vers la destination
+                if (currentBooking?.destinationCoords && lastDriverPosition) {
+                    calculateCourseRoute(lastDriverPosition, currentBooking.destinationCoords);
+                }
+                
+                console.log('✅ Step 5 activé: Course en cours');
+                showNotification('🚗 Course en cours - Bon voyage !', 'success');
+            }
+            
             if (statut === 'terminee') {
+                // ✅ Course terminée
                 safeAddClass('step5Icon', 'active');
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">🎉 Course terminée!</div>
                     <div class="driver-eta" style="font-size: 1.2em;">Validez votre paiement</div>
                 `);
                 showPaymentButton();
+                console.log('✅ Course terminée - Affichage paiement');
             }
+        }
+
+        // ===== ✅ NOUVELLE FONCTION: calculateCourseRoute =====
+        function calculateCourseRoute(driverPos, destinationPos) {
+            if (!directionsService || !trackingDirectionsRenderer) return;
+            if (!isTrackingModalOpen()) return;
+            
+            directionsService.route({
+                origin: driverPos,
+                destination: destinationPos,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (!isTrackingModalOpen()) return;
+                
+                if (status === 'OK') {
+                    trackingDirectionsRenderer.setDirections(result);
+                    const leg = result.routes[0].legs[0];
+                    
+                    safeSetText('driverETA', Math.ceil(leg.duration.value / 60));
+                    safeSetText('driverDistance', leg.distance.text);
+                    
+                    const arrivalTime = new Date(Date.now() + leg.duration.value * 1000)
+                        .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    safeSetText('driverArrivalTime', arrivalTime);
+                }
+            });
         }
 
         function startDriverTracking(driverId) {
@@ -1838,8 +1926,6 @@
             
             driverListener = db.collection('drivers').doc(driverId).onSnapshot((doc) => {
                 if (!doc.exists) return;
-                
-                // ✅ CORRECTION: Vérifier que le modal est ouvert
                 if (!isTrackingModalOpen()) return;
                 
                 const driverData = doc.data();
@@ -1848,7 +1934,13 @@
                     const driverPos = { lat: driverData.position.latitude, lng: driverData.position.longitude };
                     lastDriverPosition = driverPos;
                     updateDriverMarker(driverPos);
-                    if (currentTrackingMode === 'approche') calculateApproachRoute(driverPos);
+                    
+                    if (currentTrackingMode === 'approche') {
+                        calculateApproachRoute(driverPos);
+                    } else if (currentTrackingMode === 'course' && currentBooking?.destinationCoords) {
+                        calculateCourseRoute(driverPos, currentBooking.destinationCoords);
+                    }
+                    
                     updateStep3();
                 }
             });
@@ -1860,11 +1952,8 @@
             else { driverMarker = new google.maps.Marker({ position: position, map: trackingMap, icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 8, fillColor: '#2196F3', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }, zIndex: 100 }); }
         }
 
-        // ✅ CORRECTION PRINCIPALE: calculateApproachRoute avec vérifications null
         function calculateApproachRoute(driverPos) {
             if (!currentBooking?.departCoords || !directionsService) return;
-            
-            // ✅ Vérifier que le modal de tracking est ouvert
             if (!isTrackingModalOpen()) {
                 console.log('⚠️ Tracking modal closed, skipping route calculation');
                 return;
@@ -1875,14 +1964,12 @@
                 destination: currentBooking.departCoords,
                 travelMode: google.maps.TravelMode.DRIVING
             }, (result, status) => {
-                // ✅ Revérifier après le callback asynchrone
                 if (!isTrackingModalOpen()) return;
                 
                 if (status === 'OK') {
                     if (trackingDirectionsRenderer) trackingDirectionsRenderer.setDirections(result);
                     const leg = result.routes[0].legs[0];
                     
-                    // ✅ Utiliser les fonctions sécurisées
                     safeSetText('driverETA', Math.ceil(leg.duration.value / 60));
                     safeSetText('driverDistance', leg.distance.text);
                     
@@ -2016,8 +2103,8 @@
         }
         window.diagWallet = diagWallet;
 
-        console.log('%c✅ Al Bourakh Client v3.8 - CORRIGÉ', 'color: #00A854; font-size: 16px; font-weight: bold');
-        console.log('%c🔧 Corrections: null checks, safe DOM updates', 'color: #2196F3; font-size: 12px');
+        console.log('%c✅ Al Bourakh Client v3.8 - STATUTS CORRIGÉS', 'color: #00A854; font-size: 16px; font-weight: bold');
+        console.log('%c🔧 Corrections: updateStatusTimeline complète + calculateCourseRoute', 'color: #2196F3; font-size: 12px');
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 </body>
