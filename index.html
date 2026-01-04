@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh - VTC & Paiement v3.7</title>
+    <title>Al Bourakh - VTC & Paiement v3.8</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -34,9 +34,7 @@
         .wallet-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
         .btn-wallet { flex: 1; padding: 0.75rem; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         .btn-wallet.primary { background: white; color: #2563eb; }
-        .btn-wallet.primary:hover { background: #eff6ff; }
         .btn-wallet.secondary { background: #3b82f6; color: white; }
-        .btn-wallet.secondary:hover { background: #60a5fa; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
         .stat-card { background: white; border-radius: 0.75rem; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -51,78 +49,62 @@
         .loyalty-card { background: linear-gradient(to right, #fbbf24 0%, #f97316 100%); border-radius: 0.75rem; padding: 1rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .loyalty-points { font-size: 1.875rem; font-weight: 700; color: white; margin-top: 0.25rem; }
         .loyalty-label { color: white; font-size: 0.875rem; font-weight: 500; }
-        .loyalty-badge { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 0.5rem 1rem; color: white; font-size: 0.75rem; }
+        .loyalty-badge { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 0.5rem 1rem; color: white; font-size: 0.75rem; }
 
         .welcome-bonus { background: linear-gradient(135deg, #10b981, #059669); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; color: white; text-align: center; }
         .welcome-bonus h4 { font-size: 1rem; margin-bottom: 0.5rem; }
         .welcome-bonus p { font-size: 0.85rem; opacity: 0.9; }
 
         .card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; }
-        .section-header h3 { font-size: 1.125rem; font-weight: 700; color: #111827; }
-        .btn-link { color: #2563eb; font-size: 0.875rem; font-weight: 500; text-decoration: none; cursor: pointer; }
-
-        .transaction-list { border-top: 1px solid #f3f4f6; }
-        .transaction-item { padding: 1rem; border-bottom: 1px solid #f3f4f6; transition: background 0.2s; cursor: pointer; }
-        .transaction-item:hover { background: #f9fafb; }
-        .transaction-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
-        .transaction-route { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #111827; margin-bottom: 0.25rem; }
-        .transaction-driver { font-size: 0.75rem; color: #6b7280; }
-        .transaction-amount { font-size: 1.125rem; font-weight: 700; color: #111827; text-align: right; }
-        .transaction-tip { font-size: 0.75rem; color: #16a34a; }
-        .transaction-footer { display: flex; justify-content: space-between; align-items: center; }
-        .transaction-date { font-size: 0.75rem; color: #6b7280; }
-        .transaction-badge { font-size: 0.75rem; background: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 9999px; }
-        .transaction-badge.pending { background: #fef3c7; color: #92400e; }
-        .transaction-badge.rejected { background: #fee2e2; color: #991b1b; }
-
-        .amount-input-container { position: relative; margin-bottom: 1rem; }
-        .amount-input { width: 100%; padding: 1rem; font-size: 1.5rem; font-weight: 700; text-align: center; border: 2px solid #e5e7eb; border-radius: 0.75rem; }
-        .amount-input:focus { outline: none; border-color: #2563eb; }
-        .amount-currency { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #9ca3af; font-weight: 500; }
-        .quick-amounts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-        .quick-amount-btn { padding: 0.75rem; border: none; border-radius: 0.5rem; background: #f3f4f6; color: #374151; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-        .quick-amount-btn:hover { background: #eff6ff; color: #2563eb; }
-
-        .payment-method-wallet { width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.75rem; background: white; margin-bottom: 0.75rem; cursor: pointer; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .payment-method-wallet:hover:not(:disabled) { border-color: #d1d5db; }
-        .payment-method-wallet.active { border-color: #2563eb; background: #eff6ff; }
-        .payment-method-wallet:disabled { opacity: 0.5; cursor: not-allowed; }
-        .payment-method-content { display: flex; align-items: center; gap: 0.75rem; }
-        .payment-method-icon { font-size: 1.5rem; }
-        .payment-method-name { font-weight: 500; color: #111827; }
-
-        .btn-primary-wallet { width: 100%; padding: 0.75rem; border: none; border-radius: 0.5rem; color: white; font-weight: 500; font-size: 1rem; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transition: all 0.2s; background: #2563eb; }
-        .btn-primary-wallet:hover { background: #1d4ed8; }
-
-        .success-screen { min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .success-icon { background: #dcfce7; width: 6rem; height: 6rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 3rem; color: #16a34a; }
-        .success-title { font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem; }
-        .success-message { color: #6b7280; }
-
-        .pending-icon { background: #fef3c7; color: #f59e0b; }
-        .pending-title { color: #f59e0b; }
-
-        .wallet-screen { display: none; }
-        .wallet-screen.active { display: block; }
-
-        .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; margin-right: 10px; }
 
         .pending-requests-alert { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
         .pending-requests-alert i { font-size: 1.5rem; color: #f59e0b; }
         .pending-requests-info h4 { font-weight: 600; color: #92400e; margin-bottom: 0.25rem; }
         .pending-requests-info p { font-size: 0.85rem; color: #78350f; }
 
+        .amount-input-container { position: relative; margin-bottom: 1rem; }
+        .amount-input { width: 100%; padding: 1rem; font-size: 1.5rem; font-weight: 700; text-align: center; border: 2px solid #e5e7eb; border-radius: 0.75rem; }
+        .amount-input:focus { outline: none; border-color: #2563eb; }
+        .amount-currency { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #9ca3af; }
+        .quick-amounts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        .quick-amount-btn { padding: 0.75rem; border: none; border-radius: 0.5rem; background: #f3f4f6; color: #374151; font-weight: 500; cursor: pointer; }
+
+        .payment-method-wallet { width: 100%; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.75rem; background: white; margin-bottom: 0.75rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .payment-method-wallet.active { border-color: #2563eb; background: #eff6ff; }
+        .payment-method-content { display: flex; align-items: center; gap: 0.75rem; }
+        .payment-method-icon { font-size: 1.5rem; }
+        .payment-method-name { font-weight: 500; color: #111827; }
+
+        .btn-primary-wallet { width: 100%; padding: 0.75rem; border: none; border-radius: 0.5rem; color: white; font-weight: 500; cursor: pointer; background: #2563eb; }
+
+        .transaction-list { border-top: 1px solid #f3f4f6; }
+        .transaction-item { padding: 1rem; border-bottom: 1px solid #f3f4f6; }
+        .transaction-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .transaction-route { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #111827; }
+        .transaction-driver { font-size: 0.75rem; color: #6b7280; }
+        .transaction-amount { font-size: 1.125rem; font-weight: 700; }
+        .transaction-footer { display: flex; justify-content: space-between; align-items: center; }
+        .transaction-date { font-size: 0.75rem; color: #6b7280; }
+        .transaction-badge { font-size: 0.75rem; background: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 9999px; }
+
+        .success-screen { min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .success-icon { background: #dcfce7; width: 6rem; height: 6rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 3rem; color: #16a34a; }
+        .pending-icon { background: #fef3c7; color: #f59e0b; }
+        .pending-title { color: #f59e0b; }
+
+        .wallet-screen { display: none; }
+        .wallet-screen.active { display: block; }
+        .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; margin-right: 10px; }
+
         .map-container { max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
         .map-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .map-logo { font-size: 1.1em; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; }
-        .search-container { position: relative; flex: 1; min-width: 200px; max-width: 100%; }
+        .search-container { position: relative; flex: 1; min-width: 200px; }
         .search-input { width: 100%; padding: 10px 35px 10px 12px; border: none; border-radius: 8px; font-size: 0.95em; }
-        .search-input:focus { outline: none; box-shadow: 0 0 8px rgba(0,0,0,0.2); }
+        .search-input:focus { outline: none; }
         .search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #00A854; }
-        .map-controls { display: flex; gap: 6px; flex-wrap: wrap; }
-        .map-btn { padding: 8px 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.85em; transition: all 0.3s; white-space: nowrap; }
-        .map-btn:hover { transform: translateY(-2px); }
+        .map-controls { display: flex; gap: 6px; }
+        .map-btn { padding: 8px 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.85em; }
         .btn-primary { background: #00A854; color: white; }
         .btn-secondary { background: #2196F3; color: white; }
         .btn-outline { background: white; color: #333; }
@@ -132,49 +114,42 @@
         .booking-container { background: white; border-radius: 15px; padding: 25px 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
         .booking-header { text-align: center; margin-bottom: 25px; }
         .booking-header h2 { font-size: 1.6em; color: #00A854; margin-bottom: 8px; }
-        .booking-header p { color: #666; font-size: 0.95em; }
+        .booking-header p { color: #666; }
         .booking-form { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-weight: 600; color: #333; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; font-size: 0.95em; }
-        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 0.95em; transition: all 0.3s; width: 100%; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #00A854; }
+        .form-group label { font-weight: 600; color: #333; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+        .form-group input, .form-group select { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 0.95em; width: 100%; }
+        .form-group input:focus { outline: none; border-color: #00A854; }
         .input-with-button { display: flex; gap: 6px; width: 100%; }
         .input-with-button input { flex: 1; min-width: 0; }
-        .btn-map-select { padding: 12px 10px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 0.85em; flex-shrink: 0; }
-        .btn-map-select:hover { transform: scale(1.02); }
+        .btn-map-select { padding: 12px 10px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 0.85em; }
         .btn-gps { background: linear-gradient(135deg, #2196F3, #00BCD4); }
         .btn-gps.loading i { animation: spin 1s linear infinite; }
         .btn-gps.success { background: linear-gradient(135deg, #4CAF50, #8BC34A); }
-        .btn-gps.error { background: linear-gradient(135deg, #E30613, #F44336); }
         .datetime-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         .vehicle-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
-        .vehicle-option { border: 2px solid #ddd; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
-        .vehicle-option:hover { border-color: #FECB00; }
+        .vehicle-option { border: 2px solid #ddd; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; background: #f9f9f9; }
         .vehicle-option.selected { border-color: #00A854; background: #e8f5e9; }
         .vehicle-option-icon { font-size: 1.8em; margin-bottom: 6px; }
         .vehicle-option-name { font-weight: bold; font-size: 0.85em; }
         .vehicle-option-price { color: #00A854; font-weight: bold; font-size: 0.8em; margin-top: 4px; }
 
         .payment-methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
-        .payment-method { padding: 10px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9f9; }
-        .payment-method:hover { border-color: #FECB00; }
+        .payment-method { padding: 10px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; background: #f9f9f9; }
         .payment-method.selected { border-color: #00A854; background: #e8f5e9; }
         .payment-method-icon { font-size: 1.3em; margin-bottom: 4px; }
         .payment-method-name { font-size: 0.75em; font-weight: 600; }
         .payment-method.wallet-option { background: linear-gradient(135deg, #eff6ff, #e0e7ff); border-color: #2563eb; }
-        .payment-method.wallet-option .payment-method-icon { color: #2563eb; }
         .wallet-balance-mini { font-size: 0.65em; color: #16a34a; font-weight: bold; }
 
         .booking-summary { background: linear-gradient(135deg, #00A854, #FECB00); padding: 20px 15px; border-radius: 12px; color: white; margin-top: 20px; display: none; }
         .summary-title { font-size: 1.2em; font-weight: bold; margin-bottom: 12px; text-align: center; }
         .summary-items { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-        .summary-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; gap: 10px; }
-        .summary-item span:last-child { text-align: right; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
         .summary-total { background: rgba(255,255,255,0.3); padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 1.1em; font-weight: bold; }
         .booking-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .btn-book { padding: 14px 10px; font-size: 1em; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s; }
-        .btn-book:hover { transform: scale(1.02); }
+        .btn-book { padding: 14px 10px; font-size: 1em; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-book-primary { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
         .btn-book-secondary { background: white; color: #00A854; border: 2px solid #00A854; }
 
@@ -188,8 +163,7 @@
         #trackingMap { height: 280px; width: 100%; }
         .tracking-info { padding: 15px; }
         
-        .route-mode-badge { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 10px 15px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .route-mode-badge.course-mode { background: linear-gradient(135deg, #00A854, #FECB00); }
+        .route-mode-badge { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 10px 15px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; font-weight: bold; display: none; align-items: center; justify-content: center; gap: 8px; }
         
         .driver-approaching-box { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; }
         .driver-approaching-title { font-size: 0.95em; opacity: 0.9; margin-bottom: 8px; }
@@ -207,19 +181,18 @@
         .status-icon.active { background: #00A854; color: white; }
         .status-icon.current { background: #2196F3; color: white; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .status-text { flex: 1; min-width: 0; }
+        .status-text { flex: 1; }
         .status-text h4 { font-size: 0.9em; color: #333; margin-bottom: 2px; }
         .status-text p { font-size: 0.75em; color: #666; }
-        .status-time { font-size: 0.75em; color: #999; flex-shrink: 0; }
+        .status-time { font-size: 0.75em; color: #999; }
 
-        .driver-card { background: white; border: 2px solid #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .driver-card { background: white; border: 2px solid #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: none; }
         .driver-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .driver-avatar { width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6em; color: white; flex-shrink: 0; overflow: hidden; }
+        .driver-avatar { width: 55px; height: 55px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6em; color: white; overflow: hidden; }
         .driver-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .driver-info { flex: 1; min-width: 0; }
+        .driver-info { flex: 1; }
         .driver-info h3 { font-size: 1em; color: #333; margin-bottom: 4px; }
         .driver-info p { font-size: 0.85em; color: #666; }
-        .driver-rating { color: #FFC107; }
         .driver-vehicle { background: #f5f5f5; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .vehicle-info { display: flex; align-items: center; gap: 8px; }
         .vehicle-icon { font-size: 1.4em; }
@@ -233,23 +206,20 @@
         .trip-details h3 { font-size: 0.95em; color: #333; margin-bottom: 12px; }
         .trip-route { display: flex; flex-direction: column; gap: 12px; }
         .trip-point { display: flex; align-items: flex-start; gap: 10px; }
-        .trip-point-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85em; color: white; flex-shrink: 0; }
+        .trip-point-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85em; color: white; }
         .trip-point-icon.start { background: #4CAF50; }
         .trip-point-icon.end { background: #E30613; }
-        .trip-point-text { flex: 1; min-width: 0; }
+        .trip-point-text { flex: 1; }
         .trip-point-label { font-size: 0.7em; color: #666; text-transform: uppercase; }
-        .trip-point-address { font-size: 0.9em; color: #333; font-weight: 500; word-wrap: break-word; }
+        .trip-point-address { font-size: 0.9em; color: #333; font-weight: 500; }
         .trip-connector { width: 2px; height: 20px; background: #ddd; margin-left: 13px; }
         .trip-price { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 2px dashed #ddd; }
         .trip-price-label { font-size: 0.85em; color: #666; }
         .trip-price-value { font-size: 1.3em; font-weight: bold; color: #00A854; }
 
-        .validate-payment-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #9333ea, #7c3aed); border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 12px; font-size: 1.1em; display: none; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4); animation: pulseGlow 2s infinite; }
-        .validate-payment-btn:hover { transform: scale(1.02); box-shadow: 0 12px 30px rgba(124, 58, 237, 0.5); }
-        .validate-payment-btn:disabled { opacity: 0.6; cursor: not-allowed; animation: none; }
-        .validate-payment-btn.processing { background: linear-gradient(135deg, #6b7280, #4b5563); animation: none; }
-        .validate-payment-btn.success { background: linear-gradient(135deg, #10b981, #059669); animation: none; }
-        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4); } 50% { box-shadow: 0 8px 35px rgba(124, 58, 237, 0.6); } }
+        .validate-payment-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #9333ea, #7c3aed); border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 12px; font-size: 1.1em; display: none; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 25px rgba(124,58,237,0.4); }
+        .validate-payment-btn.processing { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        .validate-payment-btn.success { background: linear-gradient(135deg, #10b981, #059669); }
 
         .payment-info-box { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b; padding: 12px; border-radius: 10px; margin-bottom: 15px; display: none; }
         .payment-info-box.show { display: block; }
@@ -257,19 +227,18 @@
         .payment-info-text { font-size: 0.85em; color: #78350f; }
         .payment-info-amount { font-size: 1.3em; font-weight: bold; color: #b45309; margin-top: 8px; }
 
-        .cancel-booking-btn { width: 100%; padding: 14px; background: #f5f5f5; border: 2px solid #E30613; color: #E30613; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 0.95em; }
+        .cancel-booking-btn { width: 100%; padding: 14px; background: #f5f5f5; border: 2px solid #E30613; color: #E30613; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 8px; }
         .cancel-booking-btn:hover { background: #E30613; color: white; }
 
         .evaluation-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10005; display: none; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
         .evaluation-modal.active { display: flex; }
         .evaluation-container { background: white; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
         .evaluation-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 20px 15px; color: white; text-align: center; border-radius: 15px 15px 0 0; }
-        .evaluation-header h2 { font-size: 1.4em; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .evaluation-header p { font-size: 0.9em; opacity: 0.95; }
+        .evaluation-header h2 { font-size: 1.4em; margin-bottom: 8px; }
         .evaluation-content { padding: 20px 15px; }
         
         .evaluation-driver-summary { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .evaluation-driver-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: white; flex-shrink: 0; overflow: hidden; }
+        .evaluation-driver-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: white; overflow: hidden; }
         .evaluation-driver-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .evaluation-driver-info h3 { font-size: 1em; color: #333; margin-bottom: 4px; }
         .evaluation-driver-info p { font-size: 0.85em; color: #666; }
@@ -288,8 +257,8 @@
         .criteria-label { font-size: 0.9em; color: #333; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         .criteria-value { font-size: 0.85em; color: #00A854; font-weight: bold; }
         .criteria-stars { display: flex; gap: 4px; }
-        .criteria-star { font-size: 1.2em; color: #ddd; cursor: pointer; transition: all 0.2s; }
-        .criteria-star:hover, .criteria-star.active { color: #FFC107; }
+        .criteria-star { font-size: 1.2em; color: #ddd; cursor: pointer; }
+        .criteria-star.active { color: #FFC107; }
         
         .comment-section { margin-bottom: 20px; }
         .comment-section h3 { font-size: 1em; color: #333; margin-bottom: 10px; }
@@ -298,12 +267,12 @@
         .comment-counter { text-align: right; font-size: 0.8em; color: #999; margin-top: 4px; }
         
         .evaluation-actions { display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #e0e0e0; }
-        .evaluation-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 1em; cursor: pointer; transition: all 0.3s; }
+        .evaluation-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 1em; cursor: pointer; }
         .btn-skip { background: #f5f5f5; color: #666; }
         .btn-submit-evaluation { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
         .btn-submit-evaluation:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .notification { position: fixed; top: 15px; right: 15px; left: 15px; max-width: 400px; margin: 0 auto; padding: 12px 20px; border-radius: 10px; color: white; font-weight: 600; z-index: 10001; animation: slideIn 0.3s; box-shadow: 0 8px 25px rgba(0,0,0,0.3); font-size: 0.9em; }
+        .notification { position: fixed; top: 15px; right: 15px; left: 15px; max-width: 400px; margin: 0 auto; padding: 12px 20px; border-radius: 10px; color: white; font-weight: 600; z-index: 10001; animation: slideIn 0.3s; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
         @keyframes slideIn { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .notification.success { background: #4CAF50; }
         .notification.error { background: #E30613; }
@@ -317,18 +286,9 @@
         .hidden { display: none !important; }
 
         @media (max-width: 768px) {
-            body { font-size: 14px; }
-            .hero-section { padding: 30px 12px; }
-            .hero-cta { margin-bottom: 10px; }
             .payment-methods { grid-template-columns: repeat(2, 1fr); }
             #map { height: 320px; }
-            .wallet-container { margin: 5px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        
-        @media (max-width: 380px) {
-            .hero-title { font-size: 1.4em; }
-            .payment-methods { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -343,22 +303,17 @@
         <h1 class="hero-title"><i class="fas fa-route"></i> Al Bourakh</h1>
         <p class="hero-subtitle">🚕 Transport VTC • Paiement Intégré • 24/7</p>
         <div>
-            <button class="hero-cta" onclick="scrollToBooking()">
-                <i class="fas fa-car"></i> Réserver
-            </button>
-            <button class="hero-cta wallet-btn" onclick="openWallet()">
-                <i class="fas fa-wallet"></i> Mon Portefeuille
-            </button>
+            <button class="hero-cta" onclick="scrollToBooking()"><i class="fas fa-car"></i> Réserver</button>
+            <button class="hero-cta wallet-btn" onclick="openWallet()"><i class="fas fa-wallet"></i> Mon Portefeuille</button>
         </div>
     </section>
 
+    <!-- WALLET MODAL -->
     <div class="wallet-modal" id="walletModal">
         <div class="wallet-container">
             <div class="wallet-header">
                 <div style="display: flex; align-items: center;">
-                    <button class="back-btn hidden" id="walletBackBtn" onclick="showWalletScreen('dashboard')">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
+                    <button class="back-btn hidden" id="walletBackBtn" onclick="showWalletScreen('dashboard')"><i class="fas fa-arrow-left"></i></button>
                     <h2><i class="fas fa-wallet"></i> <span id="walletTitle">Mon Portefeuille</span></h2>
                 </div>
                 <button class="wallet-close" onclick="closeWallet()">×</button>
@@ -372,6 +327,7 @@
         </div>
     </div>
 
+    <!-- MAP -->
     <div class="map-container">
         <div class="map-header">
             <div class="map-logo">🚕 Al Bourakh GPS</div>
@@ -380,17 +336,14 @@
                 <i class="fas fa-search search-icon"></i>
             </div>
             <div class="map-controls">
-                <button class="map-btn btn-secondary" onclick="findMyLocation()">
-                    <i class="fas fa-location-arrow"></i> Position
-                </button>
-                <button class="map-btn btn-outline" onclick="toggleTraffic()">
-                    <i class="fas fa-traffic-light"></i> Trafic
-                </button>
+                <button class="map-btn btn-secondary" onclick="findMyLocation()"><i class="fas fa-location-arrow"></i> Position</button>
+                <button class="map-btn btn-outline" onclick="toggleTraffic()"><i class="fas fa-traffic-light"></i> Trafic</button>
             </div>
         </div>
         <div id="map"></div>
     </div>
 
+    <!-- BOOKING SECTION -->
     <section class="booking-section">
         <div class="booking-container">
             <div class="booking-header">
@@ -403,21 +356,17 @@
                     <label><i class="fas fa-map-marker-alt"></i> Point de départ</label>
                     <div class="input-with-button">
                         <input type="text" id="bookingFrom" required placeholder="Votre position...">
-                        <button type="button" class="btn-map-select btn-gps" onclick="getCurrentPosition()" title="Utiliser ma position actuelle">
+                        <button type="button" class="btn-map-select btn-gps" onclick="getCurrentPosition()" title="Utiliser ma position">
                             <i class="fas fa-crosshairs" id="gpsIcon"></i> GPS
                         </button>
-                        <button type="button" class="btn-map-select" onclick="selectOnMap('from')">
-                            <i class="fas fa-map"></i> Carte
-                        </button>
+                        <button type="button" class="btn-map-select" onclick="selectOnMap('from')"><i class="fas fa-map"></i> Carte</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-flag-checkered"></i> Destination</label>
                     <div class="input-with-button">
                         <input type="text" id="bookingTo" required placeholder="Où allez-vous?">
-                        <button type="button" class="btn-map-select" onclick="selectOnMap('to')">
-                            <i class="fas fa-map"></i> Carte
-                        </button>
+                        <button type="button" class="btn-map-select" onclick="selectOnMap('to')"><i class="fas fa-map"></i> Carte</button>
                     </div>
                 </div>
                 
@@ -443,9 +392,7 @@
             </form>
 
             <div style="margin-top: 25px;">
-                <h3 style="text-align: center; color: #00A854; margin-bottom: 12px; font-size: 1.1em;">
-                    <i class="fas fa-car"></i> Type de véhicule
-                </h3>
+                <h3 style="text-align: center; color: #00A854; margin-bottom: 12px;"><i class="fas fa-car"></i> Type de véhicule</h3>
                 <div class="vehicle-options">
                     <div class="vehicle-option" onclick="selectVehicle('standard', 1500)">
                         <div class="vehicle-option-icon">🚗</div>
@@ -471,9 +418,7 @@
             </div>
 
             <div style="margin-top: 25px;">
-                <h3 style="text-align: center; color: #00A854; margin-bottom: 12px; font-size: 1.1em;">
-                    <i class="fas fa-credit-card"></i> Paiement
-                </h3>
+                <h3 style="text-align: center; color: #00A854; margin-bottom: 12px;"><i class="fas fa-credit-card"></i> Paiement</h3>
                 <div class="payment-methods" id="paymentMethods">
                     <div class="payment-method" onclick="selectPayment('cash')">
                         <div class="payment-method-icon">💵</div>
@@ -503,24 +448,17 @@
                     <div class="summary-item"><span>Véhicule:</span><span id="summaryVehicle">-</span></div>
                     <div class="summary-item"><span>Paiement:</span><span id="summaryPayment">-</span></div>
                 </div>
-                <div class="summary-total">
-                    <span>Total estimé:</span>
-                    <span id="summaryTotal">0 FCFA</span>
-                </div>
+                <div class="summary-total"><span>Total estimé:</span><span id="summaryTotal">0 FCFA</span></div>
             </div>
 
             <div class="booking-actions">
-                <button type="button" class="btn-book btn-book-secondary" onclick="previewBooking()">
-                    <i class="fas fa-eye"></i> Aperçu
-                </button>
-                <button type="button" class="btn-book btn-book-primary" onclick="confirmBooking()">
-                    <i class="fas fa-check"></i> Confirmer
-                </button>
+                <button type="button" class="btn-book btn-book-secondary" onclick="previewBooking()"><i class="fas fa-eye"></i> Aperçu</button>
+                <button type="button" class="btn-book btn-book-primary" onclick="confirmBooking()"><i class="fas fa-check"></i> Confirmer</button>
             </div>
         </div>
     </section>
 
-    <!-- MODAL CONNEXION -->
+    <!-- LOGIN MODAL -->
     <div class="modal" id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20000; align-items: center; justify-content: center;">
         <div class="modal-content" style="max-width: 400px; background: white; border-radius: 15px; padding: 30px; text-align: center;">
             <h2 style="color: #00A854; margin-bottom: 20px;">👋 Bienvenue sur Al Bourakh</h2>
@@ -530,11 +468,11 @@
             </div>
             <div class="form-group" style="text-align: left; margin-bottom: 15px;">
                 <label style="font-weight: 600; margin-bottom: 8px; display: block;"><i class="fas fa-phone"></i> Téléphone *</label>
-                <input type="tel" id="loginPhone" placeholder="+221 77 XXX XX XX" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                <input type="tel" id="loginPhone" placeholder="+221 77 XXX XX XX" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
             </div>
             <div class="form-group" style="text-align: left; margin-bottom: 25px;">
                 <label style="font-weight: 600; margin-bottom: 8px; display: block;"><i class="fas fa-user"></i> Nom (optionnel)</label>
-                <input type="text" id="loginName" placeholder="Votre nom" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                <input type="text" id="loginName" placeholder="Votre nom" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
             </div>
             <button onclick="submitLogin()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #00A854, #FECB00); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1em; cursor: pointer;">
                 <i class="fas fa-check"></i> Continuer
@@ -542,7 +480,7 @@
         </div>
     </div>
 
-    <!-- MODAL ÉVALUATION -->
+    <!-- EVALUATION MODAL -->
     <div class="evaluation-modal" id="evaluationModal">
         <div class="evaluation-container">
             <div class="evaluation-header">
@@ -634,15 +572,13 @@
                 
                 <div class="evaluation-actions">
                     <button class="evaluation-btn btn-skip" onclick="skipEvaluation()">Plus tard</button>
-                    <button class="evaluation-btn btn-submit-evaluation" id="submitEvaluationBtn" disabled>
-                        <i class="fas fa-paper-plane"></i> Envoyer
-                    </button>
+                    <button class="evaluation-btn btn-submit-evaluation" id="submitEvaluationBtn" disabled><i class="fas fa-paper-plane"></i> Envoyer</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL TRACKING -->
+    <!-- TRACKING MODAL -->
     <div class="tracking-modal" id="trackingModal">
         <div class="tracking-container">
             <div class="tracking-header">
@@ -651,7 +587,7 @@
             </div>
             <div id="trackingMap"></div>
             <div class="tracking-info">
-                <div class="route-mode-badge" id="routeModeBadge" style="display: none;">
+                <div class="route-mode-badge" id="routeModeBadge">
                     <i class="fas fa-car-side"></i>
                     <span id="routeModeText">Chauffeur en approche</span>
                 </div>
@@ -672,12 +608,8 @@
                 </div>
                 
                 <div class="payment-info-box" id="paymentInfoBox">
-                    <div class="payment-info-title">
-                        <i class="fas fa-info-circle"></i> Paiement en attente
-                    </div>
-                    <div class="payment-info-text" id="paymentInfoText">
-                        Votre paiement sera débité à la fin de la course.
-                    </div>
+                    <div class="payment-info-title"><i class="fas fa-info-circle"></i> Paiement en attente</div>
+                    <div class="payment-info-text" id="paymentInfoText">Votre paiement sera débité à la fin de la course.</div>
                     <div class="payment-info-amount" id="paymentInfoAmount">0 FCFA</div>
                 </div>
                 
@@ -714,7 +646,7 @@
                     </div>
                 </div>
                 
-                <div class="driver-card" id="driverCard" style="display: none;">
+                <div class="driver-card" id="driverCard">
                     <div class="driver-card-header">
                         <div class="driver-avatar" id="driverAvatar">👤</div>
                         <div class="driver-info">
@@ -761,9 +693,7 @@
                     <span id="validatePaymentText">Valider le paiement</span>
                 </button>
                 
-                <button class="cancel-booking-btn" id="cancelBookingBtn" onclick="cancelBooking()">
-                    <i class="fas fa-times"></i> Annuler la réservation
-                </button>
+                <button class="cancel-booking-btn" id="cancelBookingBtn" onclick="cancelBooking()"><i class="fas fa-times"></i> Annuler la réservation</button>
             </div>
         </div>
     </div>
@@ -772,6 +702,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
+        // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -782,14 +713,55 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v3.7 - Bonus 500 FCFA pour nouveaux clients');
+        console.log('🚕 Al Bourakh Client v3.8 - CORRIGÉ');
 
-        // ===== CONFIGURATION BONUS DE BIENVENUE =====
-        const WELCOME_BONUS = 500; // 500 FCFA offerts à la première connexion
+        // ===== CONFIGURATION =====
+        const WELCOME_BONUS = 500;
+        const COMMISSION_RATE = 0.30;
+        const DRIVER_RATE = 0.70;
+        const WALLET_STORAGE_KEY = 'albourakh_wallet_v3';
 
-        // ===== VARIABLES GLOBALES =====
+        // ===== FONCTIONS UTILITAIRES SÉCURISÉES =====
+        function safeSetText(elementId, value) {
+            const el = document.getElementById(elementId);
+            if (el) { el.textContent = value; return true; }
+            console.warn(`⚠️ Element #${elementId} not found`);
+            return false;
+        }
+
+        function safeSetHtml(elementId, html) {
+            const el = document.getElementById(elementId);
+            if (el) { el.innerHTML = html; return true; }
+            console.warn(`⚠️ Element #${elementId} not found`);
+            return false;
+        }
+
+        function safeAddClass(elementId, className) {
+            const el = document.getElementById(elementId);
+            if (el) { el.classList.add(className); return true; }
+            return false;
+        }
+
+        function safeRemoveClass(elementId, className) {
+            const el = document.getElementById(elementId);
+            if (el) { el.classList.remove(className); return true; }
+            return false;
+        }
+
+        function safeSetStyle(elementId, prop, value) {
+            const el = document.getElementById(elementId);
+            if (el) { el.style[prop] = value; return true; }
+            return false;
+        }
+
+        function isTrackingModalOpen() {
+            const modal = document.getElementById('trackingModal');
+            return modal && modal.classList.contains('active');
+        }
+
+        // ===== WALLET STATE =====
         const DEFAULT_WALLET_STATE = {
-            balance: WELCOME_BONUS, // ✅ 500 FCFA pour les nouveaux clients
+            balance: WELCOME_BONUS,
             loyaltyPoints: 0,
             transactions: [],
             pendingRecharges: 0,
@@ -798,11 +770,12 @@
             currentScreen: 'dashboard',
             userPhone: '',
             clientId: null,
-            isNewUser: true // ✅ Flag pour identifier les nouveaux utilisateurs
+            isNewUser: true
         };
 
         let walletState = { ...DEFAULT_WALLET_STATE };
 
+        // ===== VARIABLES GLOBALES =====
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
         let directionsService, directionsRenderer, trackingDirectionsRenderer;
         let userMarker, departureMarker, destinationMarker, driverMarker, clientPickupMarker;
@@ -811,17 +784,14 @@
         let departureCoords = null, destinationCoords = null;
         let currentBooking = null;
         let reservationListener = null, driverListener = null;
-        let lastDriverPosition = null, trackingUpdateInterval = null;
+        let lastDriverPosition = null;
         let currentTrackingMode = 'approche';
         let evaluationData = { noteGlobale: 0, conduite: 0, ponctualite: 0, proprete: 0, amabilite: 0, commentaire: '' };
         let driverPhotoUrl = null;
         let paymentValidated = false, paymentProcessing = false;
+        let globalRechargeListener = null;
 
-        const COMMISSION_RATE = 0.30;
-        const DRIVER_RATE = 0.70;
-        const WALLET_STORAGE_KEY = 'albourakh_wallet_v3'; // Nouvelle clé v3
-
-        // ===== FONCTIONS DE PERSISTANCE DU PORTEFEUILLE =====
+        // ===== PERSISTANCE PORTEFEUILLE =====
         function saveWalletToLocalStorage() {
             try {
                 const dataToSave = {
@@ -829,14 +799,14 @@
                     loyaltyPoints: walletState.loyaltyPoints,
                     transactions: walletState.transactions.slice(0, 100),
                     lastUpdate: new Date().toISOString(),
-                    isNewUser: false, // ✅ Une fois sauvegardé, ce n'est plus un nouvel utilisateur
-                    version: '3.7'
+                    isNewUser: false,
+                    version: '3.8'
                 };
                 localStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(dataToSave));
                 console.log('💾 Portefeuille sauvegardé:', dataToSave.balance, 'FCFA');
                 return true;
             } catch (error) {
-                console.error('❌ Erreur sauvegarde portefeuille:', error);
+                console.error('❌ Erreur sauvegarde:', error);
                 return false;
             }
         }
@@ -846,25 +816,15 @@
                 const savedData = localStorage.getItem(WALLET_STORAGE_KEY);
                 if (savedData) {
                     const data = JSON.parse(savedData);
-                    
-                    if (typeof data.balance === 'number' && !isNaN(data.balance)) {
-                        walletState.balance = data.balance;
-                    }
-                    if (typeof data.loyaltyPoints === 'number' && !isNaN(data.loyaltyPoints)) {
-                        walletState.loyaltyPoints = data.loyaltyPoints;
-                    }
-                    if (Array.isArray(data.transactions)) {
-                        walletState.transactions = data.transactions;
-                    }
-                    walletState.isNewUser = false; // ✅ Utilisateur existant
-                    
-                    console.log('📂 Portefeuille chargé:', walletState.balance, 'FCFA (utilisateur existant)');
+                    if (typeof data.balance === 'number' && !isNaN(data.balance)) walletState.balance = data.balance;
+                    if (typeof data.loyaltyPoints === 'number') walletState.loyaltyPoints = data.loyaltyPoints;
+                    if (Array.isArray(data.transactions)) walletState.transactions = data.transactions;
+                    walletState.isNewUser = false;
+                    console.log('📂 Portefeuille chargé:', walletState.balance, 'FCFA');
                     return true;
                 } else {
-                    // ✅ NOUVEAU CLIENT : Créer le portefeuille avec le bonus de bienvenue
-                    console.log('🎁 Nouveau client détecté ! Bonus de bienvenue:', WELCOME_BONUS, 'FCFA');
+                    console.log('🎁 Nouveau client! Bonus:', WELCOME_BONUS, 'FCFA');
                     walletState.balance = WELCOME_BONUS;
-                    walletState.loyaltyPoints = 0;
                     walletState.transactions = [{
                         id: 'welcome_bonus_' + Date.now(),
                         date: new Date().toISOString(),
@@ -874,99 +834,67 @@
                         status: 'completed'
                     }];
                     walletState.isNewUser = true;
-                    
-                    // Sauvegarder immédiatement
                     saveWalletToLocalStorage();
-                    
                     return false;
                 }
             } catch (error) {
-                console.error('❌ Erreur chargement portefeuille:', error);
+                console.error('❌ Erreur chargement:', error);
                 return false;
             }
         }
 
-        window.saveWalletToLocalStorage = saveWalletToLocalStorage;
-        window.loadWalletFromLocalStorage = loadWalletFromLocalStorage;
-
-        // ===== INITIALISATION AU CHARGEMENT =====
+        // ===== INITIALISATION =====
         window.addEventListener('load', () => {
             loadWalletFromLocalStorage();
             updateWalletBalanceDisplay();
             checkLogin();
             initEvaluationListeners();
-            
-            // ✅ Synchroniser les recharges validées au démarrage
             setTimeout(() => {
                 syncValidatedRecharges();
                 startGlobalRechargeListener();
             }, 1000);
-            
-            console.log('✅ Application initialisée avec solde:', walletState.balance, 'FCFA');
+            console.log('✅ App initialisée - Solde:', walletState.balance, 'FCFA');
         });
 
-        // ===== SYNCHRONISATION DES RECHARGES VALIDÉES =====
+        // ===== SYNC RECHARGES =====
         async function syncValidatedRecharges() {
             const userPhone = getUserPhone();
-            if (!userPhone) {
-                console.log('⚠️ Sync recharges: pas de téléphone');
-                return;
-            }
-
-            console.log('🔄 Synchronisation des recharges pour:', userPhone);
-
+            if (!userPhone) return;
+            
             try {
                 const snapshot = await db.collection('recharges')
                     .where('clientTelephone', '==', userPhone)
                     .where('status', '==', 'validated')
                     .get();
 
-                let newRechargesCount = 0;
-                let totalNewAmount = 0;
-
+                let newCount = 0, totalNew = 0;
                 snapshot.forEach((doc) => {
                     const data = doc.data();
-                    const requestId = doc.id;
-
-                    // Vérifier si déjà traité
-                    const alreadyProcessed = walletState.transactions.some(t => 
-                        (t.type === 'recharge' && t.id === requestId)
-                    );
-
+                    const alreadyProcessed = walletState.transactions.some(t => t.type === 'recharge' && t.id === doc.id);
                     if (!alreadyProcessed) {
-                        console.log('✅ Nouvelle recharge détectée:', requestId, data.amount, 'FCFA');
-                        
                         walletState.balance += data.amount;
                         walletState.transactions.unshift({
-                            id: requestId,
-                            date: data.validatedAt?.toDate?.()?.toISOString() || data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+                            id: doc.id,
+                            date: data.validatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
                             type: 'recharge',
                             amount: data.amount,
                             method: data.source,
                             status: 'completed'
                         });
-
-                        newRechargesCount++;
-                        totalNewAmount += data.amount;
+                        newCount++;
+                        totalNew += data.amount;
                     }
                 });
 
-                if (newRechargesCount > 0) {
+                if (newCount > 0) {
                     saveWalletToLocalStorage();
                     updateWalletBalanceDisplay();
-                    showNotification(`✅ ${newRechargesCount} recharge(s) créditée(s) ! +${totalNewAmount.toLocaleString()} FCFA`, 'success');
-                    console.log(`✅ Sync terminée: ${newRechargesCount} nouvelles recharges, +${totalNewAmount} FCFA`);
-                } else {
-                    console.log('ℹ️ Sync terminée: aucune nouvelle recharge');
+                    showNotification(`✅ ${newCount} recharge(s) créditée(s)! +${totalNew.toLocaleString()} FCFA`, 'success');
                 }
-
             } catch (error) {
-                console.error('❌ Erreur sync recharges:', error);
+                console.error('❌ Erreur sync:', error);
             }
         }
-
-        // ===== LISTENER GLOBAL (actif même portefeuille fermé) =====
-        let globalRechargeListener = null;
 
         function startGlobalRechargeListener() {
             const userPhone = getUserPhone();
@@ -977,70 +905,48 @@
                 globalRechargeListener = null;
             }
 
-            console.log('👂 Listener global recharges activé pour:', userPhone);
-
             globalRechargeListener = db.collection('recharges')
                 .where('clientTelephone', '==', userPhone)
                 .onSnapshot((snapshot) => {
                     snapshot.docChanges().forEach((change) => {
                         const data = change.doc.data();
-                        const requestId = change.doc.id;
-
                         if (change.type === 'modified' && data.status === 'validated') {
-                            const alreadyProcessed = walletState.transactions.some(t => 
-                                t.type === 'recharge' && t.id === requestId
-                            );
-
+                            const alreadyProcessed = walletState.transactions.some(t => t.type === 'recharge' && t.id === change.doc.id);
                             if (!alreadyProcessed) {
-                                console.log('🎉 Recharge validée en temps réel:', requestId, data.amount, 'FCFA');
-                                
                                 walletState.balance += data.amount;
                                 walletState.transactions.unshift({
-                                    id: requestId,
+                                    id: change.doc.id,
                                     date: new Date().toISOString(),
                                     type: 'recharge',
                                     amount: data.amount,
                                     method: data.source,
                                     status: 'completed'
                                 });
-
                                 saveWalletToLocalStorage();
                                 updateWalletBalanceDisplay();
-                                
-                                if (walletState.currentScreen === 'dashboard') {
-                                    renderWalletDashboard();
-                                }
-                                
-                                showNotification(`✅ Recharge validée ! +${data.amount.toLocaleString()} FCFA`, 'success');
+                                if (walletState.currentScreen === 'dashboard') renderWalletDashboard();
+                                showNotification(`✅ Recharge validée! +${data.amount.toLocaleString()} FCFA`, 'success');
                             }
                         }
                     });
-
-                    // Mettre à jour le compteur de demandes en attente
                     walletState.pendingRecharges = snapshot.docs.filter(doc => doc.data().status === 'pending').length;
-                    
-                }, (error) => {
-                    console.error('❌ Erreur listener global:', error);
                 });
         }
 
-        // Rendre la sync accessible globalement
-        window.syncValidatedRecharges = syncValidatedRecharges;
-
-        // ===== SYSTÈME DE CONNEXION =====
+        // ===== LOGIN =====
         function checkLogin() {
             const savedPhone = localStorage.getItem('albourakh_phone');
             const savedName = localStorage.getItem('albourakh_name');
-            
             if (!savedPhone) {
                 document.getElementById('loginModal').style.display = 'flex';
                 return false;
             }
-            
             walletState.userPhone = savedPhone;
             if (savedName) {
-                document.getElementById('bookingName').value = savedName;
-                document.getElementById('bookingPhone').value = savedPhone;
+                const nameEl = document.getElementById('bookingName');
+                const phoneEl = document.getElementById('bookingPhone');
+                if (nameEl) nameEl.value = savedName;
+                if (phoneEl) phoneEl.value = savedPhone;
             }
             return true;
         }
@@ -1048,39 +954,35 @@
         function submitLogin() {
             const phone = document.getElementById('loginPhone').value.trim();
             const name = document.getElementById('loginName').value.trim();
-            
-            if (!phone) {
-                showNotification('⚠️ Veuillez entrer votre numéro de téléphone', 'error');
-                return;
-            }
+            if (!phone) { showNotification('⚠️ Téléphone requis', 'error'); return; }
             
             localStorage.setItem('albourakh_phone', phone);
             if (name) localStorage.setItem('albourakh_name', name);
             
             walletState.userPhone = phone;
-            document.getElementById('bookingPhone').value = phone;
-            if (name) document.getElementById('bookingName').value = name;
+            const phoneEl = document.getElementById('bookingPhone');
+            const nameEl = document.getElementById('bookingName');
+            if (phoneEl) phoneEl.value = phone;
+            if (name && nameEl) nameEl.value = name;
             
             document.getElementById('loginModal').style.display = 'none';
             
-            // ✅ Afficher le message de bienvenue avec bonus si nouvel utilisateur
             if (walletState.isNewUser) {
-                showNotification(`🎁 Bienvenue ! ${WELCOME_BONUS} FCFA offerts sur votre portefeuille !`, 'success');
+                showNotification(`🎁 Bienvenue! ${WELCOME_BONUS} FCFA offerts!`, 'success');
             } else {
-                showNotification('✅ Connexion réussie !', 'success');
+                showNotification('✅ Connexion réussie!', 'success');
             }
         }
 
-        // ===== UTILITAIRES PHOTOS =====
-        function validateImageUrl(url) {
-            if (!url || typeof url !== 'string') return null;
-            const trimmedUrl = url.trim();
-            if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) return null;
-            const validDomains = ['firebasestorage.googleapis.com', 'storage.googleapis.com', 'imgur.com', 'cloudinary.com', 'unsplash.com'];
-            return validDomains.some(domain => trimmedUrl.includes(domain)) ? trimmedUrl : null;
+        function getUserPhone() {
+            if (!walletState.userPhone) {
+                const phoneEl = document.getElementById('bookingPhone');
+                if (phoneEl && phoneEl.value.trim()) walletState.userPhone = phoneEl.value.trim();
+            }
+            return walletState.userPhone;
         }
 
-        // ===== SYSTÈME D'ÉVALUATION =====
+        // ===== EVALUATION =====
         function initEvaluationListeners() {
             document.querySelectorAll('#overallRating .star').forEach(star => {
                 star.addEventListener('click', () => {
@@ -1100,38 +1002,47 @@
                 });
             });
             
-            document.getElementById('evaluationComment').addEventListener('input', (e) => {
-                document.getElementById('commentLength').textContent = e.target.value.length;
-                evaluationData.commentaire = e.target.value;
-            });
+            const commentEl = document.getElementById('evaluationComment');
+            if (commentEl) {
+                commentEl.addEventListener('input', (e) => {
+                    safeSetText('commentLength', e.target.value.length);
+                    evaluationData.commentaire = e.target.value;
+                });
+            }
             
-            document.getElementById('submitEvaluationBtn').addEventListener('click', submitEvaluation);
+            const submitBtn = document.getElementById('submitEvaluationBtn');
+            if (submitBtn) submitBtn.addEventListener('click', submitEvaluation);
         }
 
         function updateOverallStars(rating) {
             const stars = document.querySelectorAll('#overallRating .star');
             const labels = ['Très mauvais', 'Mauvais', 'Moyen', 'Bon', 'Excellent'];
-            stars.forEach(star => { star.classList.toggle('active', parseInt(star.dataset.rating) <= rating); });
-            document.getElementById('overallRatingLabel').textContent = labels[rating - 1] || 'Sélectionnez une note';
+            stars.forEach(star => star.classList.toggle('active', parseInt(star.dataset.rating) <= rating));
+            safeSetText('overallRatingLabel', labels[rating - 1] || 'Sélectionnez une note');
         }
 
         function updateCriteriaStars(criteria, rating) {
-            document.querySelectorAll(`#${criteria}Rating .criteria-star`).forEach(star => { 
-                star.classList.toggle('active', parseInt(star.dataset.rating) <= rating); 
+            document.querySelectorAll(`#${criteria}Rating .criteria-star`).forEach(star => {
+                star.classList.toggle('active', parseInt(star.dataset.rating) <= rating);
             });
-            document.getElementById(`${criteria}Value`).textContent = `${rating}/5`;
+            safeSetText(`${criteria}Value`, `${rating}/5`);
         }
 
         function updateSubmitButton() {
-            document.getElementById('submitEvaluationBtn').disabled = evaluationData.noteGlobale === 0;
+            const btn = document.getElementById('submitEvaluationBtn');
+            if (btn) btn.disabled = evaluationData.noteGlobale === 0;
         }
 
         function openEvaluationModal() {
             if (!currentBooking) return;
             
-            document.getElementById('evalDriverName').textContent = currentBooking.nomChauffeur || 'Votre chauffeur';
-            document.getElementById('evalDriverAvatar').innerHTML = driverPhotoUrl ? 
-                `<img src="${driverPhotoUrl}" alt="Chauffeur" onerror="this.parentElement.innerHTML='👤'">` : '👤';
+            safeSetText('evalDriverName', currentBooking.nomChauffeur || 'Votre chauffeur');
+            
+            const avatarEl = document.getElementById('evalDriverAvatar');
+            if (avatarEl) {
+                avatarEl.innerHTML = driverPhotoUrl ? 
+                    `<img src="${driverPhotoUrl}" alt="Chauffeur" onerror="this.parentElement.innerHTML='👤'">` : '👤';
+            }
             
             let vehiculeText = '';
             const marque = currentBooking.vehiculeMarque;
@@ -1145,21 +1056,27 @@
                 const typeNames = { standard: '🚗 Standard', confort: '✨ Confort', van: '🚐 Van', premium: '👑 Premium' };
                 vehiculeText = typeNames[currentBooking.vehiculeType] || 'Véhicule';
             }
-            document.getElementById('evalVehicle').textContent = vehiculeText;
+            safeSetText('evalVehicle', vehiculeText);
             
             evaluationData = { noteGlobale: 0, conduite: 0, ponctualite: 0, proprete: 0, amabilite: 0, commentaire: '' };
             document.querySelectorAll('.star, .criteria-star').forEach(s => s.classList.remove('active'));
-            document.getElementById('overallRatingLabel').textContent = 'Sélectionnez une note';
+            safeSetText('overallRatingLabel', 'Sélectionnez une note');
             document.querySelectorAll('.criteria-value').forEach(v => v.textContent = '-');
-            document.getElementById('evaluationComment').value = '';
-            document.getElementById('commentLength').textContent = '0';
-            document.getElementById('submitEvaluationBtn').disabled = true;
             
-            document.getElementById('evaluationModal').classList.add('active');
+            const commentEl = document.getElementById('evaluationComment');
+            if (commentEl) commentEl.value = '';
+            safeSetText('commentLength', '0');
+            
+            const submitBtn = document.getElementById('submitEvaluationBtn');
+            if (submitBtn) submitBtn.disabled = true;
+            
+            const modal = document.getElementById('evaluationModal');
+            if (modal) modal.classList.add('active');
         }
 
         function closeEvaluationModal() {
-            document.getElementById('evaluationModal').classList.remove('active');
+            const modal = document.getElementById('evaluationModal');
+            if (modal) modal.classList.remove('active');
         }
 
         function skipEvaluation() {
@@ -1170,14 +1087,13 @@
         }
 
         async function submitEvaluation() {
-            if (evaluationData.noteGlobale === 0) { 
-                showNotification('⚠️ Veuillez noter la course', 'error'); 
-                return; 
-            }
+            if (evaluationData.noteGlobale === 0) { showNotification('⚠️ Veuillez noter', 'error'); return; }
             
             const submitBtn = document.getElementById('submitEvaluationBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+            }
             
             try {
                 const evaluationRef = await db.collection('evaluations').add({
@@ -1204,85 +1120,68 @@
                     dateEvaluation: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                if (currentBooking.chauffeurAssigne) {
-                    await updateDriverRating(currentBooking.chauffeurAssigne);
-                }
+                if (currentBooking.chauffeurAssigne) await updateDriverRating(currentBooking.chauffeurAssigne);
                 
-                submitBtn.innerHTML = '<i class="fas fa-check"></i> Envoyé !';
+                if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Envoyé!';
                 showNotification('✅ Merci pour votre évaluation!', 'success');
                 
                 setTimeout(() => { closeEvaluationModal(); closeTracking(); currentBooking = null; }, 1500);
                 
             } catch (error) {
-                console.error('❌ Erreur évaluation:', error);
+                console.error('❌ Erreur:', error);
                 showNotification('❌ Erreur: ' + error.message, 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer';
+                }
             }
         }
 
         async function updateDriverRating(driverId) {
             try {
-                const evaluationsSnapshot = await db.collection('evaluations').where('chauffeurId', '==', driverId).get();
-                if (evaluationsSnapshot.empty) return;
-                
-                let totalNote = 0, count = 0;
-                evaluationsSnapshot.forEach(doc => { totalNote += doc.data().noteGlobale || 0; count++; });
-                
+                const snapshot = await db.collection('evaluations').where('chauffeurId', '==', driverId).get();
+                if (snapshot.empty) return;
+                let total = 0, count = 0;
+                snapshot.forEach(doc => { total += doc.data().noteGlobale || 0; count++; });
                 await db.collection('drivers').doc(driverId).update({
-                    rating: parseFloat((totalNote / count).toFixed(1)),
-                    nombreEvaluations: count,
-                    derniereMiseAJourRating: firebase.firestore.FieldValue.serverTimestamp()
+                    rating: parseFloat((total / count).toFixed(1)),
+                    nombreEvaluations: count
                 });
             } catch (error) {
-                console.error('❌ Erreur mise à jour rating:', error);
+                console.error('❌ Erreur rating:', error);
             }
         }
 
-        function getUserPhone() {
-            if (!walletState.userPhone) {
-                const phone = document.getElementById('bookingPhone').value.trim();
-                if (phone) walletState.userPhone = phone;
-            }
-            return walletState.userPhone;
-        }
-
-        function startRechargeListener() {
-            // Le listener global gère déjà les recharges
-            // Cette fonction synchronise simplement au cas où
-            syncValidatedRecharges();
-        }
-
+        // ===== PAYMENT =====
         async function validatePayment() {
             if (!currentBooking || paymentProcessing || paymentValidated) return;
             
             const paymentMethod = currentBooking.modePaiement || selectedPayment;
             
             if (!isDigitalPayment(paymentMethod)) {
-                showNotification('ℹ️ Paiement en espèces - Aucune validation nécessaire', 'info');
+                showNotification('ℹ️ Paiement espèces - Aucune validation', 'info');
                 setTimeout(() => openEvaluationModal(), 1000);
                 return;
             }
 
             const amount = currentBooking.prixEstime || 0;
             const driverShare = Math.round(amount * DRIVER_RATE);
-            const commission = Math.round(amount * COMMISSION_RATE);
 
             if ((paymentMethod === 'wallet' || paymentMethod === 'Portefeuille Al Bourakh') && walletState.balance < amount) {
-                showNotification(`❌ Solde insuffisant. Vous avez ${walletState.balance.toLocaleString()} FCFA`, 'error');
+                showNotification(`❌ Solde insuffisant (${walletState.balance.toLocaleString()} FCFA)`, 'error');
                 return;
             }
 
-            if (!confirm(`Confirmer le paiement de ${amount.toLocaleString()} FCFA via ${paymentMethod}?`)) return;
+            if (!confirm(`Confirmer le paiement de ${amount.toLocaleString()} FCFA?`)) return;
 
             paymentProcessing = true;
             const btn = document.getElementById('validatePaymentBtn');
-            const btnText = document.getElementById('validatePaymentText');
             
-            btn.classList.add('processing');
-            btn.disabled = true;
-            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-
+            if (btn) {
+                btn.classList.add('processing');
+                btn.disabled = true;
+            }
+            safeSetHtml('validatePaymentText', '<i class="fas fa-spinner fa-spin"></i> Traitement...');
             showLoading('Validation du paiement...');
 
             try {
@@ -1304,10 +1203,8 @@
                 await db.collection('reservations').doc(currentBooking.id).update({
                     paiementValide: true,
                     datePaiement: firebase.firestore.FieldValue.serverTimestamp(),
-                    modePaiementUtilise: paymentMethod,
                     montantPaye: amount,
                     partChauffeur: driverShare,
-                    commissionAlBourakh: commission,
                     paiementStatut: 'completed'
                 });
 
@@ -1318,32 +1215,21 @@
                     });
                 }
 
-                await db.collection('transactions').add({
-                    type: 'paiement_course',
-                    reservationId: currentBooking.id,
-                    clientTelephone: currentBooking.clientTelephone || '',
-                    chauffeurId: currentBooking.chauffeurAssigne,
-                    montantTotal: amount,
-                    partChauffeur: driverShare,
-                    commissionAlBourakh: commission,
-                    modePaiement: paymentMethod,
-                    statut: 'completed',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
                 hideLoading();
                 
                 paymentValidated = true;
-                btn.classList.remove('processing');
-                btn.classList.add('success');
-                btnText.innerHTML = '<i class="fas fa-check"></i> Paiement validé !';
+                if (btn) {
+                    btn.classList.remove('processing');
+                    btn.classList.add('success');
+                }
+                safeSetHtml('validatePaymentText', '<i class="fas fa-check"></i> Paiement validé!');
 
-                document.getElementById('step6Icon').classList.add('active');
-                document.getElementById('step6Text').textContent = 'Paiement effectué ✓';
-                document.getElementById('step6Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                safeAddClass('step6Icon', 'active');
+                safeSetText('step6Text', 'Paiement effectué ✓');
+                safeSetText('step6Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
 
                 showNotification(`✅ Paiement validé! -${amount.toLocaleString()} FCFA`, 'success');
-                document.getElementById('cancelBookingBtn').style.display = 'none';
+                safeSetStyle('cancelBookingBtn', 'display', 'none');
 
                 setTimeout(() => openEvaluationModal(), 2000);
 
@@ -1358,32 +1244,33 @@
                     updateWalletBalanceDisplay();
                 }
 
-                btn.classList.remove('processing');
-                btn.disabled = false;
-                btnText.innerHTML = '<i class="fas fa-check-circle"></i> Valider le paiement';
-                
+                if (btn) {
+                    btn.classList.remove('processing');
+                    btn.disabled = false;
+                }
+                safeSetHtml('validatePaymentText', '<i class="fas fa-check-circle"></i> Valider le paiement');
                 showNotification('❌ Erreur: ' + error.message, 'error');
             } finally {
                 paymentProcessing = false;
             }
         }
 
-        function isDigitalPayment(paymentMethod) {
-            return ['orange', 'wave', 'wallet', 'Orange Money', 'Wave', 'Portefeuille Al Bourakh'].includes(paymentMethod);
+        function isDigitalPayment(method) {
+            return ['orange', 'wave', 'wallet', 'Orange Money', 'Wave', 'Portefeuille Al Bourakh'].includes(method);
         }
 
-        // ===== FONCTIONS PORTEFEUILLE =====
+        // ===== WALLET FUNCTIONS =====
         function openWallet() {
-            document.getElementById('walletModal').classList.add('active');
+            const modal = document.getElementById('walletModal');
+            if (modal) modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             showWalletScreen('dashboard');
-            startRechargeListener();
         }
 
         function closeWallet() {
-            document.getElementById('walletModal').classList.remove('active');
+            const modal = document.getElementById('walletModal');
+            if (modal) modal.classList.remove('active');
             document.body.style.overflow = '';
-            // Le listener global reste actif pour détecter les recharges
         }
 
         function showWalletScreen(screen) {
@@ -1391,45 +1278,35 @@
             document.querySelectorAll('.wallet-screen').forEach(s => s.classList.remove('active'));
             
             const backBtn = document.getElementById('walletBackBtn');
-            const title = document.getElementById('walletTitle');
             
             if (screen === 'dashboard') {
-                backBtn.classList.add('hidden');
-                title.textContent = 'Mon Portefeuille';
+                if (backBtn) backBtn.classList.add('hidden');
+                safeSetText('walletTitle', 'Mon Portefeuille');
                 renderWalletDashboard();
             } else if (screen === 'recharge') {
-                backBtn.classList.remove('hidden');
-                title.textContent = 'Recharger';
+                if (backBtn) backBtn.classList.remove('hidden');
+                safeSetText('walletTitle', 'Recharger');
                 renderWalletRecharge();
             } else if (screen === 'history') {
-                backBtn.classList.remove('hidden');
-                title.textContent = 'Historique';
+                if (backBtn) backBtn.classList.remove('hidden');
+                safeSetText('walletTitle', 'Historique');
                 renderWalletHistory();
             }
             
-            document.getElementById(`wallet${screen.charAt(0).toUpperCase() + screen.slice(1)}`).classList.add('active');
+            const screenEl = document.getElementById(`wallet${screen.charAt(0).toUpperCase() + screen.slice(1)}`);
+            if (screenEl) screenEl.classList.add('active');
         }
-
-        window.openWallet = openWallet;
-        window.closeWallet = closeWallet;
-        window.showWalletScreen = showWalletScreen;
 
         function renderWalletDashboard() {
             const totalSpent = walletState.transactions.filter(t => t.type === 'ride').reduce((sum, t) => sum + (t.amount || 0), 0);
             const rideCount = walletState.transactions.filter(t => t.type === 'ride').length;
 
-            let lastSaveInfo = '';
-            try {
-                const savedData = localStorage.getItem(WALLET_STORAGE_KEY);
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    if (data.lastUpdate) {
-                        const diffMinutes = Math.floor((new Date() - new Date(data.lastUpdate)) / 60000);
-                        lastSaveInfo = diffMinutes < 1 ? '<small style="color: #10b981; font-size: 0.7em;">💾 Sauvegardé</small>' : 
-                            `<small style="color: #6b7280; font-size: 0.7em;">💾 il y a ${diffMinutes}min</small>`;
-                    }
-                }
-            } catch (e) {}
+            let welcomeBonus = walletState.isNewUser ? `
+                <div class="welcome-bonus">
+                    <h4>🎁 Bonus de bienvenue crédité!</h4>
+                    <p>Vous avez reçu ${WELCOME_BONUS} FCFA pour votre première course</p>
+                </div>
+            ` : '';
 
             let pendingAlert = walletState.pendingRecharges > 0 ? `
                 <div class="pending-requests-alert">
@@ -1441,69 +1318,37 @@
                 </div>
             ` : '';
 
-            // ✅ Afficher le bonus de bienvenue pour les nouveaux utilisateurs
-            let welcomeBonus = walletState.isNewUser ? `
-                <div class="welcome-bonus">
-                    <h4>🎁 Bonus de bienvenue crédité !</h4>
-                    <p>Vous avez reçu ${WELCOME_BONUS} FCFA pour votre première course</p>
-                </div>
-            ` : '';
-
-            document.getElementById('walletDashboard').innerHTML = `
+            safeSetHtml('walletDashboard', `
                 ${pendingAlert}
                 ${welcomeBonus}
                 <div class="wallet-card">
                     <div class="wallet-card-header">
                         <div>
-                            <p class="wallet-label">Portefeuille Al Bourakh ${lastSaveInfo}</p>
+                            <p class="wallet-label">Portefeuille Al Bourakh</p>
                             <h2 class="wallet-amount">${walletState.balance.toLocaleString()} FCFA</h2>
                         </div>
                         <div style="font-size: 2rem;">💳</div>
                     </div>
                     <div class="wallet-actions">
-                        <button class="btn-wallet primary" onclick="showWalletScreen('recharge')">
-                            <i class="fas fa-plus"></i> Recharger
-                        </button>
-                        <button class="btn-wallet secondary" onclick="closeWallet(); scrollToBooking();">
-                            <i class="fas fa-car"></i> Réserver
-                        </button>
+                        <button class="btn-wallet primary" onclick="showWalletScreen('recharge')"><i class="fas fa-plus"></i> Recharger</button>
+                        <button class="btn-wallet secondary" onclick="closeWallet(); scrollToBooking();"><i class="fas fa-car"></i> Réserver</button>
                     </div>
                 </div>
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <div class="stat-icon green">📈</div>
-                            <div><p class="stat-label">Courses</p><p class="stat-value">${rideCount}</p></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <div class="stat-icon purple">💰</div>
-                            <div><p class="stat-label">Dépenses</p><p class="stat-value">${totalSpent.toLocaleString()}</p></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <div class="stat-icon orange">📊</div>
-                            <div><p class="stat-label">Transactions</p><p class="stat-value">${walletState.transactions.length}</p></div>
-                        </div>
-                    </div>
+                    <div class="stat-card"><div class="stat-content"><div class="stat-icon green">📈</div><div><p class="stat-label">Courses</p><p class="stat-value">${rideCount}</p></div></div></div>
+                    <div class="stat-card"><div class="stat-content"><div class="stat-icon purple">💰</div><div><p class="stat-label">Dépenses</p><p class="stat-value">${totalSpent.toLocaleString()}</p></div></div></div>
+                    <div class="stat-card"><div class="stat-content"><div class="stat-icon orange">📊</div><div><p class="stat-label">Transactions</p><p class="stat-value">${walletState.transactions.length}</p></div></div></div>
                 </div>
                 <div class="loyalty-card">
-                    <div>
-                        <p class="loyalty-label">Points de Fidélité</p>
-                        <p class="loyalty-points">${walletState.loyaltyPoints} pts</p>
-                    </div>
+                    <div><p class="loyalty-label">Points de Fidélité</p><p class="loyalty-points">${walletState.loyaltyPoints} pts</p></div>
                     <div class="loyalty-badge">${walletState.loyaltyPoints >= 500 ? 'Niveau Or' : 'Niveau Bronze'}</div>
                 </div>
-            `;
+            `);
         }
 
         function renderWalletRecharge() {
             walletState.rechargeAmount = '';
-            const quickAmounts = [1000, 2000, 5000, 10000];
-
-            document.getElementById('walletRecharge').innerHTML = `
+            safeSetHtml('walletRecharge', `
                 <div class="card">
                     <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem;">Montant</h3>
                     <div class="amount-input-container">
@@ -1511,10 +1356,8 @@
                         <span class="amount-currency">FCFA</span>
                     </div>
                     <div class="quick-amounts">
-                        ${quickAmounts.map(amt => `
-                            <button class="quick-amount-btn" onclick="document.getElementById('rechargeAmountInput').value = ${amt}; walletState.rechargeAmount = '${amt}';">
-                                ${amt.toLocaleString()} FCFA
-                            </button>
+                        ${[1000, 2000, 5000, 10000].map(amt => `
+                            <button class="quick-amount-btn" onclick="document.getElementById('rechargeAmountInput').value = ${amt}; walletState.rechargeAmount = '${amt}';">${amt.toLocaleString()} FCFA</button>
                         `).join('')}
                     </div>
                 </div>
@@ -1530,72 +1373,56 @@
                         </button>
                     `).join('')}
                 </div>
-                <button class="btn-primary-wallet" onclick="processWalletRecharge()">
-                    <i class="fas fa-paper-plane"></i> Envoyer la demande
-                </button>
-            `;
+                <button class="btn-primary-wallet" onclick="processWalletRecharge()"><i class="fas fa-paper-plane"></i> Envoyer la demande</button>
+            `);
         }
 
         function renderWalletHistory() {
-            const recentTransactions = walletState.transactions.slice(0, 20);
+            const transactions = walletState.transactions.slice(0, 20);
+            let html = '<div class="card">';
             
-            let historyHtml = '<div class="card">';
-            
-            if (recentTransactions.length === 0) {
-                historyHtml += '<p style="text-align: center; color: #666; padding: 20px;">Aucune transaction</p>';
+            if (transactions.length === 0) {
+                html += '<p style="text-align: center; color: #666; padding: 20px;">Aucune transaction</p>';
             } else {
-                historyHtml += '<div class="transaction-list">';
-                recentTransactions.forEach(t => {
+                html += '<div class="transaction-list">';
+                transactions.forEach(t => {
                     const isDebit = t.type === 'ride';
                     const isBonus = t.type === 'bonus';
                     const icon = isDebit ? '🚗' : (isBonus ? '🎁' : '💰');
-                    const amountColor = isDebit ? '#E30613' : '#16a34a';
-                    const amountPrefix = isDebit ? '-' : '+';
+                    const color = isDebit ? '#E30613' : '#16a34a';
+                    const prefix = isDebit ? '-' : '+';
                     const date = new Date(t.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
                     const label = isBonus ? t.description : (t.type === 'ride' ? 'Course' : 'Recharge');
                     
-                    historyHtml += `
+                    html += `
                         <div class="transaction-item">
                             <div class="transaction-header">
-                                <div>
-                                    <div class="transaction-route">${icon} ${label}</div>
-                                    <div class="transaction-driver">${t.depart ? t.depart.substring(0, 25) + '...' : (t.method || t.description || '')}</div>
-                                </div>
-                                <div class="transaction-amount" style="color: ${amountColor};">${amountPrefix}${t.amount.toLocaleString()} FCFA</div>
+                                <div><div class="transaction-route">${icon} ${label}</div><div class="transaction-driver">${t.depart ? t.depart.substring(0, 25) + '...' : (t.method || '')}</div></div>
+                                <div class="transaction-amount" style="color: ${color};">${prefix}${t.amount.toLocaleString()} FCFA</div>
                             </div>
-                            <div class="transaction-footer">
-                                <div class="transaction-date">${date}</div>
-                                <span class="transaction-badge">${t.status === 'completed' ? 'Terminé' : 'En cours'}</span>
-                            </div>
+                            <div class="transaction-footer"><div class="transaction-date">${date}</div><span class="transaction-badge">${t.status === 'completed' ? 'Terminé' : 'En cours'}</span></div>
                         </div>
                     `;
                 });
-                historyHtml += '</div>';
+                html += '</div>';
             }
-            
-            historyHtml += '</div>';
-            document.getElementById('walletHistory').innerHTML = historyHtml;
+            html += '</div>';
+            safeSetHtml('walletHistory', html);
         }
 
         async function processWalletRecharge() {
             const amount = parseInt(walletState.rechargeAmount);
-            if (!amount || amount <= 0) {
-                showNotification('⚠️ Entrez un montant valide', 'error');
-                return;
-            }
+            if (!amount || amount <= 0) { showNotification('⚠️ Montant invalide', 'error'); return; }
 
             const userPhone = getUserPhone();
-            if (!userPhone) {
-                showNotification('⚠️ Téléphone requis', 'error');
-                return;
-            }
+            if (!userPhone) { showNotification('⚠️ Téléphone requis', 'error'); return; }
 
             showLoading('Envoi de la demande...');
 
             try {
                 await db.collection('recharges').add({
                     clientTelephone: userPhone,
-                    clientNom: document.getElementById('bookingName').value.trim() || 'Client',
+                    clientNom: document.getElementById('bookingName')?.value?.trim() || 'Client',
                     amount: amount,
                     source: walletState.rechargeMethod,
                     status: 'pending',
@@ -1604,18 +1431,18 @@
                 
                 hideLoading();
                 
-                document.getElementById('walletSuccess').innerHTML = `
+                safeSetHtml('walletSuccess', `
                     <div class="success-screen">
                         <div>
                             <div class="success-icon pending-icon">⏳</div>
-                            <h2 class="success-title pending-title">Demande envoyée !</h2>
+                            <h2 class="success-title pending-title">Demande envoyée!</h2>
                             <p class="success-message">Votre demande de ${amount.toLocaleString()} FCFA sera validée sous 24h.</p>
                         </div>
                     </div>
-                `;
+                `);
                 showWalletScreen('success');
                 setTimeout(() => showWalletScreen('dashboard'), 3000);
-                showNotification('✅ Demande envoyée !', 'success');
+                showNotification('✅ Demande envoyée!', 'success');
             } catch (error) {
                 hideLoading();
                 showNotification('❌ Erreur: ' + error.message, 'error');
@@ -1623,11 +1450,10 @@
         }
 
         function updateWalletBalanceDisplay() {
-            const el = document.getElementById('walletBalanceMini');
-            if (el) el.textContent = walletState.balance.toLocaleString() + ' FCFA';
+            safeSetText('walletBalanceMini', walletState.balance.toLocaleString() + ' FCFA');
         }
 
-        // ===== FONCTIONS GOOGLE MAPS =====
+        // ===== GOOGLE MAPS =====
         function initMap() {
             const dakar = { lat: 14.6937, lng: -17.4441 };
             map = new google.maps.Map(document.getElementById('map'), { center: dakar, zoom: 12, disableDefaultUI: true, zoomControl: true });
@@ -1636,41 +1462,50 @@
             directionsRenderer = new google.maps.DirectionsRenderer({ map: map, suppressMarkers: true, polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } });
             trafficLayer = new google.maps.TrafficLayer();
             
-            autocomplete = new google.maps.places.Autocomplete(document.getElementById('searchInput'), { componentRestrictions: { country: 'sn' } });
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
-                if (place.geometry) { map.setCenter(place.geometry.location); map.setZoom(15); }
-            });
+            const searchEl = document.getElementById('searchInput');
+            if (searchEl) {
+                autocomplete = new google.maps.places.Autocomplete(searchEl, { componentRestrictions: { country: 'sn' } });
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    if (place.geometry) { map.setCenter(place.geometry.location); map.setZoom(15); }
+                });
+            }
             
             initBookingAutocomplete();
             map.addListener('click', handleMapClick);
             autoDetectLocation();
             initDateTime();
             updateWalletBalanceDisplay();
-            
             console.log('✅ Map initialized');
         }
 
         function initBookingAutocomplete() {
-            const autocompleteFrom = new google.maps.places.Autocomplete(document.getElementById('bookingFrom'), { componentRestrictions: { country: 'sn' } });
-            autocompleteFrom.addListener('place_changed', () => {
-                const place = autocompleteFrom.getPlace();
-                if (place.geometry) {
-                    departureCoords = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                    updateMarker('departure', departureCoords);
-                    calculateRoute();
-                }
-            });
+            const fromEl = document.getElementById('bookingFrom');
+            const toEl = document.getElementById('bookingTo');
             
-            const autocompleteTo = new google.maps.places.Autocomplete(document.getElementById('bookingTo'), { componentRestrictions: { country: 'sn' } });
-            autocompleteTo.addListener('place_changed', () => {
-                const place = autocompleteTo.getPlace();
-                if (place.geometry) {
-                    destinationCoords = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                    updateMarker('destination', destinationCoords);
-                    calculateRoute();
-                }
-            });
+            if (fromEl) {
+                const autocompleteFrom = new google.maps.places.Autocomplete(fromEl, { componentRestrictions: { country: 'sn' } });
+                autocompleteFrom.addListener('place_changed', () => {
+                    const place = autocompleteFrom.getPlace();
+                    if (place.geometry) {
+                        departureCoords = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                        updateMarker('departure', departureCoords);
+                        calculateRoute();
+                    }
+                });
+            }
+            
+            if (toEl) {
+                const autocompleteTo = new google.maps.places.Autocomplete(toEl, { componentRestrictions: { country: 'sn' } });
+                autocompleteTo.addListener('place_changed', () => {
+                    const place = autocompleteTo.getPlace();
+                    if (place.geometry) {
+                        destinationCoords = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                        updateMarker('destination', destinationCoords);
+                        calculateRoute();
+                    }
+                });
+            }
         }
 
         function autoDetectLocation() {
@@ -1682,11 +1517,12 @@
                     map.setZoom(14);
                     geocoder.geocode({ location: userPos }, (results, status) => {
                         if (status === 'OK' && results[0]) {
-                            document.getElementById('bookingFrom').value = results[0].formatted_address;
+                            const fromEl = document.getElementById('bookingFrom');
+                            if (fromEl) fromEl.value = results[0].formatted_address;
                             updateMarker('departure', userPos);
                         }
                     });
-                }, () => console.log('Geolocation denied'));
+                });
             }
         }
 
@@ -1706,7 +1542,8 @@
                     
                     geocoder.geocode({ location: userPos }, (results, status) => {
                         if (status === 'OK' && results[0]) {
-                            document.getElementById('bookingFrom').value = results[0].formatted_address;
+                            const fromEl = document.getElementById('bookingFrom');
+                            if (fromEl) fromEl.value = results[0].formatted_address;
                             updateMarker('departure', userPos);
                             if (destinationCoords) calculateRoute();
                             
@@ -1720,10 +1557,8 @@
                 },
                 () => {
                     gpsBtn.classList.remove('loading');
-                    gpsBtn.classList.add('error');
                     gpsBtn.disabled = false;
                     showNotification('❌ Erreur de localisation', 'error');
-                    setTimeout(() => gpsBtn.classList.remove('error'), 2000);
                 },
                 { enableHighAccuracy: true, timeout: 15000 }
             );
@@ -1732,9 +1567,13 @@
         function initDateTime() {
             const now = new Date();
             now.setMinutes(now.getMinutes() + 30);
-            document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
-            document.getElementById('bookingDate').value = now.toISOString().split('T')[0];
-            document.getElementById('bookingTime').value = now.toTimeString().slice(0, 5);
+            const dateEl = document.getElementById('bookingDate');
+            const timeEl = document.getElementById('bookingTime');
+            if (dateEl) {
+                dateEl.min = new Date().toISOString().split('T')[0];
+                dateEl.value = now.toISOString().split('T')[0];
+            }
+            if (timeEl) timeEl.value = now.toTimeString().slice(0, 5);
         }
 
         function findMyLocation() {
@@ -1752,12 +1591,12 @@
                     });
                     setTimeout(() => userMarker.setAnimation(null), 2000);
                     showNotification('✅ Position trouvée', 'success');
-                }, () => showNotification('❌ Localisation refusée', 'error'));
+                });
             }
         }
 
         function toggleTraffic() {
-            if (trafficLayer.getMap()) { trafficLayer.setMap(null); showNotification('🚦 Trafic désactivé', 'info'); } 
+            if (trafficLayer.getMap()) { trafficLayer.setMap(null); showNotification('🚦 Trafic désactivé', 'info'); }
             else { trafficLayer.setMap(map); showNotification('🚦 Trafic activé', 'success'); }
         }
 
@@ -1765,7 +1604,12 @@
             mapSelectionMode = type;
             showNotification(`🗺️ Cliquez sur la carte pour ${type === 'from' ? 'le départ' : 'la destination'}`, 'info');
             map.getDiv().style.cursor = 'crosshair';
-            document.querySelector('.map-container').scrollIntoView({ behavior: 'smooth' });
+            
+            // ✅ Auto-scroll vers la carte
+            const mapContainer = document.querySelector('.map-container');
+            if (mapContainer) {
+                mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         function handleMapClick(event) {
@@ -1774,11 +1618,13 @@
             geocoder.geocode({ location: location }, (results, status) => {
                 if (status === 'OK' && results[0]) {
                     if (mapSelectionMode === 'from') {
-                        document.getElementById('bookingFrom').value = results[0].formatted_address;
+                        const fromEl = document.getElementById('bookingFrom');
+                        if (fromEl) fromEl.value = results[0].formatted_address;
                         departureCoords = { lat: location.lat(), lng: location.lng() };
                         updateMarker('departure', departureCoords);
                     } else {
-                        document.getElementById('bookingTo').value = results[0].formatted_address;
+                        const toEl = document.getElementById('bookingTo');
+                        if (toEl) toEl.value = results[0].formatted_address;
                         destinationCoords = { lat: location.lat(), lng: location.lng() };
                         updateMarker('destination', destinationCoords);
                     }
@@ -1807,7 +1653,7 @@
             });
         }
 
-        // ===== FONCTIONS BOOKING =====
+        // ===== BOOKING =====
         function selectVehicle(type, price) {
             selectedVehicle = type;
             selectedVehiclePrice = price;
@@ -1820,8 +1666,8 @@
             selectedPayment = method;
             document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
-            const methodNames = { cash: 'Espèces', orange: 'Orange Money', wave: 'Wave', wallet: 'Portefeuille' };
-            showNotification(`✅ Paiement: ${methodNames[method]}`, 'success');
+            const names = { cash: 'Espèces', orange: 'Orange Money', wave: 'Wave', wallet: 'Portefeuille' };
+            showNotification(`✅ Paiement: ${names[method]}`, 'success');
         }
 
         function calculateDistance(p1, p2) {
@@ -1833,13 +1679,19 @@
         }
 
         function previewBooking() {
-            const from = document.getElementById('bookingFrom').value.trim();
-            const to = document.getElementById('bookingTo').value.trim();
-            const date = document.getElementById('bookingDate').value;
-            const time = document.getElementById('bookingTime').value;
-            const phone = document.getElementById('bookingPhone').value.trim();
+            const fromEl = document.getElementById('bookingFrom');
+            const toEl = document.getElementById('bookingTo');
+            const dateEl = document.getElementById('bookingDate');
+            const timeEl = document.getElementById('bookingTime');
+            const phoneEl = document.getElementById('bookingPhone');
+            
+            const from = fromEl?.value?.trim();
+            const to = toEl?.value?.trim();
+            const date = dateEl?.value;
+            const time = timeEl?.value;
+            const phone = phoneEl?.value?.trim();
 
-            if (!phone) { showNotification('⚠️ Veuillez vous connecter', 'error'); document.getElementById('loginModal').style.display = 'flex'; return; }
+            if (!phone) { showNotification('⚠️ Connectez-vous', 'error'); document.getElementById('loginModal').style.display = 'flex'; return; }
             if (!from || !to || !date || !time) { showNotification('⚠️ Remplissez tous les champs', 'error'); return; }
             if (!selectedVehicle) { showNotification('⚠️ Sélectionnez un véhicule', 'error'); return; }
             if (!selectedPayment) { showNotification('⚠️ Sélectionnez un paiement', 'error'); return; }
@@ -1857,37 +1709,41 @@
             const vehicleNames = { standard: '🚗 Standard', confort: '✨ Confort', van: '🚐 Van', premium: '👑 Premium' };
             const paymentNames = { cash: '💵 Espèces', orange: '📱 Orange Money', wave: '💳 Wave', wallet: '👛 Portefeuille' };
 
-            document.getElementById('summaryRoute').textContent = `${from.substring(0, 15)}... → ${to.substring(0, 15)}...`;
-            document.getElementById('summaryDateTime').textContent = `${date} ${time}`;
-            document.getElementById('summaryVehicle').textContent = vehicleNames[selectedVehicle];
-            document.getElementById('summaryPayment').textContent = paymentNames[selectedPayment];
-            document.getElementById('summaryTotal').textContent = `${totalPrice.toLocaleString()} FCFA`;
+            safeSetText('summaryRoute', `${from.substring(0, 15)}... → ${to.substring(0, 15)}...`);
+            safeSetText('summaryDateTime', `${date} ${time}`);
+            safeSetText('summaryVehicle', vehicleNames[selectedVehicle]);
+            safeSetText('summaryPayment', paymentNames[selectedPayment]);
+            safeSetText('summaryTotal', `${totalPrice.toLocaleString()} FCFA`);
 
-            document.getElementById('bookingSummary').style.display = 'block';
-            document.getElementById('bookingSummary').scrollIntoView({ behavior: 'smooth' });
+            const summary = document.getElementById('bookingSummary');
+            if (summary) {
+                summary.style.display = 'block';
+                summary.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         async function confirmBooking() {
             const summary = document.getElementById('bookingSummary');
-            if (summary.style.display === 'none') { showNotification('⚠️ Cliquez d\'abord sur Aperçu', 'error'); return; }
+            if (!summary || summary.style.display === 'none') { showNotification('⚠️ Cliquez sur Aperçu', 'error'); return; }
 
             const phone = getUserPhone();
-            if (!phone) { showNotification('⚠️ Veuillez vous connecter', 'error'); document.getElementById('loginModal').style.display = 'flex'; return; }
+            if (!phone) { showNotification('⚠️ Connectez-vous', 'error'); document.getElementById('loginModal').style.display = 'flex'; return; }
 
-            const totalPrice = parseInt(document.getElementById('summaryTotal').textContent.replace(/\D/g, ''));
+            const totalText = document.getElementById('summaryTotal')?.textContent || '0';
+            const totalPrice = parseInt(totalText.replace(/\D/g, ''));
             showLoading('Enregistrement...');
 
             const paymentMethodNames = { 'cash': 'Espèces', 'orange': 'Orange Money', 'wave': 'Wave', 'wallet': 'Portefeuille Al Bourakh' };
 
             const bookingData = {
-                clientNom: document.getElementById('bookingName').value.trim() || 'Client',
+                clientNom: document.getElementById('bookingName')?.value?.trim() || 'Client',
                 clientTelephone: phone,
-                depart: document.getElementById('bookingFrom').value.trim(),
-                destination: document.getElementById('bookingTo').value.trim(),
+                depart: document.getElementById('bookingFrom')?.value?.trim(),
+                destination: document.getElementById('bookingTo')?.value?.trim(),
                 departCoords: departureCoords,
                 destinationCoords: destinationCoords,
-                dateReservation: document.getElementById('bookingDate').value,
-                heureReservation: document.getElementById('bookingTime').value,
+                dateReservation: document.getElementById('bookingDate')?.value,
+                heureReservation: document.getElementById('bookingTime')?.value,
                 vehiculeType: selectedVehicle,
                 modePaiement: paymentMethodNames[selectedPayment],
                 prixEstime: totalPrice,
@@ -1911,36 +1767,41 @@
             }
         }
 
-        // ===== FONCTIONS TRACKING =====
+        // ===== TRACKING =====
         function openTracking() {
-            document.getElementById('trackingModal').classList.add('active');
+            const modal = document.getElementById('trackingModal');
+            if (modal) modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             
             if (currentBooking) {
-                document.getElementById('tripFrom').textContent = currentBooking.depart || '-';
-                document.getElementById('tripTo').textContent = currentBooking.destination || '-';
-                document.getElementById('tripPrice').textContent = (currentBooking.prixEstime || 0).toLocaleString() + ' FCFA';
+                safeSetText('tripFrom', currentBooking.depart || '-');
+                safeSetText('tripTo', currentBooking.destination || '-');
+                safeSetText('tripPrice', (currentBooking.prixEstime || 0).toLocaleString() + ' FCFA');
             }
-            document.getElementById('step1Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            safeSetText('step1Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
             
             hidePaymentButton();
-            document.getElementById('cancelBookingBtn').style.display = 'block';
+            safeSetStyle('cancelBookingBtn', 'display', 'block');
             currentTrackingMode = 'approche';
             
             setTimeout(() => initTrackingMap(), 300);
         }
 
         function closeTracking() {
-            document.getElementById('trackingModal').classList.remove('active');
+            const modal = document.getElementById('trackingModal');
+            if (modal) modal.classList.remove('active');
             document.body.style.overflow = '';
-            if (reservationListener) reservationListener();
-            if (driverListener) driverListener();
+            if (reservationListener) { reservationListener(); reservationListener = null; }
+            if (driverListener) { driverListener(); driverListener = null; }
         }
 
         function initTrackingMap() {
-            if (!currentBooking || !currentBooking.departCoords) return;
+            if (!currentBooking?.departCoords) return;
             
-            trackingMap = new google.maps.Map(document.getElementById('trackingMap'), { center: currentBooking.departCoords, zoom: 14, disableDefaultUI: true, zoomControl: true });
+            const mapEl = document.getElementById('trackingMap');
+            if (!mapEl) return;
+            
+            trackingMap = new google.maps.Map(mapEl, { center: currentBooking.departCoords, zoom: 14, disableDefaultUI: true, zoomControl: true });
             trackingDirectionsRenderer = new google.maps.DirectionsRenderer({ map: trackingMap, suppressMarkers: true, polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
             clientPickupMarker = new google.maps.Marker({ position: currentBooking.departCoords, map: trackingMap, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#4CAF50', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 } });
         }
@@ -1963,11 +1824,11 @@
 
         function updateStatusTimeline(statut) {
             if (statut === 'terminee') {
-                document.getElementById('step5Icon').classList.add('active');
-                document.getElementById('driverApproachingBox').innerHTML = `
+                safeAddClass('step5Icon', 'active');
+                safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">🎉 Course terminée!</div>
                     <div class="driver-eta" style="font-size: 1.2em;">Validez votre paiement</div>
-                `;
+                `);
                 showPaymentButton();
             }
         }
@@ -1977,9 +1838,13 @@
             
             driverListener = db.collection('drivers').doc(driverId).onSnapshot((doc) => {
                 if (!doc.exists) return;
+                
+                // ✅ CORRECTION: Vérifier que le modal est ouvert
+                if (!isTrackingModalOpen()) return;
+                
                 const driverData = doc.data();
                 
-                if (driverData.position && driverData.position.latitude && driverData.position.longitude) {
+                if (driverData.position?.latitude && driverData.position?.longitude) {
                     const driverPos = { lat: driverData.position.latitude, lng: driverData.position.longitude };
                     lastDriverPosition = driverPos;
                     updateDriverMarker(driverPos);
@@ -1991,42 +1856,61 @@
 
         function updateDriverMarker(position) {
             if (!trackingMap) return;
-            if (driverMarker) { driverMarker.setPosition(position); } 
+            if (driverMarker) { driverMarker.setPosition(position); }
             else { driverMarker = new google.maps.Marker({ position: position, map: trackingMap, icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 8, fillColor: '#2196F3', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }, zIndex: 100 }); }
         }
 
+        // ✅ CORRECTION PRINCIPALE: calculateApproachRoute avec vérifications null
         function calculateApproachRoute(driverPos) {
-            if (!currentBooking.departCoords || !directionsService) return;
+            if (!currentBooking?.departCoords || !directionsService) return;
             
-            directionsService.route({ origin: driverPos, destination: currentBooking.departCoords, travelMode: google.maps.TravelMode.DRIVING }, (result, status) => {
+            // ✅ Vérifier que le modal de tracking est ouvert
+            if (!isTrackingModalOpen()) {
+                console.log('⚠️ Tracking modal closed, skipping route calculation');
+                return;
+            }
+            
+            directionsService.route({
+                origin: driverPos,
+                destination: currentBooking.departCoords,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                // ✅ Revérifier après le callback asynchrone
+                if (!isTrackingModalOpen()) return;
+                
                 if (status === 'OK') {
                     if (trackingDirectionsRenderer) trackingDirectionsRenderer.setDirections(result);
                     const leg = result.routes[0].legs[0];
-                    document.getElementById('driverETA').textContent = Math.ceil(leg.duration.value / 60);
-                    document.getElementById('driverDistance').textContent = leg.distance.text;
-                    document.getElementById('driverArrivalTime').textContent = new Date(Date.now() + leg.duration.value * 1000).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                    document.getElementById('driverApproachingBox').style.display = 'block';
+                    
+                    // ✅ Utiliser les fonctions sécurisées
+                    safeSetText('driverETA', Math.ceil(leg.duration.value / 60));
+                    safeSetText('driverDistance', leg.distance.text);
+                    
+                    const arrivalTime = new Date(Date.now() + leg.duration.value * 1000)
+                        .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    safeSetText('driverArrivalTime', arrivalTime);
+                    safeSetStyle('driverApproachingBox', 'display', 'block');
                 }
             });
         }
 
         function updateStep2(data) {
-            document.getElementById('step2Icon').classList.add('active');
-            document.getElementById('step2Text').textContent = `${data.nomChauffeur || 'Chauffeur'} assigné`;
-            document.getElementById('step2Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            safeAddClass('step2Icon', 'active');
+            safeSetText('step2Text', `${data.nomChauffeur || 'Chauffeur'} assigné`);
+            safeSetText('step2Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
         }
 
         function updateStep3() {
             const step3Icon = document.getElementById('step3Icon');
-            if (!step3Icon.classList.contains('current') && !step3Icon.classList.contains('active')) {
+            if (step3Icon && !step3Icon.classList.contains('current') && !step3Icon.classList.contains('active')) {
                 step3Icon.classList.add('current');
-                document.getElementById('step3Time').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                safeSetText('step3Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
             }
         }
 
         async function showDriverCard(data) {
-            document.getElementById('driverCard').style.display = 'block';
-            document.getElementById('driverName').textContent = data.nomChauffeur || 'Chauffeur';
+            safeSetStyle('driverCard', 'display', 'block');
+            safeSetText('driverName', data.nomChauffeur || 'Chauffeur');
             
             let rating = 4.9, marque = '', modele = '', immatriculation = 'DK-XXXX-XX', photoUrl = null;
             
@@ -2043,33 +1927,32 @@
             }
             
             const driverAvatar = document.getElementById('driverAvatar');
-            const validPhotoUrl = validateImageUrl(photoUrl);
-            if (validPhotoUrl) {
-                const img = new Image();
-                img.onload = () => { driverAvatar.innerHTML = `<img src="${validPhotoUrl}" alt="Chauffeur">`; driverPhotoUrl = validPhotoUrl; };
-                img.onerror = () => { driverAvatar.innerHTML = '👤'; };
-                img.src = validPhotoUrl;
-            } else { driverAvatar.innerHTML = '👤'; }
+            if (driverAvatar) {
+                if (photoUrl) {
+                    const img = new Image();
+                    img.onload = () => { driverAvatar.innerHTML = `<img src="${photoUrl}" alt="Chauffeur">`; driverPhotoUrl = photoUrl; };
+                    img.onerror = () => { driverAvatar.innerHTML = '👤'; };
+                    img.src = photoUrl;
+                } else { driverAvatar.innerHTML = '👤'; }
+            }
             
-            document.getElementById('driverRating').textContent = rating;
-            document.getElementById('vehicleModel').textContent = marque && modele ? `${marque} ${modele}` : 'Véhicule';
-            document.getElementById('vehiclePlate').textContent = immatriculation;
+            safeSetText('driverRating', rating);
+            safeSetText('vehicleModel', marque && modele ? `${marque} ${modele}` : 'Véhicule');
+            safeSetText('vehiclePlate', immatriculation);
         }
 
         function showPaymentButton() {
-            const btn = document.getElementById('validatePaymentBtn');
-            const infoBox = document.getElementById('paymentInfoBox');
             if (currentBooking && isDigitalPayment(currentBooking.modePaiement || selectedPayment)) {
-                if (btn) btn.style.display = 'flex';
+                safeSetStyle('validatePaymentBtn', 'display', 'flex');
+                const infoBox = document.getElementById('paymentInfoBox');
                 if (infoBox) infoBox.classList.add('show');
-                if (currentBooking.prixEstime) document.getElementById('paymentInfoAmount').textContent = `${currentBooking.prixEstime.toLocaleString()} FCFA`;
+                if (currentBooking.prixEstime) safeSetText('paymentInfoAmount', `${currentBooking.prixEstime.toLocaleString()} FCFA`);
             }
         }
 
         function hidePaymentButton() {
-            const btn = document.getElementById('validatePaymentBtn');
+            safeSetStyle('validatePaymentBtn', 'display', 'none');
             const infoBox = document.getElementById('paymentInfoBox');
-            if (btn) btn.style.display = 'none';
             if (infoBox) infoBox.classList.remove('show');
         }
 
@@ -2078,16 +1961,20 @@
 
         async function cancelBooking() {
             if (!confirm('Annuler cette réservation?')) return;
-            if (currentBooking && currentBooking.id) {
-                try { await db.collection('reservations').doc(currentBooking.id).update({ statut: 'annulee' }); } 
+            if (currentBooking?.id) {
+                try { await db.collection('reservations').doc(currentBooking.id).update({ statut: 'annulee' }); }
                 catch (e) { console.error('Erreur:', e); }
             }
             closeTracking();
             showNotification('Réservation annulée', 'info');
         }
 
-        function scrollToBooking() { document.querySelector('.booking-section').scrollIntoView({ behavior: 'smooth' }); }
+        function scrollToBooking() {
+            const section = document.querySelector('.booking-section');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+        }
 
+        // ===== NOTIFICATIONS & LOADING =====
         function showNotification(msg, type = 'info') {
             const notif = document.createElement('div');
             notif.className = `notification ${type}`;
@@ -2098,29 +1985,39 @@
 
         function showLoading(text = 'Chargement...') {
             const overlay = document.getElementById('loadingOverlay');
-            overlay.querySelector('.loading-text').textContent = text;
-            overlay.style.display = 'flex';
+            if (overlay) {
+                const textEl = overlay.querySelector('.loading-text');
+                if (textEl) textEl.textContent = text;
+                overlay.style.display = 'flex';
+            }
         }
 
-        function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
 
-        // Diagnostic
+        // ===== EXPORTS =====
+        window.openWallet = openWallet;
+        window.closeWallet = closeWallet;
+        window.showWalletScreen = showWalletScreen;
+        window.saveWalletToLocalStorage = saveWalletToLocalStorage;
+        window.loadWalletFromLocalStorage = loadWalletFromLocalStorage;
+        window.syncValidatedRecharges = syncValidatedRecharges;
+        window.initMap = initMap;
+
+        // ===== DIAGNOSTIC =====
         function diagWallet() {
-            console.log('=== DIAGNOSTIC PORTEFEUILLE v3.7 ===');
+            console.log('=== DIAGNOSTIC v3.8 ===');
             console.log('Solde:', walletState.balance, 'FCFA');
-            console.log('Nouveau client:', walletState.isNewUser);
-            console.log('Bonus bienvenue:', WELCOME_BONUS, 'FCFA');
             console.log('Transactions:', walletState.transactions.length);
-            const saved = localStorage.getItem(WALLET_STORAGE_KEY);
-            console.log('Données localStorage:', saved ? JSON.parse(saved) : 'Aucune');
+            console.log('Nouveau client:', walletState.isNewUser);
             return walletState;
         }
         window.diagWallet = diagWallet;
 
-        window.initMap = initMap;
-
-        console.log('%c✅ Al Bourakh Client v3.7 - BONUS 500 FCFA', 'color: #00A854; font-size: 16px; font-weight: bold');
-        console.log('%c🎁 Nouveaux clients: 500 FCFA offerts à la première connexion', 'color: #10b981; font-size: 12px');
+        console.log('%c✅ Al Bourakh Client v3.8 - CORRIGÉ', 'color: #00A854; font-size: 16px; font-weight: bold');
+        console.log('%c🔧 Corrections: null checks, safe DOM updates', 'color: #2196F3; font-size: 12px');
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 </body>
