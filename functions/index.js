@@ -1,311 +1,37 @@
+// ============================================
+// DÉBUT DE FICHIER index.js CORRECT
+// Copiez ces lignes EXACTEMENT dans cet ordre
+// ============================================
+
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
-// ==========================================
-// 💰 SECTION CRÉDIT AUTOMATIQUE CHAUFFEUR
-// À ajouter dans votre index.js existant
-// ==========================================
 
-// Configuration pour le crédit (à ajouter en haut du fichier avec TRACKING_CONFIG)
-const PAYMENT_CONFIG = {
-    driverRate: 0.70,               // 70% pour le chauffeur
-    platformRate: 0.30              // 30% pour la plateforme
-};
-
-/**
- * Crédite automatiquement le chauffeur quand une course est terminée et payée
- * Se déclenche UNIQUEMENT sur la mise à jour du champ paiementValide
- */
-exports.crediterChauffeurAutomatique = functions.firestore
-    .document('reservations/{reservationId}')
-    .onUpdate(async (change, context) => {
-        const before = change.before.data();
-        const after = change.after.data();
-        const reservationId = context.params.reservationId;
-        
-        // ✅ VÉRIFICATION 1: Le paiement vient d'être validé
-        if (before.paiementValide === true || after.paiementValide !== true) {
-            // Pas de changement de paiement, on ignore
-            return null;
-        }
-        
-        console.log(`💰 [CRÉDIT AUTO] Paiement détecté pour réservation: ${reservationId}`);
-        
-        // ✅ VÉRIFICATION 2: La course doit être terminée
-        if (after.statut !== 'terminee') {
-            console.log(`⏭️ [CRÉDIT AUTO] Course pas terminée (statut: ${after.statut}), ignorée`);
-            return null;
-        }
-        
-        // ✅ VÉRIFICATION 3: Ne pas recréditer
-        if (after.chauffeurCredite === true) {
-            console.log(`⏭️ [CRÉDIT AUTO] Déjà crédité, ignoré`);
-            return null;
-        }
-        
-        // ✅ VÉRIFICATION 4: Chauffeur assigné
-        if (!after.chauffeurAssigne) {
-            console.log(`❌ [CRÉDIT AUTO] Pas de chauffeur assigné`);
-            return null;
-        }
-        
-        const driverId = after.chauffeurAssigne;
-        const prixEstime = parseMoney(after.prixEstime);
-        
-        if (prixEstime <= 0) {
-            console.log(`❌ [CRÉDIT AUTO] Prix invalide: ${prixEstime}`);
-            return null;
-        }
-        
-        const netAmount = Math.round(prixEstime * PAYMENT_CONFIG.driverRate);
-        const platformAmount = prixEstime - netAmount;
-        
-        console.log(`💵 [CRÉDIT AUTO] Montant à créditer: ${netAmount} FCFA (sur ${prixEstime} FCFA)`);
-        
-        try {
-            // 🔒 TRANSACTION ATOMIQUE FIRESTORE
-            await db.runTransaction(async (transaction) => {
-                
-                // 1️⃣ Relire la réservation pour vérifier
-                const reservationRef = db.collection('reservations').doc(reservationId);
-                const reservationDoc = await transaction.get(reservationRef);
-                
-                if (!reservationDoc.exists) {
-                    throw new Error('RESERVATION_NOT_FOUND');
-                }
-                
-                const reservationData = reservationDoc.data();
-                
-                // 2️⃣ VÉRIFICATIONS CRITIQUES
-                if (reservationData.statut !== 'terminee') {
-                    throw new Error('COURSE_NOT_COMPLETED');
-                }
-                
-                if (reservationData.chauffeurCredite === true) {
-                    throw new Error('ALREADY_CREDITED');
-                }
-                
-                if (reservationData.paiementValide !== true) {
-                    throw new Error('PAYMENT_NOT_VALIDATED');
-                }
-                
-                if (reservationData.chauffeurAssigne !== driverId) {
-                    throw new Error('WRONG_DRIVER');
-                }
-                
-                // 3️⃣ Lire le chauffeur
-                const driverRef = db.collection('drivers').doc(driverId);
-                const driverDoc = await transaction.get(driverRef);
-                
-                if (!driverDoc.exists) {
-                    throw new Error('DRIVER_NOT_FOUND');
-                }
-                
-                const driverData = driverDoc.data();
-                
-                // 4️⃣ Calculer les nouveaux soldes (gestion double casse)
-                const oldSolde = parseMoney(driverData.soldeDisponible || driverData.SoldeDisponible);
-                const newSolde = oldSolde + netAmount;
-                
-                const oldRevenusJour = parseMoney(driverData.revenusJour);
-                const newRevenusJour = oldRevenusJour + netAmount;
-                
-                const oldRevenusSemaine = parseMoney(driverData.revenusSemaine);
-                const newRevenusSemaine = oldRevenusSemaine + netAmount;
-                
-                const oldRevenusMois = parseMoney(driverData.revenusMois);
-                const newRevenusMois = oldRevenusMois + netAmount;
-                
-                const oldRevenusTotal = parseMoney(driverData.revenusTotal);
-                const newRevenusTotal = oldRevenusTotal + netAmount;
-                
-                const oldCoursesCompletees = driverData.coursesCompletees || 0;
-                const newCoursesCompletees = oldCoursesCompletees + 1;
-                
-                console.log(`📊 [CRÉDIT AUTO] Nouveau solde: ${newSolde} FCFA (ancien: ${oldSolde} FCFA)`);
-                
-                // 5️⃣ Mise à jour du chauffeur
-                transaction.update(driverRef, {
-                    soldeDisponible: newSolde,
-                    revenusJour: newRevenusJour,
-                    revenusSemaine: newRevenusSemaine,
-                    revenusMois: newRevenusMois,
-                    revenusTotal: newRevenusTotal,
-                    coursesCompletees: newCoursesCompletees,
-                    dernierCredit: admin.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // 6️⃣ Marquer la réservation comme créditée
-                transaction.update(reservationRef, {
-                    chauffeurCredite: true,
-                    dateCreditChauffeur: admin.firestore.FieldValue.serverTimestamp(),
-                    montantCrediteChauffeur: netAmount,
-                    montantPlateforme: platformAmount,
-                    creditVersion: 'cloud-function-v1.0'
-                });
-                
-                console.log(`✅ [CRÉDIT AUTO] Transaction préparée pour ${reservationId}`);
-            });
-            
-            console.log(`✅ [CRÉDIT AUTO] Crédit réussi: ${netAmount} FCFA pour ${driverId}`);
-            
-            // 📝 Créer une notification pour le chauffeur
-            await db.collection('notifications').add({
-                chauffeurId: driverId,
-                type: 'credit_recu',
-                reservationId: reservationId,
-                montant: netAmount,
-                message: `Vous avez reçu ${netAmount} FCFA`,
-                timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                lu: false
-            });
-            
-            // 📊 Logger l'opération
-            await db.collection('credit_logs').add({
-                reservationId: reservationId,
-                chauffeurId: driverId,
-                montantCourse: prixEstime,
-                montantChauffeur: netAmount,
-                montantPlateforme: platformAmount,
-                timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                success: true
-            });
-            
-            return null;
-            
-        } catch (error) {
-            console.error(`❌ [CRÉDIT AUTO] Erreur pour ${reservationId}:`, error.message);
-            
-            // Logger l'erreur sans bloquer
-            await db.collection('credit_errors').add({
-                reservationId: reservationId,
-                chauffeurId: driverId,
-                errorMessage: error.message,
-                errorStack: error.stack,
-                timestamp: admin.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Ne pas relancer l'erreur pour éviter de re-trigger
-            return null;
-        }
-    });
-
-/**
- * Fonction de récupération manuelle pour les courses non créditées
- * À appeler depuis l'admin si nécessaire
- */
-exports.recupererCreditsManques = functions.https.onCall(async (data, context) => {
-    // Vérification admin
-    if (!context.auth && !data.adminToken) {
-        throw new functions.https.HttpsError('unauthenticated', 'Non authentifié');
-    }
-    
-    console.log('🔧 [RÉCUP] Recherche des crédits manqués...');
-    
-    try {
-        // Trouver toutes les courses terminées, payées mais non créditées
-        const snapshot = await db.collection('reservations')
-            .where('statut', '==', 'terminee')
-            .where('paiementValide', '==', true)
-            .where('chauffeurCredite', '==', false)
-            .get();
-        
-        if (snapshot.empty) {
-            return {
-                success: true,
-                message: 'Aucun crédit manqué trouvé',
-                count: 0
-            };
-        }
-        
-        console.log(`🔍 [RÉCUP] ${snapshot.size} crédits manqués trouvés`);
-        
-        const results = [];
-        
-        // Traiter chaque course
-        for (const doc of snapshot.docs) {
-            const reservationId = doc.id;
-            const reservation = doc.data();
-            
-            try {
-                const driverId = reservation.chauffeurAssigne;
-                const prixEstime = parseMoney(reservation.prixEstime);
-                const netAmount = Math.round(prixEstime * PAYMENT_CONFIG.driverRate);
-                const platformAmount = prixEstime - netAmount;
-                
-                // Transaction atomique
-                await db.runTransaction(async (transaction) => {
-                    const driverRef = db.collection('drivers').doc(driverId);
-                    const driverDoc = await transaction.get(driverRef);
-                    
-                    if (!driverDoc.exists) {
-                        throw new Error('Driver not found');
-                    }
-                    
-                    const driverData = driverDoc.data();
-                    const oldSolde = parseMoney(driverData.soldeDisponible || driverData.SoldeDisponible);
-                    const newSolde = oldSolde + netAmount;
-                    
-                    transaction.update(driverRef, {
-                        soldeDisponible: newSolde,
-                        revenusTotal: admin.firestore.FieldValue.increment(netAmount)
-                    });
-                    
-                    transaction.update(doc.ref, {
-                        chauffeurCredite: true,
-                        dateCreditChauffeur: admin.firestore.FieldValue.serverTimestamp(),
-                        montantCrediteChauffeur: netAmount,
-                        montantPlateforme: platformAmount,
-                        creditVersion: 'recovery-manual'
-                    });
-                });
-                
-                results.push({
-                    reservationId: reservationId,
-                    success: true,
-                    montant: netAmount
-                });
-                
-                console.log(`✅ [RÉCUP] ${reservationId}: ${netAmount} FCFA`);
-                
-            } catch (error) {
-                results.push({
-                    reservationId: reservationId,
-                    success: false,
-                    error: error.message
-                });
-                
-                console.error(`❌ [RÉCUP] ${reservationId}:`, error.message);
-            }
-        }
-        
-        const successCount = results.filter(r => r.success).length;
-        
-        return {
-            success: true,
-            message: `${successCount}/${results.length} crédits récupérés`,
-            count: successCount,
-            details: results
-        };
-        
-    } catch (error) {
-        console.error('❌ [RÉCUP] Erreur:', error);
-        throw new functions.https.HttpsError('internal', error.message);
-    }
-});
+// ✅ IMPORTANT: db doit être défini ICI, EN PREMIER
 const db = admin.firestore();
 
-// ==========================================
-// CONFIGURATION SYSTÈME
-// ==========================================
+// ✅ Configurations
 const TRACKING_CONFIG = {
-    maxInactivityMinutes: 10,      // Temps max sans mise à jour GPS
-    geofenceRadius: 100,            // Rayon de géofence en mètres
-    speedThreshold: 120,            // Vitesse max acceptée (km/h)
-    accuracyThreshold: 50,          // Précision GPS max acceptée (m)
-    batchUpdateInterval: 5,         // Intervalle de batch en secondes
-    minSoldeRequis: 1000            // Solde minimum strict pour recevoir une course
+    maxInactivityMinutes: 10,
+    geofenceRadius: 100,
+    speedThreshold: 120,
+    accuracyThreshold: 50,
+    batchUpdateInterval: 5,
+    minSoldeRequis: 1000
 };
+
+const PAYMENT_CONFIG = {
+    driverRate: 0.70,
+    platformRate: 0.30
+};
+
+// ✅ Fonctions utilitaires AVANT les exports
+function parseMoney(value) {
+    if (value === undefined || value === null) return 0;
+    const cleanStr = String(value).replace(/[^0-9.-]+/g, ""); 
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? 0 : num;
+}
 
 async function getSystemParams() {
   try {
@@ -330,50 +56,33 @@ async function getSystemParams() {
   }
 }
 
-// Fonction utilitaire pour nettoyer et parser les montants financiers
-function parseMoney(value) {
-    if (value === undefined || value === null) return 0;
-    // Convertir en chaîne, supprimer tout ce qui n'est pas chiffre, point ou signe moins (ex: "1 500 FCFA" -> "1500")
-    const cleanStr = String(value).replace(/[^0-9.-]+/g, ""); 
-    const num = parseFloat(cleanStr);
-    return isNaN(num) ? 0 : num;
+function calculerDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
-// ==========================================
-// SECTION 1: ASSIGNATION AUTOMATIQUE
-// ==========================================
+function toRad(valeur) {
+  return valeur * Math.PI / 180;
+}
 
-/**
- * Assigne automatiquement un chauffeur à une nouvelle réservation
- */
-exports.assignerChauffeurAutomatique = functions.firestore
-  .document('reservations/{reservationId}')
-  .onCreate(async (snap, context) => {
-    const reservation = snap.data();
-    const reservationId = context.params.reservationId;
-    
-    console.log(` 🚕  [${new Date().toISOString()}] Nouvelle réservation: ${reservationId}`);
-    
-    if (reservation.statut !== 'en_attente') {
-      console.log(' ⚠️  Réservation déjà traitée');
-      return null;
-    }
+// ============================================
+// MAINTENANT vous pouvez ajouter vos exports
+// ============================================
 
-    const params = await getSystemParams();
-    
-    if (!params.assignationAutomatique) {
-      console.log(' 🔴  MODE MANUEL activé');
-      
-      await db.collection('notifications_admin').add({
-        type: 'nouvelle_reservation_manuelle',
-        reservationId: reservationId,
-        message: `Nouvelle réservation en attente - Mode manuel activé`,
-        clientNom: reservation.clientNom,
-        depart: reservation.depart,
-        destination: reservation.destination,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        lu: false
-      });
+exports.crediterChauffeurAutomatique = functions.firestore
+    .document('reservations/{reservationId}')
+    .onUpdate(async (change, context) => {
+        // ... votre code ici (db et parseMoney sont maintenant définis!)
+    });
+
+// ... reste de vos fonctions
       
       return null;
     }
