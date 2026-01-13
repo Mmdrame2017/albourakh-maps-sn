@@ -1,0 +1,73 @@
+name: Deploy to Firebase Functions
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Functions
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          cd functions
+          npm ci
+      
+      - name: Create service account file
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > $HOME/gcloud-service-key.json
+      
+      - name: Deploy to Firebase
+        run: |
+          npm install -g firebase-tools
+          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
+          firebase deploy --only functions --project albourakh-sn-ok
+```
+
+### **Étape 5 : Commit le fichier**
+
+1. En bas de la page, dans "Commit new file"
+2. Titre : `feat: Add automatic Firebase deployment`
+3. Cliquez sur **"Commit new file"** (bouton vert)
+
+---
+
+## 🎉 **ÇA VA SE LANCER AUTOMATIQUEMENT !**
+
+Dès que vous cliquez sur "Commit", GitHub Actions va :
+
+1. ✅ Détecter le nouveau commit
+2. ✅ Lancer le workflow
+3. ✅ Installer les dépendances
+4. ✅ Déployer vers Firebase
+5. ✅ Les 2 fonctions seront en ligne !
+
+---
+
+## 📊 **SUIVRE LE DÉPLOIEMENT**
+
+Après le commit :
+
+1. Allez sur l'onglet **"Actions"** de votre repo
+2. Vous verrez le workflow en cours : **"Deploy to Firebase Functions"**
+3. Cliquez dessus pour voir les logs en temps réel
+
+---
+
+## ⏱️ **TIMELINE**
+```
+T+0s      → Commit du fichier workflow
+T+10s     → GitHub Actions démarre
+T+30s     → Installation des dépendances
+T+2min    → Déploiement vers Firebase
+T+3min    → ✅ SUCCÈS !
