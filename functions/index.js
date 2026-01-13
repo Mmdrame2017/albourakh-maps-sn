@@ -357,14 +357,31 @@ exports.recupererCreditsManques = functions.https.onCall(async (data, context) =
         console.error('❌ [RÉCUP] Erreur:', error);
         throw new functions.https.HttpsError('internal', error.message);
     }
-    });
+});
 
-// ... reste de vos fonctions
-      
+// ==========================================
+// SECTION 1: ASSIGNATION AUTOMATIQUE
+// ==========================================
+
+/**
+ * Assigne automatiquement un chauffeur à une nouvelle réservation
+ */
+exports.assignerChauffeurAutomatique = functions.firestore
+  .document('reservations/{reservationId}')
+  .onCreate(async (snap, context) => {
+    const reservation = snap.data();
+    const reservationId = context.params.reservationId;
+    
+    console.log(` 🚕  [${new Date().toISOString()}] Nouvelle réservation: ${reservationId}`);
+    
+    if (reservation.statut !== 'en_attente') {
+      console.log(' ⚠️  Réservation déjà traitée');
       return null;
     }
 
-    console.log(' 🟢  MODE AUTO activé');
+    const params = await getSystemParams();
+    
+    // ... continuez avec votre code existant de assignerChauffeurAutomatique
     
     try {
       const chauffeursSnapshot = await db.collection('drivers')
