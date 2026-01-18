@@ -3,6 +3,10 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 
+// ⭐ AJOUTEZ CETTE LIGNE ⭐
+const { setGlobalOptions } = require('firebase-functions/v2');
+setGlobalOptions({ region: 'us-central1' });
+
 // ==========================================
 // CONFIGURATION SYSTÈME
 // ==========================================
@@ -13,6 +17,11 @@ const TRACKING_CONFIG = {
     accuracyThreshold: 50,          // Précision GPS max acceptée (m)
     batchUpdateInterval: 5,         // Intervalle de batch en secondes
     minSoldeRequis: 1000            // Solde minimum strict pour recevoir une course
+};
+// ⭐ AJOUTEZ CETTE CONFIGURATION ICI ⭐
+const PAYMENT_CONFIG = {
+    driverRate: 0.7,           // 70% pour le chauffeur
+    platformRate: 0.3          // 30% pour la plateforme
 };
 
 async function getSystemParams() {
