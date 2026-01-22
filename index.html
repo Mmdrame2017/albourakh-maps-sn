@@ -2790,13 +2790,16 @@ function speakText(text) {
         .replace(/&nbsp;/g, ' ').replace(/&amp;/g, 'et').replace(/&lt;/g, '').replace(/&gt;/g, '')
         .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
         .replace(/📍/g, 'lieu ').replace(/🎯/g, 'destination ')
-        .replace(/💰/g, 'prix ').replace(/📏/g, 'distance ')
+        .replace(/💰/g, 'prix ').replace(/📏/g, 'destination ')
         .replace(/⏱️/g, 'durée ').replace(/🚗/g, 'voiture ')
         .replace(/✅/g, 'validé ').replace(/❌/g, 'erreur ')
         .replace(/[^\p{L}\p{N}\s\.,!?;:'-]/gu, '')
         .replace(/\n+/g, '. ')
         .replace(/\s+/g, ' ')
         .trim();
+    
+    // ✅ Convertir les nombres en mots français pour une meilleure lecture
+    cleanText = convertNumbersToFrenchWords(cleanText);
     
     if (cleanText.length < 5) return;
     if (cleanText.length > 500) cleanText = cleanText.substring(0, 500) + '...';
@@ -2812,6 +2815,61 @@ function speakText(text) {
     if (frenchVoice) utterance.voice = frenchVoice;
     
     abSynth.speak(utterance);
+}
+
+// ✅ Conversion des nombres en mots français
+function convertNumbersToFrenchWords(text) {
+    // Supprimer les espaces dans les nombres (ex: "300 000" → "300000")
+    text = text.replace(/(\d)\s+(\d)/g, '$1$2');
+    
+    // Dictionnaire des nombres courants en FCFA
+    const numberWords = {
+        '500000': 'cinq cent mille',
+        '400000': 'quatre cent mille',
+        '300000': 'trois cent mille',
+        '200000': 'deux cent mille',
+        '100000': 'cent mille',
+        '50000': 'cinquante mille',
+        '47000': 'quarante-sept mille',
+        '45000': 'quarante-cinq mille',
+        '52000': 'cinquante-deux mille',
+        '38000': 'trente-huit mille',
+        '32000': 'trente-deux mille',
+        '25000': 'vingt-cinq mille',
+        '20000': 'vingt mille',
+        '18000': 'dix-huit mille',
+        '15000': 'quinze mille',
+        '12000': 'douze mille',
+        '10000': 'dix mille',
+        '8000': 'huit mille',
+        '5000': 'cinq mille',
+        '3500': 'trois mille cinq cents',
+        '3000': 'trois mille',
+        '2500': 'deux mille cinq cents',
+        '2000': 'deux mille',
+        '1500': 'mille cinq cents',
+        '1000': 'mille',
+        '500': 'cinq cents',
+        '400': 'quatre cents',
+        '300': 'trois cents',
+        '200': 'deux cents',
+        '150': 'cent cinquante',
+        '100': 'cent'
+    };
+    
+    // Trier par longueur décroissante pour éviter les remplacements partiels
+    const sortedNumbers = Object.keys(numberWords).sort((a, b) => b.length - a.length);
+    
+    for (const num of sortedNumbers) {
+        const regex = new RegExp('\\b' + num + '\\b', 'g');
+        text = text.replace(regex, numberWords[num]);
+    }
+    
+    // Remplacer FCFA par francs CFA pour une meilleure prononciation
+    text = text.replace(/FCFA/gi, 'francs CFA');
+    text = text.replace(/\bF\b/g, 'francs');
+    
+    return text;
 }
 
 function showAbToast(message) {
