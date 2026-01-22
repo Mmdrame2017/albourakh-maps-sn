@@ -308,6 +308,7 @@
         </div>
     </section>
 
+    <!-- WALLET MODAL -->
     <div class="wallet-modal" id="walletModal">
         <div class="wallet-container">
             <div class="wallet-header">
@@ -326,6 +327,7 @@
         </div>
     </div>
 
+    <!-- MAP -->
     <div class="map-container">
         <div class="map-header">
             <div class="map-logo">🚕 Al Bourakh GPS</div>
@@ -341,6 +343,7 @@
         <div id="map"></div>
     </div>
 
+    <!-- BOOKING SECTION -->
     <section class="booking-section">
         <div class="booking-container">
             <div class="booking-header">
@@ -455,6 +458,7 @@
         </div>
     </section>
 
+    <!-- LOGIN MODAL -->
     <div class="modal" id="loginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20000; align-items: center; justify-content: center;">
         <div class="modal-content" style="max-width: 400px; background: white; border-radius: 15px; padding: 30px; text-align: center;">
             <h2 style="color: #00A854; margin-bottom: 20px;">👋 Bienvenue sur Al Bourakh</h2>
@@ -476,6 +480,7 @@
         </div>
     </div>
 
+    <!-- EVALUATION MODAL -->
     <div class="evaluation-modal" id="evaluationModal">
         <div class="evaluation-container">
             <div class="evaluation-header">
@@ -573,6 +578,7 @@
         </div>
     </div>
 
+    <!-- TRACKING MODAL -->
     <div class="tracking-modal" id="trackingModal">
         <div class="tracking-container">
             <div class="tracking-header">
@@ -696,8 +702,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
+        // ===== FIREBASE CONFIG =====
         const firebaseConfig = {
-            apiKey: "AIzaSyC_H9RdlNzQXkLN4EdByX2UZe0jEOZQYm4",
+            apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
             projectId: "albourakh-sn-ok",
             storageBucket: "albourakh-sn-ok.firebasestorage.app",
@@ -706,99 +713,15 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v3.8 - AVEC BIPS SONORES');
+        console.log('🚕 Al Bourakh Client v3.8 - STATUTS CORRIGÉS');
 
+        // ===== CONFIGURATION =====
         const WELCOME_BONUS = 500;
         const COMMISSION_RATE = 0.30;
         const DRIVER_RATE = 0.70;
         const WALLET_STORAGE_KEY = 'albourakh_wallet_v3';
 
-        // ===== 🔊 SYSTÈME DE BIPS SONORES =====
-        let audioContext = null;
-        let beepInterval = null;
-        let beepTimeout = null;
-        let beepCount = 0;
-
-        function initAudioContext() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            return audioContext;
-        }
-
-        function playBeep(frequency = 800, duration = 200, volume = 0.3) {
-            const ctx = initAudioContext();
-            const oscillator = ctx.createOscillator();
-            const gainNode = ctx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(ctx.destination);
-            
-            oscillator.frequency.value = frequency;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(volume, ctx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration / 1000);
-            
-            oscillator.start(ctx.currentTime);
-            oscillator.stop(ctx.currentTime + duration / 1000);
-        }
-
-        function playBeepSeries(seriesNumber, totalSeries) {
-            const progress = seriesNumber / totalSeries;
-            const frequency = 650 + (progress * 450);
-            const duration = 120;
-            const volume = 0.4 + (progress * 0.5);
-            const beepsInSeries = 4;
-            const delayBetweenBeeps = 150;
-            
-            for (let i = 0; i < beepsInSeries; i++) {
-                setTimeout(() => {
-                    playBeep(frequency, duration, volume);
-                }, i * delayBetweenBeeps);
-            }
-            
-            console.log(`🔔 Série ${seriesNumber}/${totalSeries} - ${beepsInSeries} bips - Fréq: ${frequency.toFixed(0)}Hz, Vol: ${(volume * 100).toFixed(0)}%`);
-        }
-
-        function playNotificationBeeps() {
-            stopNotificationBeeps();
-            
-            beepCount = 0;
-            const maxSeries = 6;
-            const seriesIntervalTime = 5000;
-            const totalDuration = 30000;
-            
-            console.log('🔊 Démarrage des bips sonores (6 séries de 4 bips sur 30 secondes)');
-            
-            const playProgressiveSeries = () => {
-                beepCount++;
-                playBeepSeries(beepCount, maxSeries);
-            };
-            
-            playProgressiveSeries();
-            
-            beepInterval = setInterval(playProgressiveSeries, seriesIntervalTime);
-            
-            beepTimeout = setTimeout(() => {
-                stopNotificationBeeps();
-                console.log('🔊 Fin des bips sonores');
-            }, totalDuration);
-        }
-
-        function stopNotificationBeeps() {
-            if (beepInterval) {
-                clearInterval(beepInterval);
-                beepInterval = null;
-            }
-            if (beepTimeout) {
-                clearTimeout(beepTimeout);
-                beepTimeout = null;
-            }
-            beepCount = 0;
-        }
-
-        // ===== FONCTIONS UTILITAIRES =====
+        // ===== FONCTIONS UTILITAIRES SÉCURISÉES =====
         function safeSetText(elementId, value) {
             const el = document.getElementById(elementId);
             if (el) { el.textContent = value; return true; }
@@ -836,6 +759,7 @@
             return modal && modal.classList.contains('active');
         }
 
+        // ===== WALLET STATE =====
         const DEFAULT_WALLET_STATE = {
             balance: WELCOME_BONUS,
             loyaltyPoints: 0,
@@ -850,6 +774,8 @@
         };
 
         let walletState = { ...DEFAULT_WALLET_STATE };
+
+        // ===== VARIABLES GLOBALES =====
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
         let directionsService, directionsRenderer, trackingDirectionsRenderer;
         let userMarker, departureMarker, destinationMarker, driverMarker, clientPickupMarker;
@@ -865,6 +791,7 @@
         let paymentValidated = false, paymentProcessing = false;
         let globalRechargeListener = null;
 
+        // ===== PERSISTANCE PORTEFEUILLE =====
         function saveWalletToLocalStorage() {
             try {
                 const dataToSave = {
@@ -916,6 +843,7 @@
             }
         }
 
+        // ===== INITIALISATION =====
         window.addEventListener('load', () => {
             loadWalletFromLocalStorage();
             updateWalletBalanceDisplay();
@@ -928,6 +856,7 @@
             console.log('✅ App initialisée - Solde:', walletState.balance, 'FCFA');
         });
 
+        // ===== SYNC RECHARGES =====
         async function syncValidatedRecharges() {
             const userPhone = getUserPhone();
             if (!userPhone) return;
@@ -1004,6 +933,7 @@
                 });
         }
 
+        // ===== LOGIN =====
         function checkLogin() {
             const savedPhone = localStorage.getItem('albourakh_phone');
             const savedName = localStorage.getItem('albourakh_name');
@@ -1052,6 +982,7 @@
             return walletState.userPhone;
         }
 
+        // ===== EVALUATION =====
         function initEvaluationListeners() {
             document.querySelectorAll('#overallRating .star').forEach(star => {
                 star.addEventListener('click', () => {
@@ -1221,6 +1152,7 @@
             }
         }
 
+        // ===== PAYMENT =====
         async function validatePayment() {
             if (!currentBooking || paymentProcessing || paymentValidated) return;
             
@@ -1327,6 +1259,7 @@
             return ['orange', 'wave', 'wallet', 'Orange Money', 'Wave', 'Portefeuille Al Bourakh'].includes(method);
         }
 
+        // ===== WALLET FUNCTIONS =====
         function openWallet() {
             const modal = document.getElementById('walletModal');
             if (modal) modal.classList.add('active');
@@ -1520,6 +1453,7 @@
             safeSetText('walletBalanceMini', walletState.balance.toLocaleString() + ' FCFA');
         }
 
+        // ===== GOOGLE MAPS =====
         function initMap() {
             const dakar = { lat: 14.6937, lng: -17.4441 };
             map = new google.maps.Map(document.getElementById('map'), { center: dakar, zoom: 12, disableDefaultUI: true, zoomControl: true });
@@ -1718,6 +1652,7 @@
             });
         }
 
+        // ===== BOOKING =====
         function selectVehicle(type, price) {
             selectedVehicle = type;
             selectedVehiclePrice = price;
@@ -1831,6 +1766,7 @@
             }
         }
 
+        // ===== TRACKING =====
         function openTracking() {
             const modal = document.getElementById('trackingModal');
             if (modal) modal.classList.add('active');
@@ -1856,7 +1792,6 @@
             document.body.style.overflow = '';
             if (reservationListener) { reservationListener(); reservationListener = null; }
             if (driverListener) { driverListener(); driverListener = null; }
-            stopNotificationBeeps();
         }
 
         function initTrackingMap() {
@@ -1886,8 +1821,11 @@
             });
         }
 
+        // ===== ✅ CORRECTION PRINCIPALE: updateStatusTimeline COMPLÈTE =====
         function updateStatusTimeline(statut) {
             console.log('📊 Statut reçu:', statut);
+            
+            // ✅ Gestion de TOUS les statuts possibles
             
             if (statut === 'chauffeur_en_route' || statut === 'en_route') {
                 safeAddClass('step3Icon', 'active');
@@ -1898,32 +1836,36 @@
             }
             
             if (statut === 'chauffeur_arrive' || statut === 'arrive' || statut === 'chauffeur_sur_place') {
+                // ✅ STEP 4 : Chauffeur arrivé
                 safeAddClass('step4Icon', 'active');
                 safeRemoveClass('step3Icon', 'current');
                 safeSetText('step4Text', '✅ Chauffeur sur place !');
                 safeSetText('step4Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
                 
+                // Mettre à jour l'affichage principal
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">✅ Chauffeur arrivé !</div>
                     <div class="driver-eta" style="font-size: 1.5em; margin-top: 10px;">Votre chauffeur vous attend</div>
                     <div class="driver-eta-label" style="margin-top: 8px;">Montez à bord pour démarrer la course</div>
                 `);
                 
+                // Cacher la route d'approche
                 if (trackingDirectionsRenderer) {
                     trackingDirectionsRenderer.setMap(null);
                 }
                 
                 console.log('✅ Step 4 activé: Chauffeur arrivé');
                 showNotification('✅ Votre chauffeur est arrivé !', 'success');
-                playNotificationBeeps();
             }
             
             if (statut === 'en_cours' || statut === 'course_en_cours') {
+                // ✅ STEP 5 : Course en cours
                 safeAddClass('step5Icon', 'active');
                 safeRemoveClass('step4Icon', 'current');
                 safeSetText('step5Text', 'Direction votre destination');
                 safeSetText('step5Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
                 
+                // Changer le mode de tracking
                 currentTrackingMode = 'course';
                 
                 safeSetHtml('driverApproachingBox', `
@@ -1932,16 +1874,17 @@
                     <div class="driver-eta-label" style="margin-top: 8px;">Bon voyage !</div>
                 `);
                 
+                // Afficher la route vers la destination
                 if (currentBooking?.destinationCoords && lastDriverPosition) {
                     calculateCourseRoute(lastDriverPosition, currentBooking.destinationCoords);
                 }
                 
                 console.log('✅ Step 5 activé: Course en cours');
                 showNotification('🚗 Course en cours - Bon voyage !', 'success');
-                stopNotificationBeeps();
             }
             
             if (statut === 'terminee') {
+                // ✅ Course terminée
                 safeAddClass('step5Icon', 'active');
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">🎉 Course terminée!</div>
@@ -1949,10 +1892,10 @@
                 `);
                 showPaymentButton();
                 console.log('✅ Course terminée - Affichage paiement');
-                stopNotificationBeeps();
             }
         }
 
+        // ===== ✅ NOUVELLE FONCTION: calculateCourseRoute =====
         function calculateCourseRoute(driverPos, destinationPos) {
             if (!directionsService || !trackingDirectionsRenderer) return;
             if (!isTrackingModalOpen()) return;
@@ -2118,6 +2061,7 @@
             if (section) section.scrollIntoView({ behavior: 'smooth' });
         }
 
+        // ===== NOTIFICATIONS & LOADING =====
         function showNotification(msg, type = 'info') {
             const notif = document.createElement('div');
             notif.className = `notification ${type}`;
@@ -2140,6 +2084,7 @@
             if (overlay) overlay.style.display = 'none';
         }
 
+        // ===== EXPORTS =====
         window.openWallet = openWallet;
         window.closeWallet = closeWallet;
         window.showWalletScreen = showWalletScreen;
@@ -2148,6 +2093,7 @@
         window.syncValidatedRecharges = syncValidatedRecharges;
         window.initMap = initMap;
 
+        // ===== DIAGNOSTIC =====
         function diagWallet() {
             console.log('=== DIAGNOSTIC v3.8 ===');
             console.log('Solde:', walletState.balance, 'FCFA');
@@ -2157,24 +2103,24 @@
         }
         window.diagWallet = diagWallet;
 
-        console.log('%c✅ Al Bourakh Client v3.8 - AVEC BIPS SONORES', 'color: #00A854; font-size: 16px; font-weight: bold');
-        console.log('%c🔊 Bips sonores: 6 séries de 4 bips sur 30 secondes (Vol: 40%-90%)', 'color: #2196F3; font-size: 12px');
+        console.log('%c✅ Al Bourakh Client v3.8 - STATUTS CORRIGÉS', 'color: #00A854; font-size: 16px; font-weight: bold');
+        console.log('%c🔧 Corrections: updateStatusTimeline complète + calculateCourseRoute', 'color: #2196F3; font-size: 12px');
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 <!-- ========================================== -->
-<!-- DEBUT WIDGET CHATBOT AL BOURAKH (CORRIGÉ) -->
-<!-- Collez ce code juste avant la balise </body> -->
+<!-- WIDGET CHATBOT AL BOURAKH - VERSION INTÉGRATION -->
+<!-- À coller juste avant </body> dans votre app client -->
 <!-- ========================================== -->
 
 <style>
-    /* Importation de la police (Optionnel si déjà dans le site) */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-    /* Variables de couleurs Al Bourakh (Supposées: Bleu Nuit et Or/Jaune) */
     :root {
-        --ab-primary: #0F172A; /* Bleu nuit professionnel */
-        --ab-secondary: #EAB308; /* Or/Jaune taxi/foudre */
+        --ab-primary: #0F172A;
+        --ab-secondary: #EAB308;
         --ab-accent: #2563EB;
+        --ab-success: #22c55e;
+        --ab-danger: #ef4444;
         --ab-bg: #F8FAFC;
         --ab-text: #334155;
         --ab-white: #ffffff;
@@ -2191,85 +2137,186 @@
         align-items: flex-end;
     }
 
-    /* Bouton Flottant */
     #ab-chat-btn {
-        background-color: var(--ab-primary);
+        background: linear-gradient(135deg, var(--ab-primary), #1e293b);
         color: var(--ab-secondary);
         border: none;
         border-radius: 50%;
-        width: 60px;
-        height: 60px;
+        width: 65px;
+        height: 65px;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.3s ease;
+        transition: all 0.3s ease;
+        position: relative;
     }
 
     #ab-chat-btn:hover {
         transform: scale(1.1);
+        box-shadow: 0 6px 25px rgba(234, 179, 8, 0.4);
     }
 
-    #ab-chat-btn svg {
-        width: 30px;
-        height: 30px;
-        fill: currentColor;
+    #ab-chat-btn svg { width: 32px; height: 32px; fill: currentColor; }
+
+    .ab-notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--ab-danger);
+        color: white;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        font-size: 12px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: ab-pulse-badge 2s infinite;
     }
 
-    /* Fenêtre de Chat */
+    @keyframes ab-pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
     #ab-chat-window {
-        width: 350px;
-        height: 500px;
+        width: 380px;
+        height: 580px;
         background-color: var(--ab-white);
-        border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        display: none; /* Caché par défaut */
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        display: none;
         flex-direction: column;
         overflow: hidden;
         margin-bottom: 16px;
         border: 1px solid #e2e8f0;
     }
 
-    /* En-tête */
     .ab-header {
-        background-color: var(--ab-primary);
+        background: linear-gradient(135deg, var(--ab-primary), #1e293b);
         color: var(--ab-white);
-        padding: 16px;
+        padding: 14px 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .ab-header-title {
-        font-weight: 600;
-        font-size: 16px;
+    .ab-header-left { display: flex; align-items: center; gap: 12px; }
+
+    .ab-logo {
+        width: 40px;
+        height: 40px;
+        background: var(--ab-secondary);
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        gap: 8px;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--ab-primary);
+        font-size: 14px;
     }
+
+    .ab-header-info h3 { margin: 0; font-size: 15px; font-weight: 600; }
+    .ab-header-info span { font-size: 11px; opacity: 0.8; display: flex; align-items: center; gap: 5px; }
 
     .ab-status-dot {
         width: 8px;
         height: 8px;
         background-color: #22c55e;
         border-radius: 50%;
+        animation: ab-blink 2s infinite;
     }
 
-    .ab-close-btn {
-        background: none;
+    @keyframes ab-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    .ab-header-actions { display: flex; align-items: center; gap: 8px; }
+
+    .ab-header-btn {
+        background: rgba(255,255,255,0.1);
         border: none;
         color: var(--ab-white);
         cursor: pointer;
-        font-size: 20px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    /* Zone des messages */
+    .ab-header-btn:hover { background: rgba(255,255,255,0.2); }
+    .ab-header-btn.muted { color: var(--ab-danger); }
+    .ab-header-btn svg { width: 18px; height: 18px; }
+
+    .ab-audio-panel {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        padding: 12px 16px;
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .ab-audio-panel.visible { display: flex; }
+    .ab-audio-row { display: flex; align-items: center; gap: 10px; }
+    .ab-audio-label { color: rgba(255,255,255,0.8); font-size: 12px; min-width: 60px; }
+
+    .ab-audio-slider {
+        flex: 1;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+        outline: none;
+    }
+
+    .ab-audio-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        background: var(--ab-secondary);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .ab-audio-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    .ab-audio-slider::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        background: var(--ab-secondary);
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+    }
+
+    .ab-audio-value { color: var(--ab-secondary); font-size: 12px; font-weight: 600; min-width: 40px; text-align: right; }
+    .ab-audio-presets { display: flex; gap: 8px; margin-top: 4px; }
+
+    .ab-preset-btn {
+        flex: 1;
+        padding: 6px 10px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        border-radius: 6px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ab-preset-btn:hover { background: rgba(255,255,255,0.2); }
+    .ab-preset-btn.active { background: var(--ab-secondary); color: var(--ab-primary); border-color: var(--ab-secondary); }
+
     #ab-messages {
         flex: 1;
         padding: 16px;
         overflow-y: auto;
-        background-color: var(--ab-bg);
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -2277,367 +2324,1195 @@
 
     .ab-msg {
         max-width: 85%;
-        padding: 10px 14px;
-        border-radius: 12px;
+        padding: 12px 16px;
+        border-radius: 16px;
         font-size: 14px;
-        line-height: 1.4;
+        line-height: 1.5;
         position: relative;
         word-wrap: break-word;
+        animation: ab-fadeInUp 0.3s ease;
     }
+
+    @keyframes ab-fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .ab-msg-bot {
         background-color: var(--ab-white);
         color: var(--ab-text);
         border: 1px solid #e2e8f0;
         align-self: flex-start;
-        border-bottom-left-radius: 2px;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     .ab-msg-user {
-        background-color: var(--ab-primary);
+        background: linear-gradient(135deg, var(--ab-primary), #1e293b);
         color: var(--ab-white);
         align-self: flex-end;
-        border-bottom-right-radius: 2px;
+        border-bottom-right-radius: 4px;
     }
 
-    /* Zone de saisie */
-    .ab-input-area {
+    .ab-msg-system {
+        background: linear-gradient(135deg, var(--ab-secondary), #fbbf24);
+        color: var(--ab-primary);
+        align-self: center;
+        text-align: center;
+        font-weight: 500;
+        font-size: 13px;
+    }
+
+    .ab-quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+    .ab-quick-btn {
+        background: var(--ab-bg);
+        border: 1px solid #e2e8f0;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--ab-primary);
+    }
+
+    .ab-quick-btn:hover { background: var(--ab-primary); color: var(--ab-white); border-color: var(--ab-primary); }
+
+    .ab-estimate-card {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        margin-top: 10px;
+    }
+
+    .ab-estimate-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .ab-estimate-title { font-weight: 600; font-size: 14px; }
+    .ab-estimate-price { font-size: 22px; font-weight: bold; color: var(--ab-secondary); }
+    .ab-estimate-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; opacity: 0.9; }
+    .ab-estimate-item { display: flex; align-items: center; gap: 6px; }
+
+    .ab-book-btn {
+        width: 100%;
+        margin-top: 12px;
         padding: 12px;
-        border-top: 1px solid #e2e8f0;
-        background-color: var(--ab-white);
+        background: var(--ab-secondary);
+        color: var(--ab-primary);
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ab-book-btn:hover { background: #fbbf24; transform: scale(1.02); }
+
+    .ab-form-card {
+        background: var(--ab-white);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 10px;
+    }
+
+    .ab-form-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 12px;
+        color: var(--ab-primary);
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    #ab-input {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #cbd5e1;
-        border-radius: 20px;
-        outline: none;
+    .ab-form-group { margin-bottom: 12px; }
+    .ab-form-group label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+
+    .ab-form-group input, .ab-form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
         font-size: 14px;
+        outline: none;
+        box-sizing: border-box;
     }
 
-    #ab-input:focus {
-        border-color: var(--ab-primary);
+    .ab-form-group input:focus, .ab-form-group select:focus { border-color: var(--ab-primary); }
+
+    .ab-location-btn {
+        background: var(--ab-accent);
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
     }
+
+    .ab-input-area {
+        padding: 12px 16px;
+        border-top: 1px solid #e2e8f0;
+        background-color: var(--ab-white);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #ab-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        outline: none;
+        font-size: 14px;
+        background: var(--ab-bg);
+    }
+
+    #ab-input:focus { border-color: var(--ab-primary); background: var(--ab-white); }
 
     .ab-icon-btn {
         background: none;
         border: none;
         cursor: pointer;
         color: var(--ab-primary);
-        padding: 8px;
+        padding: 10px;
         border-radius: 50%;
-        transition: background 0.2s;
+        transition: all 0.2s;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
-    .ab-icon-btn:hover {
-        background-color: #f1f5f9;
+    .ab-icon-btn:hover { background-color: var(--ab-bg); }
+    .ab-icon-btn.send-btn { background: var(--ab-primary); color: var(--ab-secondary); }
+    .ab-icon-btn.send-btn:hover { background: #1e293b; }
+    .ab-icon-btn.listening { color: var(--ab-danger); animation: ab-pulse 1.5s infinite; }
+
+    .ab-typing {
+        display: flex;
+        gap: 4px;
+        padding: 12px 16px;
+        background: var(--ab-white);
+        border-radius: 16px;
+        align-self: flex-start;
+        border: 1px solid #e2e8f0;
     }
 
-    .ab-icon-btn.listening {
-        color: #ef4444; /* Rouge quand écoute */
-        animation: pulse 1.5s infinite;
+    .ab-typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #94a3b8;
+        border-radius: 50%;
+        animation: ab-typing 1.4s infinite;
     }
 
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-    }
+    .ab-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .ab-typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-    /* Responsive Mobile */
+    @keyframes ab-typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+    @keyframes ab-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
     @media (max-width: 480px) {
         #ab-chat-window {
-            width: 90vw;
-            height: 70vh;
-            right: 5vw;
+            width: 95vw;
+            height: 85vh;
+            bottom: 0;
+            right: 2.5vw;
+            border-radius: 16px 16px 0 0;
         }
+        #ab-widget-container { bottom: 10px; right: 10px; }
     }
 </style>
 
 <div id="ab-widget-container">
-    <!-- Fenêtre de Chat -->
     <div id="ab-chat-window">
         <div class="ab-header">
-            <div class="ab-header-title">
-                <div class="ab-status-dot"></div>
-                Assistant Al Bourakh
+            <div class="ab-header-left">
+                <div class="ab-logo">AB</div>
+                <div class="ab-header-info">
+                    <h3>Assistant Al Bourakh</h3>
+                    <span><div class="ab-status-dot"></div> En ligne 24h/7</span>
+                </div>
             </div>
-            <button class="ab-close-btn" onclick="toggleAbChat()">×</button>
+            <div class="ab-header-actions">
+                <button class="ab-header-btn" id="ab-settings-btn" onclick="toggleAudioPanel()" title="Paramètres audio">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="ab-header-btn" id="ab-mute-btn" onclick="toggleMute()" title="Activer/Désactiver la voix">
+                    <svg id="ab-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    </svg>
+                    <svg id="ab-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                        <line x1="23" y1="9" x2="17" y2="15"/>
+                        <line x1="17" y1="9" x2="23" y2="15"/>
+                    </svg>
+                </button>
+                <button class="ab-header-btn" onclick="toggleAbChat()" title="Fermer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <div id="ab-messages">
-            <!-- Les messages s'afficheront ici -->
+        
+        <div class="ab-audio-panel" id="ab-audio-panel">
+            <div class="ab-audio-row">
+                <span class="ab-audio-label">🔊 Volume</span>
+                <input type="range" class="ab-audio-slider" id="ab-volume" min="0" max="100" value="80" oninput="updateVolume(this.value)">
+                <span class="ab-audio-value" id="ab-volume-value">80%</span>
+            </div>
+            <div class="ab-audio-row">
+                <span class="ab-audio-label">⚡ Vitesse</span>
+                <input type="range" class="ab-audio-slider" id="ab-speed" min="50" max="150" value="100" oninput="updateSpeed(this.value)">
+                <span class="ab-audio-value" id="ab-speed-value">1.0x</span>
+            </div>
+            <div class="ab-audio-presets">
+                <button class="ab-preset-btn" onclick="setAudioPreset('slow')">🐢 Lent</button>
+                <button class="ab-preset-btn active" onclick="setAudioPreset('normal')">👤 Normal</button>
+                <button class="ab-preset-btn" onclick="setAudioPreset('fast')">🚀 Rapide</button>
+            </div>
         </div>
+        
+        <div id="ab-messages"></div>
+        
         <div class="ab-input-area">
-            <input type="text" id="ab-input" placeholder="Posez votre question..." onkeypress="handleAbKeyPress(event)">
-            
-            <!-- Bouton Micro -->
-            <button class="ab-icon-btn" id="ab-mic-btn" onclick="toggleVoice()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+            <button class="ab-icon-btn" id="ab-location-btn" onclick="getMyLocation()" title="Ma position">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
             </button>
-            
-            <!-- Bouton Envoyer -->
-            <button class="ab-icon-btn" onclick="sendAbMessage()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <input type="text" id="ab-input" placeholder="Posez votre question..." onkeypress="handleAbKeyPress(event)">
+            <button class="ab-icon-btn" id="ab-mic-btn" onclick="toggleVoice()" title="Commande vocale">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+            <button class="ab-icon-btn send-btn" onclick="sendAbMessage()" title="Envoyer">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
         </div>
     </div>
 
-    <!-- Bouton Flottant -->
     <button id="ab-chat-btn" onclick="toggleAbChat()">
-        <!-- Icône de bulle/foudre -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        <span class="ab-notification-badge" id="ab-badge" style="display:none;">1</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
     </button>
 </div>
 
 <script>
-    /* ================= CONFIGURATION & DONNÉES ================= */
+/* ================= CHATBOT AL BOURAKH - INTÉGRATION ================= */
+/* NOTE: Utilise la variable 'db' déjà définie dans l'application principale */
+
+console.log('🤖 Chatbot Al Bourakh v2.1 - Mode Intégration');
+
+/* ================= CONFIGURATION TARIFS ================= */
+const TARIFS_CHATBOT = {
+    standard: { nom: "Standard", vehicule: "Kia Rio", priseEnCharge: 1000, parKm: 200, icon: "🚗" },
+    confort: { nom: "Confort", vehicule: "VW Polo", priseEnCharge: 1500, parKm: 300, icon: "🚙" },
+    premium: { nom: "Premium", vehicule: "Hyundai Tucson", priseEnCharge: 2500, parKm: 400, icon: "🚘" },
+    moto: { nom: "Moto Jakarta", vehicule: "Moto", priseEnCharge: 500, parKm: 150, icon: "🏍️" }
+};
+
+const TARIFS_FIXES_CHATBOT = {
+    "dakar-aibd": { depart: "Dakar Centre", destination: "Aéroport AIBD", prix: 15000, distance: 47 },
+    "almadies-aibd": { depart: "Almadies", destination: "Aéroport AIBD", prix: 18000, distance: 52 },
+    "plateau-aibd": { depart: "Plateau", destination: "Aéroport AIBD", prix: 15000, distance: 45 },
+    "parcelles-aibd": { depart: "Parcelles Assainies", destination: "Aéroport AIBD", prix: 12000, distance: 38 },
+    "pikine-aibd": { depart: "Pikine", destination: "Aéroport AIBD", prix: 10000, distance: 32 },
+    "rufisque-aibd": { depart: "Rufisque", destination: "Aéroport AIBD", prix: 8000, distance: 25 }
+};
+
+/* ================= VARIABLES CHATBOT ================= */
+let abIsChatOpen = false;
+let abIsListening = false;
+let abUserLocation = null;
+let abCurrentEstimate = null;
+let abReservationData = {};
+let abConversationHistory = [];
+let abIsMuted = false;
+let abAudioVolume = 0.8;
+let abAudioSpeed = 1.0;
+let abIsSpeaking = false;
+
+const abChatWindow = document.getElementById('ab-chat-window');
+const abMessagesContainer = document.getElementById('ab-messages');
+const abInputField = document.getElementById('ab-input');
+const abMicBtn = document.getElementById('ab-mic-btn');
+const abMuteBtn = document.getElementById('ab-mute-btn');
+const abBadge = document.getElementById('ab-badge');
+const abAudioPanel = document.getElementById('ab-audio-panel');
+const abSynth = window.speechSynthesis;
+
+const AbSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let abRecognition;
+
+if (AbSpeechRecognition) {
+    abRecognition = new AbSpeechRecognition();
+    abRecognition.lang = 'fr-FR';
+    abRecognition.continuous = false;
     
-    // 1. LE SYSTEM PROMPT (Le cerveau de l'IA)
-    const SYSTEM_PROMPT = `
-    Rôle: Tu es l'Assistant Virtuel Intelligent de Al Bourakh, service VTC sénégalais.
-    Ton : Teranga (chaleureux, poli), Professionnel (rapide, fiable).
-    Langue : Français (accepte salutations Wolof).
-    Directives : 
-    - Base-toi sur la base de connaissance.
-    - Prix en FCFA uniquement.
-    - Urgences : Réfère au bouton SOS ou 77 123 45 67.
-    - Si info manquante : Réfère au support client.
-    `;
-
-    // 2. LA BASE DE CONNAISSANCE (Contenu du PDF résumé pour le script)
-    const KNOWLEDGE_BASE = `
-    SERVICES:
-    1. Standard (Kia Rio): Climatisé, 4 places. Prise en charge 1000F, 200F/km.
-    2. Moto Jakarta: Rapide, 1 place. Prise en charge 500F, 150F/km.
-    3. Confort (VW Polo) & Premium (Hyundai).
-    4. Aéroport AIBD: Tarifs fixes. Dakar Centre->AIBD 15000F. Almadies->AIBD 18000F.
-    5. Livraison & Location (heure/journée).
-
-    ZONES: Dakar, Thiès, Saint-Louis. (Mbour/Saly prévu Q2 2025).
-    
-    PAIEMENT: Cash, Orange Money, Wave, Free Money, Carte Bancaire.
-    
-    CHAUFFEUR: Inscription en ligne, 23 ans+, Permis 3 ans+, Casier vierge. Revenus 300-500k/mois.
-    
-    SECURITE: Suivi GPS, Bouton SOS, Vérification chauffeurs, Assurance incluse.
-    
-    CONTACT: +221 77 123 45 67, support@albourakh.sn.
-    `;
-
-    /* ================= LOGIQUE DU CHAT ================= */
-
-    let isChatOpen = false;
-    let isListening = false;
-    const chatWindow = document.getElementById('ab-chat-window');
-    const messagesContainer = document.getElementById('ab-messages');
-    const inputField = document.getElementById('ab-input');
-    const micBtn = document.getElementById('ab-mic-btn');
-
-    // Synthèse vocale (Le robot parle)
-    const synth = window.speechSynthesis;
-    
-    // Reconnaissance vocale (L'utilisateur parle)
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
-
-    if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'fr-FR'; // Langue française
-        recognition.continuous = false;
-        
-        recognition.onstart = function() {
-            isListening = true;
-            micBtn.classList.add('listening');
-            inputField.placeholder = "Je vous écoute...";
-        };
-
-        recognition.onend = function() {
-            isListening = false;
-            micBtn.classList.remove('listening');
-            inputField.placeholder = "Posez votre question...";
-        };
-
-        recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript;
-            inputField.value = transcript;
-            sendAbMessage(); // Envoi automatique après la voix
-        };
-    } else {
-        micBtn.style.display = 'none'; // Masquer si non supporté
-        console.log("Reconnaissance vocale non supportée par ce navigateur.");
-    }
-
-    // Initialisation
-    window.onload = function() {
-        // Message de bienvenue
-        addMessage("bot", "Bonjour ! Dalal ak diam chez Al Bourakh. Je suis votre assistant virtuel. Comment puis-je vous aider pour votre trajet aujourd'hui ?");
+    abRecognition.onstart = () => {
+        abIsListening = true;
+        abMicBtn.classList.add('listening');
+        abInputField.placeholder = "🎤 Je vous écoute...";
     };
 
-    function toggleAbChat() {
-        isChatOpen = !isChatOpen;
-        chatWindow.style.display = isChatOpen ? 'flex' : 'none';
-        if (isChatOpen) inputField.focus();
-    }
+    abRecognition.onend = () => {
+        abIsListening = false;
+        abMicBtn.classList.remove('listening');
+        abInputField.placeholder = "Posez votre question...";
+    };
 
-    function toggleVoice() {
-        if (!recognition) return alert("Votre navigateur ne supporte pas la commande vocale.");
-        if (isListening) {
-            recognition.stop();
+    abRecognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        abInputField.value = transcript;
+        sendAbMessage();
+    };
+} else {
+    if (abMicBtn) abMicBtn.style.display = 'none';
+}
+
+/* ================= FONCTIONS AUDIO ================= */
+function toggleMute() {
+    abIsMuted = !abIsMuted;
+    const soundOn = document.getElementById('ab-sound-on');
+    const soundOff = document.getElementById('ab-sound-off');
+    
+    if (abIsMuted) {
+        if (soundOn) soundOn.style.display = 'none';
+        if (soundOff) soundOff.style.display = 'block';
+        if (abMuteBtn) abMuteBtn.classList.add('muted');
+        if (abSynth.speaking) abSynth.cancel();
+        showAbToast('🔇 Voix désactivée');
+    } else {
+        if (soundOn) soundOn.style.display = 'block';
+        if (soundOff) soundOff.style.display = 'none';
+        if (abMuteBtn) abMuteBtn.classList.remove('muted');
+        showAbToast('🔊 Voix activée');
+    }
+}
+
+function toggleAudioPanel() {
+    if (abAudioPanel) abAudioPanel.classList.toggle('visible');
+}
+
+function updateVolume(value) {
+    abAudioVolume = value / 100;
+    const el = document.getElementById('ab-volume-value');
+    if (el) el.textContent = value + '%';
+    localStorage.setItem('ab-volume', value);
+}
+
+function updateSpeed(value) {
+    abAudioSpeed = value / 100;
+    const el = document.getElementById('ab-speed-value');
+    if (el) el.textContent = abAudioSpeed.toFixed(1) + 'x';
+    localStorage.setItem('ab-speed', value);
+}
+
+function setAudioPreset(preset) {
+    document.querySelectorAll('.ab-preset-btn').forEach(btn => btn.classList.remove('active'));
+    
+    switch(preset) {
+        case 'slow':
+            abAudioSpeed = 0.7;
+            document.getElementById('ab-speed').value = 70;
+            document.getElementById('ab-speed-value').textContent = '0.7x';
+            document.querySelectorAll('.ab-preset-btn')[0].classList.add('active');
+            break;
+        case 'normal':
+            abAudioSpeed = 1.0;
+            document.getElementById('ab-speed').value = 100;
+            document.getElementById('ab-speed-value').textContent = '1.0x';
+            document.querySelectorAll('.ab-preset-btn')[1].classList.add('active');
+            break;
+        case 'fast':
+            abAudioSpeed = 1.3;
+            document.getElementById('ab-speed').value = 130;
+            document.getElementById('ab-speed-value').textContent = '1.3x';
+            document.querySelectorAll('.ab-preset-btn')[2].classList.add('active');
+            break;
+    }
+    localStorage.setItem('ab-speed', document.getElementById('ab-speed').value);
+}
+
+function loadAudioSettings() {
+    const savedVolume = localStorage.getItem('ab-volume');
+    const savedSpeed = localStorage.getItem('ab-speed');
+    
+    if (savedVolume) {
+        abAudioVolume = savedVolume / 100;
+        const volEl = document.getElementById('ab-volume');
+        const volValEl = document.getElementById('ab-volume-value');
+        if (volEl) volEl.value = savedVolume;
+        if (volValEl) volValEl.textContent = savedVolume + '%';
+    }
+    
+    if (savedSpeed) {
+        abAudioSpeed = savedSpeed / 100;
+        const speedEl = document.getElementById('ab-speed');
+        const speedValEl = document.getElementById('ab-speed-value');
+        if (speedEl) speedEl.value = savedSpeed;
+        if (speedValEl) speedValEl.textContent = abAudioSpeed.toFixed(1) + 'x';
+        
+        document.querySelectorAll('.ab-preset-btn').forEach(btn => btn.classList.remove('active'));
+        if (savedSpeed <= 70) {
+            document.querySelectorAll('.ab-preset-btn')[0]?.classList.add('active');
+        } else if (savedSpeed >= 120) {
+            document.querySelectorAll('.ab-preset-btn')[2]?.classList.add('active');
         } else {
-            recognition.start();
+            document.querySelectorAll('.ab-preset-btn')[1]?.classList.add('active');
         }
     }
-
-    function handleAbKeyPress(e) {
-        if (e.key === 'Enter') sendAbMessage();
-    }
-
-    function addMessage(sender, text) {
-        const div = document.createElement('div');
-        div.classList.add('ab-msg');
-        div.classList.add(sender === 'user' ? 'ab-msg-user' : 'ab-msg-bot');
-        div.innerText = text;
-        messagesContainer.appendChild(div);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        // Si c'est le bot, on lit le texte à haute voix
-        if (sender === 'bot') speakText(text);
-    }
+}
 
 function speakText(text) {
-    if (synth.speaking) synth.cancel();
+    if (abIsMuted) return;
+    if (abSynth.speaking) abSynth.cancel();
     
-    // Nettoyer le texte des caractères de formatage Markdown
     let cleanText = text
-        .replace(/\*\*/g, '')        // Enlever ** (gras)
-        .replace(/\*/g, '')           // Enlever * (italique)
-        .replace(/\_\_/g, '')         // Enlever __ (gras)
-        .replace(/\_/g, '')           // Enlever _ (italique)
-        .replace(/\#/g, '')           // Enlever # (titres)
-        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')  // Enlever les liens [texte](url) → texte
-        .replace(/\n+/g, '. ')        // Remplacer les sauts de ligne par des points
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\*\*/g, '').replace(/\*/g, '').replace(/\_/g, '').replace(/\#/g, '')
+        .replace(/&nbsp;/g, ' ').replace(/&amp;/g, 'et').replace(/&lt;/g, '').replace(/&gt;/g, '')
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+        .replace(/📍/g, 'lieu ').replace(/🎯/g, 'destination ')
+        .replace(/💰/g, 'prix ').replace(/📏/g, 'distance ')
+        .replace(/⏱️/g, 'durée ').replace(/🚗/g, 'voiture ')
+        .replace(/✅/g, 'validé ').replace(/❌/g, 'erreur ')
+        .replace(/[^\p{L}\p{N}\s\.,!?;:'-]/gu, '')
+        .replace(/\n+/g, '. ')
+        .replace(/\s+/g, ' ')
         .trim();
+    
+    if (cleanText.length < 5) return;
+    if (cleanText.length > 500) cleanText = cleanText.substring(0, 500) + '...';
     
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'fr-FR';
-    utterance.rate = 1; 
+    utterance.rate = abAudioSpeed;
+    utterance.volume = abAudioVolume;
     utterance.pitch = 1;
-    synth.speak(utterance);
-}
-    async function sendAbMessage() {
-        const text = inputField.value.trim();
-        if (!text) return;
-
-        addMessage('user', text);
-        inputField.value = '';
-
-        // OBTENIR LA RÉPONSE DE L'IA
-        const response = await getAIResponse(text);
-        addMessage('bot', response);
-    }
-
-    /* ================= LOGIQUE INTELLIGENTE (CORRIGÉE) ================= */
     
-    async function getAIResponse(userQuery) {
-        // ---------------------------------------------------------
-        // SECTION API : METTRE VOTRE CLÉ CI-DESSOUS
-        // ---------------------------------------------------------
-        
-        let API_KEY = "AIzaSyCm49CetMRowuec2Lc0C44t3hTICu-xerM"; // <--- COLLEZ VOTRE CLÉ API ICI (ATTENTION AUX ESPACES)
-        
-        // Nettoyage de la clé au cas où il y a des espaces copiés par erreur
-        API_KEY = API_KEY.trim();
+    const voices = abSynth.getVoices();
+    const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frenchVoice) utterance.voice = frenchVoice;
+    
+    abSynth.speak(utterance);
+}
 
-        if (API_KEY) {
-            try {
-                // Changement de modèle vers gemini-2.5-flash (plus stable sur endpoint standard)
-                // Si vous avez une clé récente, gemini-2.5-flash fonctionne aussi, mais le endpoint varie parfois.
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-                
-                const payload = {
-                    contents: [{
-                        parts: [{
-                            text: `CONTEXTE: ${SYSTEM_PROMPT}\n\nDONNÉES: ${KNOWLEDGE_BASE}\n\nQUESTION UTILISATEUR: ${userQuery}`
-                        }]
-                    }]
-                };
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
+function showAbToast(message) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed; bottom: 100px; right: 30px; background: #1e293b; color: white;
+        padding: 10px 16px; border-radius: 8px; font-size: 13px; z-index: 10000;
+        animation: abFadeInOut 2s forwards;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
 
-                const data = await response.json();
-
-                // GESTION D'ERREUR ROBUSTE (Pour éviter le crash "undefined")
-                if (!response.ok) {
-                    console.error("ERREUR API GOOGLE:", data);
-                    // Si 404, on tente un fallback (optionnel) ou on affiche l'erreur
-                    if(response.status === 404) {
-                        return "Erreur technique (404). Vérifiez que le modèle gemini-2.5-flash' est bien actif sur votre clé API.";
-                    }
-                    return `Erreur API: ${data.error?.message || "Problème inconnu"}`;
-                }
-                
-                // Vérification que la réponse contient bien du texte
-                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                    return data.candidates[0].content.parts[0].text;
-                } else {
-                    return "Je n'ai pas compris, pouvez-vous reformuler ?";
-                }
-
-            } catch (error) {
-                console.error("Erreur connexion:", error);
-                return "Désolé, je rencontre un problème de connexion. Vérifiez votre clé API et votre connexion internet.";
-            }
-        }
-
-        // ---------------------------------------------------------
-        // MODE DÉMO (SANS CLÉ API)
-        // ---------------------------------------------------------
-        
-        const q = userQuery.toLowerCase();
-
-        if (q.includes("bonjour") || q.includes("salam") || q.includes("hello")) {
-            return "Bonjour ! Comment puis-je faciliter vos déplacements avec Al Bourakh aujourd'hui ?";
-        }
-        
-        if (q.includes("prix") || q.includes("coûte") || q.includes("tarif")) {
-            if (q.includes("aéroport") || q.includes("aibd")) {
-                return "Pour l'aéroport AIBD, nous avons des tarifs fixes : 15 000 FCFA depuis Dakar Centre et 18 000 FCFA depuis les Almadies.";
-            }
-            if (q.includes("moto") || q.includes("jakarta")) {
-                return "Notre service Moto Jakarta commence à 500 FCFA la prise en charge + 150 FCFA/km.";
-            }
-            return "Nos tarifs dépendent du véhicule. Le standard (Kia Rio) est à 1000 FCFA prise en charge + 200 FCFA/km. Voulez-vous une estimation pour une destination précise ?";
-        }
-
-        if (q.includes("contact") || q.includes("téléphone") || q.includes("appeler")) {
-            return "Vous pouvez joindre notre service client 24h/7 au +221 77 123 45 67.";
-        }
-
-        if (q.includes("chauffeur") && (q.includes("devenir") || q.includes("travail"))) {
-            return "Pour devenir chauffeur Al Bourakh, vous devez avoir 23 ans minimum, un permis de plus de 3 ans et un casier judiciaire vierge. L'inscription se fait via notre site web.";
-        }
-        
-        if (q.includes("sos") || q.includes("urgence")) {
-            return "URGENCE : Appelez immédiatement le 78 785 01 01ou le 15 (SAMU).";
-        }
-
-        return "Je comprends. Pour cette demande spécifique, je vous invite à consulter l'application Al Bourakh ou à appeler notre support au 78 785 01 01.";
+/* ================= INITIALISATION ================= */
+document.addEventListener('DOMContentLoaded', () => {
+    loadAudioSettings();
+    if (abSynth.onvoiceschanged !== undefined) {
+        abSynth.onvoiceschanged = () => abSynth.getVoices();
     }
+    showWelcomeMessage();
+    setTimeout(() => {
+        if (!abIsChatOpen && abBadge) abBadge.style.display = 'flex';
+    }, 3000);
+});
 
+function showWelcomeMessage() {
+    const welcomeHtml = `
+        <div>
+            Bonjour ! 👋 <strong>Dalal ak diam</strong> chez Al Bourakh !<br><br>
+            Je suis votre assistant virtuel. Je peux vous aider à :
+        </div>
+        <div class="ab-quick-actions">
+            <button class="ab-quick-btn" onclick="handleQuickAction('tarifs')">💰 Voir les tarifs</button>
+            <button class="ab-quick-btn" onclick="handleQuickAction('estimer')">📍 Estimer un trajet</button>
+            <button class="ab-quick-btn" onclick="handleQuickAction('reserver')">🚗 Réserver</button>
+            <button class="ab-quick-btn" onclick="handleQuickAction('chauffeur')">👤 Devenir chauffeur</button>
+            <button class="ab-quick-btn" onclick="handleQuickAction('contact')">📞 Contact</button>
+        </div>
+    `;
+    addAbMessage('bot', welcomeHtml, true);
+}
+
+/* ================= GESTION DU CHAT ================= */
+function toggleAbChat() {
+    abIsChatOpen = !abIsChatOpen;
+    if (abChatWindow) abChatWindow.style.display = abIsChatOpen ? 'flex' : 'none';
+    if (abBadge) abBadge.style.display = 'none';
+    if (abIsChatOpen && abInputField) abInputField.focus();
+}
+
+function toggleVoice() {
+    if (!abRecognition) return alert("Votre navigateur ne supporte pas la commande vocale.");
+    if (abIsListening) abRecognition.stop();
+    else abRecognition.start();
+}
+
+function handleAbKeyPress(e) {
+    if (e.key === 'Enter') sendAbMessage();
+}
+
+function addAbMessage(sender, text, isHtml = false) {
+    const div = document.createElement('div');
+    div.classList.add('ab-msg');
+    div.classList.add(sender === 'user' ? 'ab-msg-user' : sender === 'system' ? 'ab-msg-system' : 'ab-msg-bot');
+    
+    if (isHtml) div.innerHTML = text;
+    else div.innerText = text;
+    
+    if (abMessagesContainer) {
+        abMessagesContainer.appendChild(div);
+        abMessagesContainer.scrollTop = abMessagesContainer.scrollHeight;
+    }
+    
+    if (sender === 'bot') speakText(text);
+    abConversationHistory.push({ sender, text: isHtml ? '[HTML Content]' : text, timestamp: new Date() });
+}
+
+function showAbTyping() {
+    const typing = document.createElement('div');
+    typing.className = 'ab-typing';
+    typing.id = 'ab-typing';
+    typing.innerHTML = '<div class="ab-typing-dot"></div><div class="ab-typing-dot"></div><div class="ab-typing-dot"></div>';
+    if (abMessagesContainer) {
+        abMessagesContainer.appendChild(typing);
+        abMessagesContainer.scrollTop = abMessagesContainer.scrollHeight;
+    }
+}
+
+function hideAbTyping() {
+    const typing = document.getElementById('ab-typing');
+    if (typing) typing.remove();
+}
+
+/* ================= GÉOLOCALISATION ================= */
+function getMyLocation() {
+    if (!navigator.geolocation) {
+        addAbMessage('system', '❌ Géolocalisation non supportée');
+        return;
+    }
+    
+    addAbMessage('system', '📍 Récupération de votre position...');
+    
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            abUserLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+            
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${abUserLocation.lat}&lon=${abUserLocation.lng}&zoom=18&addressdetails=1`
+                );
+                const data = await response.json();
+                const address = data.display_name || `${abUserLocation.lat.toFixed(4)}, ${abUserLocation.lng.toFixed(4)}`;
+                
+                abUserLocation.address = address;
+                abReservationData.depart = address;
+                abReservationData.departCoords = abUserLocation;
+                
+                addAbMessage('bot', `✅ Position trouvée !\n\n📍 ${address}\n\nOù souhaitez-vous aller ?`);
+                
+                // 🔗 INTÉGRATION: Remplir aussi le formulaire principal
+                const mainFromInput = document.getElementById('bookingFrom');
+                if (mainFromInput) mainFromInput.value = address;
+                
+            } catch (error) {
+                addAbMessage('bot', `✅ Position GPS: ${abUserLocation.lat.toFixed(4)}, ${abUserLocation.lng.toFixed(4)}\n\nOù souhaitez-vous aller ?`);
+            }
+        },
+        (error) => {
+            addAbMessage('system', '❌ Impossible d\'obtenir votre position. Veuillez entrer votre adresse manuellement.');
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
+}
+
+/* ================= ACTIONS RAPIDES ================= */
+function handleQuickAction(action) {
+    switch(action) {
+        case 'tarifs': showAbTarifs(); break;
+        case 'estimer': showAbEstimationForm(); break;
+        case 'reserver': 
+            // 🔗 INTÉGRATION: Scroll vers le formulaire principal
+            const bookingSection = document.querySelector('.booking-section');
+            if (bookingSection) {
+                bookingSection.scrollIntoView({ behavior: 'smooth' });
+                toggleAbChat(); // Ferme le chatbot
+                if (typeof showNotification === 'function') {
+                    showNotification('📝 Utilisez le formulaire ci-dessous', 'info');
+                }
+            } else {
+                showAbReservationForm();
+            }
+            break;
+        case 'chauffeur': showAbChauffeurInfo(); break;
+        case 'contact': showAbContact(); break;
+    }
+}
+
+function showAbTarifs() {
+    let html = `<div><strong>💰 Nos Tarifs</strong></div><br>`;
+    
+    for (const [key, tarif] of Object.entries(TARIFS_CHATBOT)) {
+        html += `<div style="margin-bottom:8px;">${tarif.icon} <strong>${tarif.nom}</strong> (${tarif.vehicule})<br>
+        <span style="font-size:12px;color:#64748b;">Prise en charge: ${tarif.priseEnCharge} F • ${tarif.parKm} F/km</span></div>`;
+    }
+    
+    html += `<br><div style="background:#fef3c7;padding:10px;border-radius:8px;font-size:12px;">
+        ✈️ <strong>Aéroport AIBD</strong> : Tarifs fixes à partir de 8 000 F
+    </div>`;
+    
+    html += `<div class="ab-quick-actions">
+        <button class="ab-quick-btn" onclick="handleQuickAction('estimer')">📍 Estimer mon trajet</button>
+    </div>`;
+    
+    addAbMessage('bot', html, true);
+}
+
+function showAbEstimationForm() {
+    const html = `
+        <div class="ab-form-card">
+            <div class="ab-form-title">📍 Estimation de trajet</div>
+            
+            <div class="ab-form-group">
+                <label>Point de départ</label>
+                <input type="text" id="ab-est-depart" placeholder="Ex: Plateau, Dakar" value="${abReservationData.depart || ''}">
+                <button class="ab-location-btn" onclick="useMyLocationForAbEstimate()">
+                    📍 Utiliser ma position
+                </button>
+            </div>
+            
+            <div class="ab-form-group">
+                <label>Destination</label>
+                <input type="text" id="ab-est-destination" placeholder="Ex: Aéroport AIBD">
+            </div>
+            
+            <div class="ab-form-group">
+                <label>Type de véhicule</label>
+                <select id="ab-est-vehicule">
+                    <option value="standard">🚗 Standard (Kia Rio)</option>
+                    <option value="confort">🚙 Confort (VW Polo)</option>
+                    <option value="premium">🚘 Premium (Hyundai)</option>
+                    <option value="moto">🏍️ Moto Jakarta</option>
+                </select>
+            </div>
+            
+            <button class="ab-book-btn" onclick="calculateAbEstimate()">
+                Calculer l'estimation
+            </button>
+        </div>
+    `;
+    addAbMessage('bot', html, true);
+}
+
+function useMyLocationForAbEstimate() {
+    if (abUserLocation && abUserLocation.address) {
+        const el = document.getElementById('ab-est-depart');
+        if (el) el.value = abUserLocation.address;
+    } else {
+        getMyLocation();
+    }
+}
+
+async function calculateAbEstimate() {
+    const depart = document.getElementById('ab-est-depart')?.value?.trim();
+    const destination = document.getElementById('ab-est-destination')?.value?.trim();
+    const vehicule = document.getElementById('ab-est-vehicule')?.value;
+    
+    if (!depart || !destination) {
+        addAbMessage('system', '⚠️ Veuillez remplir le départ et la destination');
+        return;
+    }
+    
+    showAbTyping();
+    
+    const fixedKey = checkAbFixedTarif(depart, destination);
+    let distance, duration, prix;
+    
+    if (fixedKey) {
+        const fixed = TARIFS_FIXES_CHATBOT[fixedKey];
+        distance = fixed.distance;
+        duration = Math.round(distance * 1.2);
+        prix = fixed.prix;
+    } else {
+        distance = await estimateAbDistance(depart, destination);
+        duration = Math.round(distance * 2);
+        const tarif = TARIFS_CHATBOT[vehicule];
+        prix = tarif.priseEnCharge + (distance * tarif.parKm);
+    }
+    
+    hideAbTyping();
+    
+    abCurrentEstimate = { depart, destination, vehicule, distance, duration, prix: Math.round(prix) };
+    abReservationData = { ...abCurrentEstimate };
+    
+    showAbEstimateResult();
+}
+
+function checkAbFixedTarif(depart, destination) {
+    const d = depart.toLowerCase();
+    const dest = destination.toLowerCase();
+    
+    if (dest.includes('aibd') || dest.includes('aéroport') || dest.includes('aeroport')) {
+        if (d.includes('almadies') || d.includes('ngor')) return 'almadies-aibd';
+        if (d.includes('plateau')) return 'plateau-aibd';
+        if (d.includes('parcelles')) return 'parcelles-aibd';
+        if (d.includes('pikine')) return 'pikine-aibd';
+        if (d.includes('rufisque')) return 'rufisque-aibd';
+        return 'dakar-aibd';
+    }
+    return null;
+}
+
+async function estimateAbDistance(depart, destination) {
+    const d = depart.toLowerCase();
+    const dest = destination.toLowerCase();
+    
+    if (dest.includes('aibd') || dest.includes('thies')) return 45;
+    if (dest.includes('pikine') || dest.includes('parcelles')) return 12;
+    if (dest.includes('almadies') && d.includes('plateau')) return 8;
+    
+    return 8 + Math.random() * 7;
+}
+
+function showAbEstimateResult() {
+    const tarif = TARIFS_CHATBOT[abCurrentEstimate.vehicule];
+    
+    const html = `
+        <div class="ab-estimate-card">
+            <div class="ab-estimate-header">
+                <span class="ab-estimate-title">${tarif.icon} ${tarif.nom}</span>
+                <span class="ab-estimate-price">${abCurrentEstimate.prix.toLocaleString()} F</span>
+            </div>
+            
+            <div class="ab-estimate-details">
+                <div class="ab-estimate-item">📍 ${abCurrentEstimate.depart}</div>
+                <div class="ab-estimate-item">🎯 ${abCurrentEstimate.destination}</div>
+                <div class="ab-estimate-item">📏 ~${abCurrentEstimate.distance.toFixed(1)} km</div>
+                <div class="ab-estimate-item">⏱️ ~${abCurrentEstimate.duration} min</div>
+            </div>
+            
+            <button class="ab-book-btn" onclick="transferToMainBooking()">
+                🚗 Réserver maintenant
+            </button>
+        </div>
+        
+        <div class="ab-quick-actions" style="margin-top:10px;">
+            <button class="ab-quick-btn" onclick="handleQuickAction('estimer')">🔄 Nouvelle estimation</button>
+        </div>
+    `;
+    
+    addAbMessage('bot', html, true);
+}
+
+// 🔗 INTÉGRATION: Transférer les données vers le formulaire principal
+function transferToMainBooking() {
+    const mainFromInput = document.getElementById('bookingFrom');
+    const mainToInput = document.getElementById('bookingTo');
+    
+    if (mainFromInput && abReservationData.depart) {
+        mainFromInput.value = abReservationData.depart;
+    }
+    if (mainToInput && abReservationData.destination) {
+        mainToInput.value = abReservationData.destination;
+    }
+    
+    // Sélectionner le véhicule correspondant
+    if (abReservationData.vehicule && typeof selectVehicle === 'function') {
+        const priceMap = { standard: 1500, confort: 2000, van: 2500, premium: 3500 };
+        selectVehicle(abReservationData.vehicule, priceMap[abReservationData.vehicule] || 1500);
+    }
+    
+    // Scroll vers le formulaire
+    const bookingSection = document.querySelector('.booking-section');
+    if (bookingSection) {
+        bookingSection.scrollIntoView({ behavior: 'smooth' });
+        toggleAbChat();
+        if (typeof showNotification === 'function') {
+            showNotification('✅ Données transférées - Complétez votre réservation', 'success');
+        }
+    }
+}
+
+function showAbReservationForm() {
+    const html = `
+        <div class="ab-form-card">
+            <div class="ab-form-title">🚗 Réserver une course</div>
+            
+            <div class="ab-form-group">
+                <label>Votre nom</label>
+                <input type="text" id="ab-res-nom" placeholder="Prénom Nom">
+            </div>
+            
+            <div class="ab-form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="ab-res-tel" placeholder="+221 77 XXX XX XX">
+            </div>
+            
+            <div class="ab-form-group">
+                <label>Point de départ</label>
+                <input type="text" id="ab-res-depart" placeholder="Adresse de départ" value="${abReservationData.depart || ''}">
+            </div>
+            
+            <div class="ab-form-group">
+                <label>Destination</label>
+                <input type="text" id="ab-res-dest" placeholder="Adresse de destination" value="${abReservationData.destination || ''}">
+            </div>
+            
+            <div class="ab-form-group">
+                <label>Type de véhicule</label>
+                <select id="ab-res-vehicule">
+                    <option value="standard" ${abReservationData.vehicule === 'standard' ? 'selected' : ''}>🚗 Standard</option>
+                    <option value="confort" ${abReservationData.vehicule === 'confort' ? 'selected' : ''}>🚙 Confort</option>
+                    <option value="premium" ${abReservationData.vehicule === 'premium' ? 'selected' : ''}>🚘 Premium</option>
+                    <option value="moto" ${abReservationData.vehicule === 'moto' ? 'selected' : ''}>🏍️ Moto</option>
+                </select>
+            </div>
+            
+            <div class="ab-form-group">
+                <label>Date et heure</label>
+                <input type="datetime-local" id="ab-res-datetime">
+            </div>
+            
+            ${abReservationData.prix ? `
+            <div style="background:#ecfdf5;padding:10px;border-radius:8px;margin-bottom:12px;text-align:center;">
+                <strong>Prix estimé: ${abReservationData.prix.toLocaleString()} FCFA</strong>
+            </div>
+            ` : ''}
+            
+            <button class="ab-book-btn" onclick="submitAbReservation()">
+                ✅ Confirmer la réservation
+            </button>
+        </div>
+    `;
+    
+    addAbMessage('bot', html, true);
+    
+    setTimeout(() => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 30);
+        const datetime = now.toISOString().slice(0, 16);
+        const dtInput = document.getElementById('ab-res-datetime');
+        if (dtInput) dtInput.value = datetime;
+    }, 100);
+}
+
+async function submitAbReservation() {
+    const nom = document.getElementById('ab-res-nom')?.value?.trim();
+    const tel = document.getElementById('ab-res-tel')?.value?.trim();
+    const depart = document.getElementById('ab-res-depart')?.value?.trim();
+    const dest = document.getElementById('ab-res-dest')?.value?.trim();
+    const vehicule = document.getElementById('ab-res-vehicule')?.value;
+    const datetime = document.getElementById('ab-res-datetime')?.value;
+    
+    if (!nom || !tel || !depart || !dest) {
+        addAbMessage('system', '⚠️ Veuillez remplir tous les champs obligatoires');
+        return;
+    }
+    
+    if (!tel.match(/^(\+221|221)?[0-9]{9}$/)) {
+        addAbMessage('system', '⚠️ Numéro de téléphone invalide');
+        return;
+    }
+    
+    showAbTyping();
+    
+    try {
+        const reservation = {
+            clientNom: nom,
+            clientTelephone: tel,
+            depart: depart,
+            destination: dest,
+            typeVehicule: vehicule,
+            dateReservation: datetime ? new Date(datetime) : new Date(),
+            prixEstime: abReservationData.prix || 0,
+            distanceEstimee: abReservationData.distance || 0,
+            statut: 'en_attente',
+            source: 'chatbot_web',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            departCoords: abReservationData.departCoords || null
+        };
+        
+        const docRef = await db.collection('reservations').add(reservation);
+        
+        hideAbTyping();
+        
+        const html = `
+            <div style="text-align:center;">
+                <div style="font-size:48px;margin-bottom:10px;">✅</div>
+                <h3 style="color:#22c55e;margin:0 0 10px 0;">Réservation confirmée !</h3>
+                <p style="font-size:13px;color:#64748b;">Référence: <strong>${docRef.id.slice(-8).toUpperCase()}</strong></p>
+                
+                <div style="background:#f1f5f9;padding:12px;border-radius:8px;margin:15px 0;text-align:left;font-size:13px;">
+                    <div>📍 <strong>${depart}</strong></div>
+                    <div style="padding-left:20px;color:#64748b;">↓</div>
+                    <div>🎯 <strong>${dest}</strong></div>
+                    <div style="margin-top:10px;">📅 ${new Date(datetime).toLocaleString('fr-FR')}</div>
+                    ${abReservationData.prix ? `<div>💰 ${abReservationData.prix.toLocaleString()} FCFA</div>` : ''}
+                </div>
+                
+                <p style="font-size:12px;color:#64748b;">
+                    Un chauffeur vous sera assigné sous peu.<br>
+                    Vous recevrez un SMS de confirmation.
+                </p>
+            </div>
+            
+            <div class="ab-quick-actions">
+                <button class="ab-quick-btn" onclick="handleQuickAction('estimer')">📍 Nouvelle estimation</button>
+                <button class="ab-quick-btn" onclick="handleQuickAction('contact')">📞 Contact</button>
+            </div>
+        `;
+        
+        addAbMessage('bot', html, true);
+        abReservationData = {};
+        abCurrentEstimate = null;
+        
+    } catch (error) {
+        hideAbTyping();
+        console.error('Erreur réservation:', error);
+        addAbMessage('system', `❌ Erreur lors de la réservation: ${error.message}`);
+    }
+}
+
+function showAbChauffeurInfo() {
+    const html = `
+        <div>
+            <strong>👤 Devenir Chauffeur Al Bourakh</strong><br><br>
+            
+            <strong>Conditions requises:</strong>
+            <ul style="margin:10px 0;padding-left:20px;font-size:13px;">
+                <li>Âge minimum: 23 ans</li>
+                <li>Permis de conduire: 3 ans minimum</li>
+                <li>Casier judiciaire vierge</li>
+                <li>Véhicule en bon état (optionnel)</li>
+            </ul>
+            
+            <strong>💰 Revenus potentiels:</strong><br>
+            <span style="font-size:13px;">300 000 - 500 000 FCFA/mois</span><br><br>
+            
+            <strong>✅ Avantages:</strong>
+            <ul style="margin:10px 0;padding-left:20px;font-size:13px;">
+                <li>Horaires flexibles</li>
+                <li>Paiement hebdomadaire</li>
+                <li>Formation gratuite</li>
+                <li>Assurance incluse</li>
+            </ul>
+        </div>
+        
+        <div class="ab-quick-actions">
+            <button class="ab-quick-btn" onclick="window.open('https://albourakh.com/chauffeur', '_blank')">📝 S'inscrire</button>
+            <button class="ab-quick-btn" onclick="handleQuickAction('contact')">📞 Plus d'infos</button>
+        </div>
+    `;
+    addAbMessage('bot', html, true);
+}
+
+function showAbContact() {
+    const html = `
+        <div>
+            <strong>📞 Contactez-nous</strong><br><br>
+            
+            <div style="background:#f1f5f9;padding:12px;border-radius:8px;margin-bottom:10px;">
+                <div style="margin-bottom:8px;">
+                    📱 <strong>Téléphone:</strong><br>
+                    <a href="tel:+221787850101" style="color:#2563eb;text-decoration:none;">+221 78 785 01 01</a>
+                </div>
+                
+                <div style="margin-bottom:8px;">
+                    💬 <strong>WhatsApp:</strong><br>
+                    <a href="https://wa.me/221787850101" style="color:#22c55e;text-decoration:none;">+221 78 785 01 01</a>
+                </div>
+                
+                <div>
+                    ✉️ <strong>Email:</strong><br>
+                    <a href="mailto:support@albourakh.sn" style="color:#2563eb;text-decoration:none;">support@albourakh.sn</a>
+                </div>
+            </div>
+            
+            <div style="background:#fef3c7;padding:10px;border-radius:8px;font-size:12px;">
+                🚨 <strong>Urgence:</strong> Appelez le <a href="tel:+221787850101" style="color:#dc2626;">78 785 01 01</a>
+            </div>
+        </div>
+        
+        <div class="ab-quick-actions">
+            <button class="ab-quick-btn" onclick="window.open('https://wa.me/221787850101', '_blank')">💬 WhatsApp</button>
+            <button class="ab-quick-btn" onclick="window.open('tel:+221787850101')">📞 Appeler</button>
+        </div>
+    `;
+    addAbMessage('bot', html, true);
+}
+
+/* ================= TRAITEMENT DES MESSAGES ================= */
+async function sendAbMessage() {
+    const text = abInputField?.value?.trim();
+    if (!text) return;
+
+    addAbMessage('user', text);
+    if (abInputField) abInputField.value = '';
+
+    showAbTyping();
+    const response = await processAbUserMessage(text);
+    hideAbTyping();
+    addAbMessage('bot', response.text, response.isHtml || false);
+}
+
+async function processAbUserMessage(text) {
+    const q = text.toLowerCase();
+    
+    if (q.match(/^(bonjour|salam|salut|hello|hi|bonsoir|hey)/)) {
+        return { text: `Bonjour ! 👋 Comment puis-je vous aider aujourd'hui ?`, isHtml: false };
+    }
+    
+    if (q.match(/(merci|thank|choukran)/)) {
+        return { text: `Je vous en prie ! N'hésitez pas si vous avez d'autres questions. 😊` };
+    }
+    
+    if (q.match(/(prix|tarif|coût|coute|combien|cher)/)) {
+        if (q.match(/(aéroport|aibd|avion)/)) {
+            return { 
+                text: `✈️ <strong>Tarifs Aéroport AIBD (fixes)</strong>:<br><br>
+                • Dakar Centre → AIBD: <strong>15 000 F</strong><br>
+                • Almadies → AIBD: <strong>18 000 F</strong><br>
+                • Parcelles → AIBD: <strong>12 000 F</strong><br>
+                • Pikine → AIBD: <strong>10 000 F</strong><br>
+                • Rufisque → AIBD: <strong>8 000 F</strong><br><br>
+                <div class="ab-quick-actions">
+                    <button class="ab-quick-btn" onclick="handleQuickAction('reserver')">🚗 Réserver</button>
+                </div>`,
+                isHtml: true
+            };
+        }
+        showAbTarifs();
+        return { text: '', isHtml: true };
+    }
+    
+    if (q.match(/(estim|trajet|distance|aller|voyage|course)/)) {
+        const match = q.match(/(?:de|depuis)\s+([a-zéèêëàâäùûüôöîïç\s]+)\s+(?:à|vers|pour)\s+([a-zéèêëàâäùûüôöîïç\s]+)/i);
+        
+        if (match) {
+            abReservationData.depart = match[1].trim();
+            abReservationData.destination = match[2].trim();
+            
+            const vehicule = 'standard';
+            const fixedKey = checkAbFixedTarif(abReservationData.depart, abReservationData.destination);
+            
+            let distance, prix;
+            if (fixedKey) {
+                const fixed = TARIFS_FIXES_CHATBOT[fixedKey];
+                distance = fixed.distance;
+                prix = fixed.prix;
+            } else {
+                distance = await estimateAbDistance(abReservationData.depart, abReservationData.destination);
+                const tarif = TARIFS_CHATBOT[vehicule];
+                prix = tarif.priseEnCharge + (distance * tarif.parKm);
+            }
+            
+            abReservationData.distance = distance;
+            abReservationData.prix = Math.round(prix);
+            abReservationData.vehicule = vehicule;
+            abCurrentEstimate = { ...abReservationData };
+            
+            setTimeout(() => showAbEstimateResult(), 100);
+            return { text: '', isHtml: true };
+        }
+        
+        showAbEstimationForm();
+        return { text: '', isHtml: true };
+    }
+    
+    if (q.match(/(réserv|book|commander|command)/)) {
+        handleQuickAction('reserver');
+        return { text: '', isHtml: true };
+    }
+    
+    if (q.match(/(chauffeur|devenir|travail|emploi|job|recrut)/)) {
+        showAbChauffeurInfo();
+        return { text: '', isHtml: true };
+    }
+    
+    if (q.match(/(contact|téléphone|appel|numéro|whatsapp|email)/)) {
+        showAbContact();
+        return { text: '', isHtml: true };
+    }
+    
+    if (q.match(/(zone|ville|région|couvert|disponible|où)/)) {
+        return {
+            text: `🗺️ <strong>Zones couvertes</strong>:<br><br>
+            <strong>Dakar:</strong> Plateau, Almadies, Ngor, Yoff, Ouakam, Mermoz, Sacré-Cœur, Point E, Médina, Sicap, Liberté, Parcelles, Grand Yoff, HLM, Pikine, Guédiawaye, Rufisque...<br><br>
+            <strong>Régions:</strong> Thiès, Saint-Louis, Saly/Mbour (bientôt)<br><br>
+            <div class="ab-quick-actions">
+                <button class="ab-quick-btn" onclick="handleQuickAction('estimer')">📍 Estimer un trajet</button>
+            </div>`,
+            isHtml: true
+        };
+    }
+    
+    if (q.match(/(paiement|payer|orange|wave|carte|cash|espèce)/)) {
+        return {
+            text: `💳 <strong>Modes de paiement acceptés</strong>:<br><br>
+            • 💵 Cash (espèces)<br>
+            • 🟠 Orange Money<br>
+            • 🔵 Wave<br>
+            • 🟢 Free Money<br>
+            • 💳 Carte bancaire<br><br>
+            Le paiement se fait à la fin de la course.`
+        };
+    }
+    
+    if (q.match(/(sécurité|sos|urgence|danger|safe)/)) {
+        return {
+            text: `🔒 <strong>Votre sécurité, notre priorité</strong>:<br><br>
+            ✅ Suivi GPS en temps réel<br>
+            ✅ Bouton SOS dans l'application<br>
+            ✅ Chauffeurs vérifiés (casier judiciaire)<br>
+            ✅ Assurance tous risques incluse<br>
+            ✅ Support 24h/7<br><br>
+            🚨 <strong>Urgence:</strong> <a href="tel:+221787850101" style="color:#dc2626;">78 785 01 01</a>`,
+            isHtml: true
+        };
+    }
+    
+    // Réponse par défaut
+    return {
+        text: `Je comprends votre demande. Voici ce que je peux faire pour vous :`,
+        isHtml: false
+    };
+}
+
+// Animation toast
+const abToastStyle = document.createElement('style');
+abToastStyle.textContent = `
+    @keyframes abFadeInOut {
+        0% { opacity: 0; transform: translateY(10px); }
+        20% { opacity: 1; transform: translateY(0); }
+        80% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-10px); }
+    }
+`;
+document.head.appendChild(abToastStyle);
+
+console.log('✅ Chatbot Al Bourakh intégré avec succès');
 </script>
 <!-- FIN WIDGET CHATBOT AL BOURAKH -->
-
-
 </body>
 </html>
