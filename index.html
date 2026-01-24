@@ -2883,10 +2883,22 @@ const abFirebaseConfig = {
 };
 
 // Initialiser Firebase seulement si pas déjà fait
-if (!firebase.apps.length) {
-    firebase.initializeApp(abFirebaseConfig);
+// ✅ NOUVEAU CODE
+// Utiliser la variable db existante de l'app principale
+// Si elle n'existe pas, créer abDb comme fallback
+let abDb;
+if (typeof db !== 'undefined') {
+    // L'app principale a déjà initialisé Firebase
+    abDb = db;
+    console.log('🔗 Chatbot connecté à Firebase (via app principale)');
+} else {
+    // Initialisation autonome (chatbot seul)
+    if (!firebase.apps.length) {
+        firebase.initializeApp(abFirebaseConfig);
+    }
+    abDb = firebase.firestore();
+    console.log('🔗 Chatbot: Firebase initialisé de manière autonome');
 }
-const db = firebase.firestore();
 
 console.log('🤖 Chatbot Al Bourakh v3.0 - IA Améliorée');
 
@@ -3742,7 +3754,7 @@ async function abSubmitReservation() {
     };
     
     try {
-        const docRef = await db.collection('reservations').add(reservationData);
+       const docRef = await abDb.collection('reservations').add(reservationData);
         
         abHideTyping();
         
