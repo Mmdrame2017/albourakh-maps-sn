@@ -2421,19 +2421,21 @@
                 : '<i class="fas fa-microphone"></i>';
         }
 
-        function addMessage(text, isUser = false, audioSrc = null) {
+        function addMessage(text, isUser = false) {
             const messagesContainer = document.getElementById('chatbotMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${isUser ? 'user' : 'bot'}`;
 
             let content = text;
-            if (audioSrc && !isUser) {
+            // Ajouter bouton écouter pour les messages du bot
+            if (!isUser) {
+                const escapedText = text.replace(/'/g, "\\'").replace(/"/g, '\\"');
                 content += `
                     <div class="audio-response">
-                        <button onclick="playAudioResponse(this, '${audioSrc}')">
-                            <i class="fas fa-play"></i>
+                        <button onclick="speakResponse('${escapedText}')">
+                            <i class="fas fa-volume-up"></i>
                         </button>
-                        <span>Écouter la réponse</span>
+                        <span>Écouter</span>
                     </div>
                 `;
             }
@@ -2477,16 +2479,23 @@
         // Synthèse vocale pour lire la réponse
         function speakResponse(text) {
             if ('speechSynthesis' in window) {
+                // Arrêter toute lecture en cours
+                speechSynthesis.cancel();
+
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'fr-FR';
                 utterance.rate = 1;
-                utterance.pitch = 1;
-                // Chercher une voix française féminine
+                utterance.pitch = 1.1;
+
+                // Chercher une voix française
                 const voices = speechSynthesis.getVoices();
-                const frenchVoice = voices.find(v => v.lang.startsWith('fr') && v.name.toLowerCase().includes('female'))
-                    || voices.find(v => v.lang.startsWith('fr'));
+                const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
                 if (frenchVoice) utterance.voice = frenchVoice;
+
                 speechSynthesis.speak(utterance);
+                console.log('🔊 Lecture vocale:', text.substring(0, 50) + '...');
+            } else {
+                console.warn('Synthèse vocale non supportée');
             }
         }
 
@@ -2524,16 +2533,11 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success) {
-                        addMessage(data.text, false, data.audio || null);
+                        addMessage(data.text, false);
 
                         // Lecture automatique si message vocal envoyé
                         if (spokenText) {
-                            if (data.audio) {
-                                const audio = new Audio(data.audio);
-                                audio.play().catch(() => speakResponse(data.text));
-                            } else {
-                                speakResponse(data.text);
-                            }
+                            speakResponse(data.text);
                         }
                     } else {
                         addMessage("Désolée, je n'ai pas pu traiter votre demande. Veuillez réessayer.", false);
