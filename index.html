@@ -2490,6 +2490,11 @@
                     .replace(/\*/g, '')
                     // Supprimer les underscores
                     .replace(/_/g, '')
+                    // Convertir les nombres avec séparateurs (11,500 ou 11 500) en nombres simples pour lecture correcte
+                    .replace(/(\d{1,3})[\s,.](\d{3})(?=\s|$|[^\d])/g, (match, p1, p2) => {
+                        const num = parseInt(p1 + p2);
+                        return num.toString();
+                    })
                     // Remplacer FCFA par francs CFA
                     .replace(/(\d)\s*FCFA/gi, '$1 francs CFA')
                     .replace(/FCFA/gi, 'francs CFA')
@@ -2519,19 +2524,33 @@
 
         // Fonction pour remplir automatiquement le formulaire avec les données de réservation
         function fillBookingForm(booking) {
-            if (!booking) return;
-
-            console.log('📝 Remplissage du formulaire avec:', booking);
-
-            // Remplir les champs texte
-            if (booking.depart) {
-                const fromInput = document.getElementById('bookingFrom');
-                if (fromInput) fromInput.value = booking.depart;
+            if (!booking) {
+                console.log('❌ fillBookingForm: booking est null ou undefined');
+                return;
             }
 
+            console.log('📝 Remplissage du formulaire avec:', JSON.stringify(booking, null, 2));
+
+            // Remplir le champ départ
+            if (booking.depart) {
+                const fromInput = document.getElementById('bookingFrom');
+                if (fromInput) {
+                    fromInput.value = booking.depart;
+                    console.log('✅ Départ rempli:', booking.depart);
+                } else {
+                    console.log('❌ Champ bookingFrom non trouvé');
+                }
+            }
+
+            // Remplir le champ destination
             if (booking.destination) {
                 const toInput = document.getElementById('bookingTo');
-                if (toInput) toInput.value = booking.destination;
+                if (toInput) {
+                    toInput.value = booking.destination;
+                    console.log('✅ Destination remplie:', booking.destination);
+                } else {
+                    console.log('❌ Champ bookingTo non trouvé');
+                }
             }
 
             if (booking.telephone) {
@@ -2548,14 +2567,31 @@
             if (booking.date) {
                 const dateInput = document.getElementById('bookingDate');
                 if (dateInput) {
-                    // Essayer de parser la date du chatbot
                     let dateStr = booking.date;
+
+                    // Si "Aujourd'hui", utiliser la date du jour
+                    if (dateStr.toLowerCase().includes('aujourd')) {
+                        const today = new Date();
+                        dateStr = today.toISOString().split('T')[0];
+                    }
                     // Si format "DD/MM/YYYY" ou "DD-MM-YYYY"
-                    const match = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-                    if (match) {
+                    else if (dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/)) {
+                        const match = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
                         dateStr = `${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`;
                     }
+                    // Si format texte comme "3 février 2026"
+                    else {
+                        const moisFr = {'janvier':1,'février':2,'fevrier':2,'mars':3,'avril':4,'mai':5,'juin':6,'juillet':7,'août':8,'aout':8,'septembre':9,'octobre':10,'novembre':11,'décembre':12,'decembre':12};
+                        const matchTexte = dateStr.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/i);
+                        if (matchTexte) {
+                            const jour = matchTexte[1].padStart(2, '0');
+                            const mois = (moisFr[matchTexte[2].toLowerCase()] || 1).toString().padStart(2, '0');
+                            const annee = matchTexte[3];
+                            dateStr = `${annee}-${mois}-${jour}`;
+                        }
+                    }
                     dateInput.value = dateStr;
+                    console.log('✅ Date remplie:', dateStr);
                 }
             }
 
@@ -2564,12 +2600,22 @@
                 const timeInput = document.getElementById('bookingTime');
                 if (timeInput) {
                     let timeStr = booking.heure;
-                    // Extraire HH:MM si format "HH:MM:SS" ou autre
-                    const match = timeStr.match(/(\d{1,2})[:\-h](\d{2})/i);
-                    if (match) {
-                        timeStr = `${match[1].padStart(2, '0')}:${match[2]}`;
+                    // Format "21h" ou "21h30"
+                    const matchH = timeStr.match(/(\d{1,2})h(\d{0,2})/i);
+                    if (matchH) {
+                        const heures = matchH[1].padStart(2, '0');
+                        const minutes = matchH[2] ? matchH[2].padStart(2, '0') : '00';
+                        timeStr = `${heures}:${minutes}`;
+                    }
+                    // Format "HH:MM" ou "HH:MM:SS"
+                    else {
+                        const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+                        if (match) {
+                            timeStr = `${match[1].padStart(2, '0')}:${match[2]}`;
+                        }
                     }
                     timeInput.value = timeStr;
+                    console.log('✅ Heure remplie:', timeStr);
                 }
             }
 
@@ -2581,9 +2627,13 @@
                     'van': { type: 'van', price: 2500 },
                     'premium': { type: 'premium', price: 3500 }
                 };
-                const vehicleKey = booking.vehicule.toLowerCase();
+                const vehicleKey = booking.vehicule.toLowerCase().trim();
+                console.log('🚗 Véhicule reçu:', booking.vehicule, '-> clé:', vehicleKey);
                 if (vehicleMap[vehicleKey]) {
                     selectVehicle(vehicleMap[vehicleKey].type, vehicleMap[vehicleKey].price);
+                    console.log('✅ Véhicule sélectionné:', vehicleKey);
+                } else {
+                    console.log('⚠️ Véhicule non trouvé dans le mapping:', vehicleKey);
                 }
             }
 
@@ -2599,14 +2649,26 @@
                     'portefeuille': 'wallet',
                     'wallet': 'wallet'
                 };
-                const paymentKey = booking.paiement.toLowerCase();
+                const paymentKey = booking.paiement.toLowerCase().trim();
+                console.log('💳 Paiement reçu:', booking.paiement, '-> clé:', paymentKey);
                 if (paymentMap[paymentKey]) {
                     selectPayment(paymentMap[paymentKey]);
+                    console.log('✅ Paiement sélectionné:', paymentKey);
+                } else {
+                    console.log('⚠️ Paiement non trouvé dans le mapping:', paymentKey);
                 }
             }
 
-            // Notification visuelle
-            addMessage('✅ Les informations de votre réservation ont été reportées dans le formulaire. Vérifiez et validez !', false);
+            // Notification visuelle dans le chat
+            addMessage('✅ Formulaire pré-rempli avec vos données de réservation. Vérifiez et validez !', false);
+
+            // Scroller vers le formulaire
+            const form = document.getElementById('bookingForm');
+            if (form) {
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            console.log('🎉 fillBookingForm terminé avec succès');
         }
 
         async function sendChatMessage(spokenText = null) {
@@ -2651,8 +2713,13 @@
                         }
 
                         // Si données de réservation confirmée, remplir le formulaire
-                        if (data.booking) {
+                        console.log('📦 Réponse complète:', JSON.stringify(data, null, 2));
+                        console.log('📦 data.booking:', data.booking);
+                        if (data.booking && Object.keys(data.booking).length > 0) {
+                            console.log('🎯 Appel de fillBookingForm...');
                             fillBookingForm(data.booking);
+                        } else {
+                            console.log('⚠️ Pas de données booking ou booking vide');
                         }
                     } else {
                         addMessage("Désolée, je n'ai pas pu traiter votre demande. Veuillez réessayer.", false);
