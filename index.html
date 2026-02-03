@@ -2107,5 +2107,464 @@
         console.log('%c🔧 Corrections: updateStatusTimeline complète + calculateCourseRoute', 'color: #2196F3; font-size: 12px');
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
+
+    <!-- ===== CHATBOT VOCAL KHADIJA - Widget Flottant ===== -->
+    <style>
+        /* Widget Chatbot Flottant */
+        .chatbot-fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 168, 84, 0.4);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .chatbot-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 168, 84, 0.5);
+        }
+        .chatbot-fab i {
+            font-size: 24px;
+            color: white;
+        }
+        .chatbot-fab.recording {
+            background: linear-gradient(135deg, #E30613, #ff6b6b);
+            animation: pulse-recording 1s infinite;
+        }
+        @keyframes pulse-recording {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(227, 6, 19, 0.6); }
+        }
+
+        /* Modal Chatbot */
+        .chatbot-modal {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 380px;
+            max-width: calc(100vw - 40px);
+            height: 550px;
+            max-height: calc(100vh - 120px);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 9998;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        .chatbot-modal.active {
+            display: flex;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chatbot-avatar {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .chatbot-info h3 {
+            font-size: 1.1em;
+            margin-bottom: 2px;
+        }
+        .chatbot-info p {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+        .chatbot-close {
+            margin-left: auto;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9em;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-message.bot {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chat-message.user {
+            background: linear-gradient(135deg, #00A854, #2ecc71);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-message.typing {
+            background: white;
+            padding: 15px 20px;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #00A854;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        .chatbot-input {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 0.95em;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .chatbot-input input:focus {
+            border-color: #00A854;
+        }
+        .chatbot-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+        .chatbot-btn.mic {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+        }
+        .chatbot-btn.mic.recording {
+            background: linear-gradient(135deg, #E30613, #ff6b6b);
+            animation: pulse-recording 1s infinite;
+        }
+        .chatbot-btn.send {
+            background: #00A854;
+            color: white;
+        }
+        .chatbot-btn:hover {
+            transform: scale(1.05);
+        }
+        .chatbot-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Audio Player Mini */
+        .audio-response {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .audio-response button {
+            background: rgba(0, 168, 84, 0.2);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #00A854;
+        }
+        .audio-response span {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .chatbot-modal {
+                bottom: 0;
+                right: 0;
+                width: 100%;
+                max-width: 100%;
+                height: 100%;
+                max-height: 100%;
+                border-radius: 0;
+            }
+            .chatbot-fab {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+
+    <!-- Widget HTML -->
+    <button class="chatbot-fab" id="chatbotFab" onclick="toggleChatbot()" title="Parler avec Khadija">
+        <i class="fas fa-microphone"></i>
+    </button>
+
+    <div class="chatbot-modal" id="chatbotModal">
+        <div class="chatbot-header">
+            <div class="chatbot-avatar">👩🏾</div>
+            <div class="chatbot-info">
+                <h3>Khadija</h3>
+                <p>Assistante Al Bourakh VTC</p>
+            </div>
+            <button class="chatbot-close" onclick="toggleChatbot()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chat-message bot">
+                Bonjour ! 👋 Je suis Khadija, votre assistante Al Bourakh. Je peux vous aider à réserver un VTC, calculer un tarif ou vérifier votre portefeuille. Comment puis-je vous aider ?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Tapez votre message..." onkeypress="handleChatKeypress(event)">
+            <button class="chatbot-btn mic" id="chatbotMic" onclick="toggleVoiceRecording()">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="chatbot-btn send" onclick="sendChatMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ===== CHATBOT VOCAL KHADIJA =====
+        const CHATBOT_WEBHOOK_URL = 'https://mmdrame2017.app.n8n.cloud/webhook/al-bourakh-chat';
+        let chatSessionId = 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let currentAudio = null;
+
+        function toggleChatbot() {
+            const modal = document.getElementById('chatbotModal');
+            const fab = document.getElementById('chatbotFab');
+            modal.classList.toggle('active');
+            fab.innerHTML = modal.classList.contains('active')
+                ? '<i class="fas fa-times"></i>'
+                : '<i class="fas fa-microphone"></i>';
+        }
+
+        function addMessage(text, isUser = false, audioSrc = null) {
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${isUser ? 'user' : 'bot'}`;
+
+            let content = text;
+            if (audioSrc && !isUser) {
+                content += `
+                    <div class="audio-response">
+                        <button onclick="playAudioResponse(this, '${audioSrc}')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <span>Écouter la réponse</span>
+                    </div>
+                `;
+            }
+            messageDiv.innerHTML = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message bot typing';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        function playAudioResponse(btn, audioSrc) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            currentAudio = new Audio(audioSrc);
+            currentAudio.play();
+            btn.innerHTML = '<i class="fas fa-pause"></i>';
+            currentAudio.onended = () => {
+                btn.innerHTML = '<i class="fas fa-play"></i>';
+            };
+        }
+
+        async function sendChatMessage(audioBase64 = null) {
+            const input = document.getElementById('chatbotInput');
+            const message = audioBase64 ? '[Message vocal]' : input.value.trim();
+
+            if (!message && !audioBase64) return;
+
+            // Afficher le message utilisateur
+            addMessage(audioBase64 ? '🎤 Message vocal envoyé...' : message, true);
+            input.value = '';
+
+            // Afficher l'indicateur de frappe
+            addTypingIndicator();
+
+            try {
+                const payload = {
+                    sessionId: chatSessionId,
+                    message: audioBase64 ? '' : message,
+                    audio: audioBase64 || ''
+                };
+
+                const response = await fetch(CHATBOT_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        addMessage(data.text, false, data.audio || null);
+
+                        // Lecture automatique si réponse audio
+                        if (data.audio) {
+                            const audio = new Audio(data.audio);
+                            audio.play().catch(() => {});
+                        }
+                    } else {
+                        addMessage("Désolée, je n'ai pas pu traiter votre demande. Veuillez réessayer.", false);
+                    }
+                } else {
+                    addMessage("Erreur de connexion. Vérifiez votre connexion internet.", false);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                console.error('Erreur chatbot:', error);
+                addMessage("Une erreur s'est produite. Veuillez réessayer.", false);
+            }
+        }
+
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function toggleVoiceRecording() {
+            const micBtn = document.getElementById('chatbotMic');
+
+            if (!isRecording) {
+                // Démarrer l'enregistrement
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64Audio = reader.result;
+                            sendChatMessage(base64Audio);
+                        };
+                        reader.readAsDataURL(audioBlob);
+
+                        // Arrêter le stream
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    micBtn.classList.add('recording');
+                    micBtn.innerHTML = '<i class="fas fa-stop"></i>';
+
+                } catch (error) {
+                    console.error('Erreur micro:', error);
+                    alert('Impossible d\'accéder au microphone. Veuillez autoriser l\'accès.');
+                }
+            } else {
+                // Arrêter l'enregistrement
+                mediaRecorder.stop();
+                isRecording = false;
+                micBtn.classList.remove('recording');
+                micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            }
+        }
+
+        console.log('%c🎙️ Chatbot Khadija initialisé', 'color: #00A854; font-size: 14px; font-weight: bold');
+    </script>
 </body>
 </html>
