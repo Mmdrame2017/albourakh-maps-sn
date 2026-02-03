@@ -782,6 +782,8 @@
         let selectedVehicle = null, selectedVehiclePrice = 0, selectedPayment = null;
         let mapSelectionMode = null;
         let departureCoords = null, destinationCoords = null;
+        let userCurrentPosition = null; // Position GPS actuelle de l'utilisateur
+        let userCurrentAddress = ''; // Adresse de la position actuelle
         let currentBooking = null;
         let reservationListener = null, driverListener = null;
         let lastDriverPosition = null;
@@ -1513,13 +1515,17 @@
                 navigator.geolocation.getCurrentPosition((pos) => {
                     const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                     departureCoords = userPos;
+                    userCurrentPosition = userPos; // Stocker pour le chatbot
                     map.setCenter(userPos);
                     map.setZoom(14);
                     geocoder.geocode({ location: userPos }, (results, status) => {
                         if (status === 'OK' && results[0]) {
+                            const address = results[0].formatted_address;
+                            userCurrentAddress = address; // Stocker pour le chatbot
                             const fromEl = document.getElementById('bookingFrom');
-                            if (fromEl) fromEl.value = results[0].formatted_address;
+                            if (fromEl) fromEl.value = address;
                             updateMarker('departure', userPos);
+                            console.log('📍 Position détectée:', address);
                         }
                     });
                 });
@@ -1656,15 +1662,25 @@
         function selectVehicle(type, price) {
             selectedVehicle = type;
             selectedVehiclePrice = price;
-            document.querySelectorAll('.vehicle-option').forEach(el => el.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
+            document.querySelectorAll('.vehicle-option').forEach(el => {
+                el.classList.remove('selected');
+                // Sélectionner visuellement le bon véhicule
+                if (el.onclick && el.onclick.toString().includes(`'${type}'`)) {
+                    el.classList.add('selected');
+                }
+            });
             showNotification(`✅ Véhicule: ${type}`, 'success');
         }
 
         function selectPayment(method) {
             selectedPayment = method;
-            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+                // Sélectionner visuellement le bon paiement
+                if (el.onclick && el.onclick.toString().includes(`'${method}'`)) {
+                    el.classList.add('selected');
+                }
+            });
             const names = { cash: 'Espèces', orange: 'Orange Money', wave: 'Wave', wallet: 'Portefeuille' };
             showNotification(`✅ Paiement: ${names[method]}`, 'success');
         }
@@ -2697,7 +2713,8 @@
                     audio: '',
                     wantAudio: !!spokenText, // Demander audio si message vocal
                     walletBalance: walletState.balance || 0, // Solde du portefeuille
-                    userPhone: walletState.userPhone || '' // Téléphone du client
+                    userPhone: walletState.userPhone || '', // Téléphone du client
+                    userPosition: userCurrentAddress || '' // Position actuelle du client
                 };
 
                 const response = await fetch(CHATBOT_WEBHOOK_URL, {
