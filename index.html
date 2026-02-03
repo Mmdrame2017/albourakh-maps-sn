@@ -2484,14 +2484,21 @@
 
                 // Nettoyer le texte pour la lecture
                 let cleanText = text
-                    // Supprimer les emojis (plage Unicode complète)
-                    .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]/gu, '')
-                    // Supprimer les astérisques (formatage Markdown)
-                    .replace(/\*+/g, '')
+                    // Supprimer TOUS les emojis (méthode robuste)
+                    .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDDFF])/g, '')
+                    // Supprimer les astérisques
+                    .replace(/\*/g, '')
+                    // Supprimer les underscores
+                    .replace(/_/g, '')
                     // Remplacer FCFA par francs CFA
+                    .replace(/(\d)\s*FCFA/gi, '$1 francs CFA')
                     .replace(/FCFA/gi, 'francs CFA')
-                    // Remplacer les tirets multiples
-                    .replace(/-+/g, ', ')
+                    // Remplacer : par virgule pour meilleure lecture
+                    .replace(/\s*:\s*/g, ', ')
+                    // Supprimer les tirets en début de ligne
+                    .replace(/^\s*-\s*/gm, '')
+                    // Nettoyer les virgules multiples
+                    .replace(/,\s*,/g, ',')
                     // Nettoyer les espaces multiples
                     .replace(/\s+/g, ' ')
                     .trim();
