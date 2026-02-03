@@ -2695,7 +2695,9 @@
                     sessionId: chatSessionId,
                     message: message,
                     audio: '',
-                    wantAudio: !!spokenText // Demander audio si message vocal
+                    wantAudio: !!spokenText, // Demander audio si message vocal
+                    walletBalance: walletState.balance || 0, // Solde du portefeuille
+                    userPhone: walletState.userPhone || '' // Téléphone du client
                 };
 
                 const response = await fetch(CHATBOT_WEBHOOK_URL, {
