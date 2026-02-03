@@ -2394,9 +2394,23 @@
         const CHATBOT_WEBHOOK_URL = 'https://mmdrame2017.app.n8n.cloud/webhook/al-bourakh-chat';
         let chatSessionId = 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         let isRecording = false;
-        let mediaRecorder = null;
-        let audioChunks = [];
+        let recognition = null;
         let currentAudio = null;
+
+        // Initialiser la reconnaissance vocale
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.warn('Web Speech API non supportée');
+                return null;
+            }
+            const recog = new SpeechRecognition();
+            recog.lang = 'fr-FR';
+            recog.continuous = false;
+            recog.interimResults = false;
+            recog.maxAlternatives = 1;
+            return recog;
+        }
 
         function toggleChatbot() {
             const modal = document.getElementById('chatbotModal');
@@ -2453,21 +2467,37 @@
                 currentAudio = null;
             }
             currentAudio = new Audio(audioSrc);
-            currentAudio.play();
+            currentAudio.play().catch(e => console.error('Erreur lecture audio:', e));
             btn.innerHTML = '<i class="fas fa-pause"></i>';
             currentAudio.onended = () => {
                 btn.innerHTML = '<i class="fas fa-play"></i>';
             };
         }
 
-        async function sendChatMessage(audioBase64 = null) {
-            const input = document.getElementById('chatbotInput');
-            const message = audioBase64 ? '[Message vocal]' : input.value.trim();
+        // Synthèse vocale pour lire la réponse
+        function speakResponse(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                // Chercher une voix française féminine
+                const voices = speechSynthesis.getVoices();
+                const frenchVoice = voices.find(v => v.lang.startsWith('fr') && v.name.toLowerCase().includes('female'))
+                    || voices.find(v => v.lang.startsWith('fr'));
+                if (frenchVoice) utterance.voice = frenchVoice;
+                speechSynthesis.speak(utterance);
+            }
+        }
 
-            if (!message && !audioBase64) return;
+        async function sendChatMessage(spokenText = null) {
+            const input = document.getElementById('chatbotInput');
+            const message = spokenText || input.value.trim();
+
+            if (!message) return;
 
             // Afficher le message utilisateur
-            addMessage(audioBase64 ? '🎤 Message vocal envoyé...' : message, true);
+            addMessage(spokenText ? `🎤 ${message}` : message, true);
             input.value = '';
 
             // Afficher l'indicateur de frappe
@@ -2476,8 +2506,9 @@
             try {
                 const payload = {
                     sessionId: chatSessionId,
-                    message: audioBase64 ? '' : message,
-                    audio: audioBase64 || ''
+                    message: message,
+                    audio: '',
+                    wantAudio: !!spokenText // Demander audio si message vocal
                 };
 
                 const response = await fetch(CHATBOT_WEBHOOK_URL, {
@@ -2495,10 +2526,14 @@
                     if (data.success) {
                         addMessage(data.text, false, data.audio || null);
 
-                        // Lecture automatique si réponse audio
-                        if (data.audio) {
-                            const audio = new Audio(data.audio);
-                            audio.play().catch(() => {});
+                        // Lecture automatique si message vocal envoyé
+                        if (spokenText) {
+                            if (data.audio) {
+                                const audio = new Audio(data.audio);
+                                audio.play().catch(() => speakResponse(data.text));
+                            } else {
+                                speakResponse(data.text);
+                            }
                         }
                     } else {
                         addMessage("Désolée, je n'ai pas pu traiter votre demande. Veuillez réessayer.", false);
@@ -2519,52 +2554,64 @@
             }
         }
 
-        async function toggleVoiceRecording() {
+        function toggleVoiceRecording() {
             const micBtn = document.getElementById('chatbotMic');
 
             if (!isRecording) {
-                // Démarrer l'enregistrement
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-                    audioChunks = [];
+                // Initialiser la reconnaissance vocale
+                recognition = initSpeechRecognition();
+                if (!recognition) {
+                    alert('La reconnaissance vocale n\'est pas supportée par votre navigateur. Utilisez Chrome ou Edge.');
+                    return;
+                }
 
-                    mediaRecorder.ondataavailable = (event) => {
-                        audioChunks.push(event.data);
-                    };
-
-                    mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            const base64Audio = reader.result;
-                            sendChatMessage(base64Audio);
-                        };
-                        reader.readAsDataURL(audioBlob);
-
-                        // Arrêter le stream
-                        stream.getTracks().forEach(track => track.stop());
-                    };
-
-                    mediaRecorder.start();
+                recognition.onstart = () => {
                     isRecording = true;
                     micBtn.classList.add('recording');
                     micBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                    console.log('🎤 Écoute en cours...');
+                };
 
-                } catch (error) {
-                    console.error('Erreur micro:', error);
-                    alert('Impossible d\'accéder au microphone. Veuillez autoriser l\'accès.');
-                }
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    console.log('📝 Transcription:', transcript);
+                    sendChatMessage(transcript);
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Erreur reconnaissance vocale:', event.error);
+                    if (event.error === 'no-speech') {
+                        addMessage("Je n'ai pas entendu. Veuillez réessayer.", false);
+                    } else if (event.error === 'not-allowed') {
+                        alert('Veuillez autoriser l\'accès au microphone.');
+                    }
+                    isRecording = false;
+                    micBtn.classList.remove('recording');
+                    micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+
+                recognition.onend = () => {
+                    isRecording = false;
+                    micBtn.classList.remove('recording');
+                    micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+
+                recognition.start();
             } else {
                 // Arrêter l'enregistrement
-                mediaRecorder.stop();
+                if (recognition) recognition.stop();
                 isRecording = false;
                 micBtn.classList.remove('recording');
                 micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
             }
         }
 
-        console.log('%c🎙️ Chatbot Khadija initialisé', 'color: #00A854; font-size: 14px; font-weight: bold');
+        // Charger les voix disponibles
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+        }
+
+        console.log('%c🎙️ Chatbot Khadija initialisé (Web Speech API)', 'color: #00A854; font-size: 14px; font-weight: bold');
     </script>
 </body>
 </html>
