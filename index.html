@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh - VTC & Paiement v3.9.1</title>
+    <title>Al Bourakh - VTC & Paiement v3.8</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -153,7 +153,6 @@
         .btn-book-primary { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
         .btn-book-secondary { background: white; color: #00A854; border: 2px solid #00A854; }
 
-        /* ========== TRACKING MODAL AMÉLIORÉ v3.9 ========== */
         .tracking-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; overflow-y: auto; }
         .tracking-modal.active { display: block; }
         .tracking-container { max-width: 500px; margin: 10px auto; background: white; border-radius: 15px; overflow: hidden; min-height: calc(100vh - 20px); }
@@ -166,15 +165,14 @@
         
         .route-mode-badge { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 10px 15px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; font-weight: bold; display: none; align-items: center; justify-content: center; gap: 8px; }
         
-        /* ✅ NOUVEAU: Box d'approche améliorée */
-        .driver-approaching-box { background: linear-gradient(135deg, #0ea5e9, #0284c7); padding: 20px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; }
-        .driver-approaching-title { font-size: 0.95em; opacity: 0.9; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .driver-eta { font-size: 3em; font-weight: bold; margin-bottom: 4px; line-height: 1; }
-        .driver-eta-label { font-size: 0.9em; opacity: 0.9; }
-        .driver-details-row { display: flex; justify-content: center; gap: 40px; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); }
+        .driver-approaching-box { background: linear-gradient(135deg, #2196F3, #00BCD4); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; }
+        .driver-approaching-title { font-size: 0.95em; opacity: 0.9; margin-bottom: 8px; }
+        .driver-eta { font-size: 2.2em; font-weight: bold; margin-bottom: 4px; }
+        .driver-eta-label { font-size: 0.85em; opacity: 0.9; }
+        .driver-details-row { display: flex; justify-content: space-around; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.3); }
         .driver-detail { text-align: center; }
-        .driver-detail-value { font-size: 1.3em; font-weight: bold; }
-        .driver-detail-label { font-size: 0.75em; opacity: 0.8; }
+        .driver-detail-value { font-size: 1.2em; font-weight: bold; }
+        .driver-detail-label { font-size: 0.7em; opacity: 0.8; }
 
         .status-timeline { background: #f5f5f5; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
         .status-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
@@ -715,7 +713,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        console.log('🚕 Al Bourakh Client v3.9.1 - GÉOCODAGE AUTOMATIQUE');
+        console.log('🚕 Al Bourakh Client v3.8 - STATUTS CORRIGÉS');
 
         // ===== CONFIGURATION =====
         const WELCOME_BONUS = 500;
@@ -727,12 +725,14 @@
         function safeSetText(elementId, value) {
             const el = document.getElementById(elementId);
             if (el) { el.textContent = value; return true; }
+            console.warn(`⚠️ Element #${elementId} not found`);
             return false;
         }
 
         function safeSetHtml(elementId, html) {
             const el = document.getElementById(elementId);
             if (el) { el.innerHTML = html; return true; }
+            console.warn(`⚠️ Element #${elementId} not found`);
             return false;
         }
 
@@ -777,11 +777,7 @@
 
         // ===== VARIABLES GLOBALES =====
         let map, trackingMap, trafficLayer, autocomplete, geocoder;
-        let directionsService, directionsRenderer;
-        
-        // ✅ NOUVEAU: DirectionsRenderer séparé pour le tracking avec couleur verte
-        let trackingDirectionsService, trackingDirectionsRenderer;
-        
+        let directionsService, directionsRenderer, trackingDirectionsRenderer;
         let userMarker, departureMarker, destinationMarker, driverMarker, clientPickupMarker;
         let selectedVehicle = null, selectedVehiclePrice = 0, selectedPayment = null;
         let mapSelectionMode = null;
@@ -804,9 +800,10 @@
                     transactions: walletState.transactions.slice(0, 100),
                     lastUpdate: new Date().toISOString(),
                     isNewUser: false,
-                    version: '3.9'
+                    version: '3.8'
                 };
                 localStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(dataToSave));
+                console.log('💾 Portefeuille sauvegardé:', dataToSave.balance, 'FCFA');
                 return true;
             } catch (error) {
                 console.error('❌ Erreur sauvegarde:', error);
@@ -823,8 +820,10 @@
                     if (typeof data.loyaltyPoints === 'number') walletState.loyaltyPoints = data.loyaltyPoints;
                     if (Array.isArray(data.transactions)) walletState.transactions = data.transactions;
                     walletState.isNewUser = false;
+                    console.log('📂 Portefeuille chargé:', walletState.balance, 'FCFA');
                     return true;
                 } else {
+                    console.log('🎁 Nouveau client! Bonus:', WELCOME_BONUS, 'FCFA');
                     walletState.balance = WELCOME_BONUS;
                     walletState.transactions = [{
                         id: 'welcome_bonus_' + Date.now(),
@@ -854,9 +853,10 @@
                 syncValidatedRecharges();
                 startGlobalRechargeListener();
             }, 1000);
+            console.log('✅ App initialisée - Solde:', walletState.balance, 'FCFA');
         });
 
-        // ===== SYNC & RECHARGES (inchangé) =====
+        // ===== SYNC RECHARGES =====
         async function syncValidatedRecharges() {
             const userPhone = getUserPhone();
             if (!userPhone) return;
@@ -933,7 +933,7 @@
                 });
         }
 
-        // ===== LOGIN (inchangé) =====
+        // ===== LOGIN =====
         function checkLogin() {
             const savedPhone = localStorage.getItem('albourakh_phone');
             const savedName = localStorage.getItem('albourakh_name');
@@ -982,7 +982,7 @@
             return walletState.userPhone;
         }
 
-        // ===== EVALUATION (inchangé) =====
+        // ===== EVALUATION =====
         function initEvaluationListeners() {
             document.querySelectorAll('#overallRating .star').forEach(star => {
                 star.addEventListener('click', () => {
@@ -1152,7 +1152,7 @@
             }
         }
 
-        // ===== PAYMENT (inchangé) =====
+        // ===== PAYMENT =====
         async function validatePayment() {
             if (!currentBooking || paymentProcessing || paymentValidated) return;
             
@@ -1259,7 +1259,7 @@
             return ['orange', 'wave', 'wallet', 'Orange Money', 'Wave', 'Portefeuille Al Bourakh'].includes(method);
         }
 
-        // ===== WALLET FUNCTIONS (inchangé - abrégé) =====
+        // ===== WALLET FUNCTIONS =====
         function openWallet() {
             const modal = document.getElementById('walletModal');
             if (modal) modal.classList.add('active');
@@ -1301,7 +1301,26 @@
             const totalSpent = walletState.transactions.filter(t => t.type === 'ride').reduce((sum, t) => sum + (t.amount || 0), 0);
             const rideCount = walletState.transactions.filter(t => t.type === 'ride').length;
 
+            let welcomeBonus = walletState.isNewUser ? `
+                <div class="welcome-bonus">
+                    <h4>🎁 Bonus de bienvenue crédité!</h4>
+                    <p>Vous avez reçu ${WELCOME_BONUS} FCFA pour votre première course</p>
+                </div>
+            ` : '';
+
+            let pendingAlert = walletState.pendingRecharges > 0 ? `
+                <div class="pending-requests-alert">
+                    <i class="fas fa-clock"></i>
+                    <div class="pending-requests-info">
+                        <h4>${walletState.pendingRecharges} demande(s) en attente</h4>
+                        <p>Vos recharges seront validées sous peu</p>
+                    </div>
+                </div>
+            ` : '';
+
             safeSetHtml('walletDashboard', `
+                ${pendingAlert}
+                ${welcomeBonus}
                 <div class="wallet-card">
                     <div class="wallet-card-header">
                         <div>
@@ -1319,6 +1338,10 @@
                     <div class="stat-card"><div class="stat-content"><div class="stat-icon green">📈</div><div><p class="stat-label">Courses</p><p class="stat-value">${rideCount}</p></div></div></div>
                     <div class="stat-card"><div class="stat-content"><div class="stat-icon purple">💰</div><div><p class="stat-label">Dépenses</p><p class="stat-value">${totalSpent.toLocaleString()}</p></div></div></div>
                     <div class="stat-card"><div class="stat-content"><div class="stat-icon orange">📊</div><div><p class="stat-label">Transactions</p><p class="stat-value">${walletState.transactions.length}</p></div></div></div>
+                </div>
+                <div class="loyalty-card">
+                    <div><p class="loyalty-label">Points de Fidélité</p><p class="loyalty-points">${walletState.loyaltyPoints} pts</p></div>
+                    <div class="loyalty-badge">${walletState.loyaltyPoints >= 500 ? 'Niveau Or' : 'Niveau Bronze'}</div>
                 </div>
             `);
         }
@@ -1338,6 +1361,18 @@
                         `).join('')}
                     </div>
                 </div>
+                <div class="card">
+                    <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem;">Moyen de Paiement</h3>
+                    ${['Orange Money', 'Wave', 'Free Money', 'Carte Bancaire'].map(m => `
+                        <button class="payment-method-wallet ${walletState.rechargeMethod === m ? 'active' : ''}" onclick="walletState.rechargeMethod = '${m}'; renderWalletRecharge();">
+                            <div class="payment-method-content">
+                                <span class="payment-method-icon">${m === 'Orange Money' ? '📱' : m === 'Wave' ? '💳' : m === 'Free Money' ? '📲' : '💳'}</span>
+                                <span class="payment-method-name">${m}</span>
+                            </div>
+                            ${walletState.rechargeMethod === m ? '<span>✓</span>' : ''}
+                        </button>
+                    `).join('')}
+                </div>
                 <button class="btn-primary-wallet" onclick="processWalletRecharge()"><i class="fas fa-paper-plane"></i> Envoyer la demande</button>
             `);
         }
@@ -1345,16 +1380,29 @@
         function renderWalletHistory() {
             const transactions = walletState.transactions.slice(0, 20);
             let html = '<div class="card">';
+            
             if (transactions.length === 0) {
                 html += '<p style="text-align: center; color: #666; padding: 20px;">Aucune transaction</p>';
             } else {
                 html += '<div class="transaction-list">';
                 transactions.forEach(t => {
                     const isDebit = t.type === 'ride';
+                    const isBonus = t.type === 'bonus';
+                    const icon = isDebit ? '🚗' : (isBonus ? '🎁' : '💰');
                     const color = isDebit ? '#E30613' : '#16a34a';
                     const prefix = isDebit ? '-' : '+';
-                    const date = new Date(t.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
-                    html += `<div class="transaction-item"><div class="transaction-header"><span>${t.type === 'ride' ? '🚗 Course' : '💰 Recharge'}</span><span style="color:${color}">${prefix}${t.amount.toLocaleString()} FCFA</span></div><div class="transaction-date">${date}</div></div>`;
+                    const date = new Date(t.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    const label = isBonus ? t.description : (t.type === 'ride' ? 'Course' : 'Recharge');
+                    
+                    html += `
+                        <div class="transaction-item">
+                            <div class="transaction-header">
+                                <div><div class="transaction-route">${icon} ${label}</div><div class="transaction-driver">${t.depart ? t.depart.substring(0, 25) + '...' : (t.method || '')}</div></div>
+                                <div class="transaction-amount" style="color: ${color};">${prefix}${t.amount.toLocaleString()} FCFA</div>
+                            </div>
+                            <div class="transaction-footer"><div class="transaction-date">${date}</div><span class="transaction-badge">${t.status === 'completed' ? 'Terminé' : 'En cours'}</span></div>
+                        </div>
+                    `;
                 });
                 html += '</div>';
             }
@@ -1365,9 +1413,12 @@
         async function processWalletRecharge() {
             const amount = parseInt(walletState.rechargeAmount);
             if (!amount || amount <= 0) { showNotification('⚠️ Montant invalide', 'error'); return; }
+
             const userPhone = getUserPhone();
             if (!userPhone) { showNotification('⚠️ Téléphone requis', 'error'); return; }
+
             showLoading('Envoi de la demande...');
+
             try {
                 await db.collection('recharges').add({
                     clientTelephone: userPhone,
@@ -1377,9 +1428,21 @@
                     status: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
                 hideLoading();
+                
+                safeSetHtml('walletSuccess', `
+                    <div class="success-screen">
+                        <div>
+                            <div class="success-icon pending-icon">⏳</div>
+                            <h2 class="success-title pending-title">Demande envoyée!</h2>
+                            <p class="success-message">Votre demande de ${amount.toLocaleString()} FCFA sera validée sous 24h.</p>
+                        </div>
+                    </div>
+                `);
+                showWalletScreen('success');
+                setTimeout(() => showWalletScreen('dashboard'), 3000);
                 showNotification('✅ Demande envoyée!', 'success');
-                showWalletScreen('dashboard');
             } catch (error) {
                 hideLoading();
                 showNotification('❌ Erreur: ' + error.message, 'error');
@@ -1541,7 +1604,11 @@
             mapSelectionMode = type;
             showNotification(`🗺️ Cliquez sur la carte pour ${type === 'from' ? 'le départ' : 'la destination'}`, 'info');
             map.getDiv().style.cursor = 'crosshair';
-            document.querySelector('.map-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            const mapContainer = document.querySelector('.map-container');
+            if (mapContainer) {
+                mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         function handleMapClick(event) {
@@ -1585,7 +1652,7 @@
             });
         }
 
-        // ===== BOOKING (inchangé) =====
+        // ===== BOOKING =====
         function selectVehicle(type, price) {
             selectedVehicle = type;
             selectedVehiclePrice = price;
@@ -1611,11 +1678,17 @@
         }
 
         function previewBooking() {
-            const from = document.getElementById('bookingFrom')?.value?.trim();
-            const to = document.getElementById('bookingTo')?.value?.trim();
-            const date = document.getElementById('bookingDate')?.value;
-            const time = document.getElementById('bookingTime')?.value;
-            const phone = document.getElementById('bookingPhone')?.value?.trim();
+            const fromEl = document.getElementById('bookingFrom');
+            const toEl = document.getElementById('bookingTo');
+            const dateEl = document.getElementById('bookingDate');
+            const timeEl = document.getElementById('bookingTime');
+            const phoneEl = document.getElementById('bookingPhone');
+            
+            const from = fromEl?.value?.trim();
+            const to = toEl?.value?.trim();
+            const date = dateEl?.value;
+            const time = timeEl?.value;
+            const phone = phoneEl?.value?.trim();
 
             if (!phone) { showNotification('⚠️ Connectez-vous', 'error'); document.getElementById('loginModal').style.display = 'flex'; return; }
             if (!from || !to || !date || !time) { showNotification('⚠️ Remplissez tous les champs', 'error'); return; }
@@ -1693,7 +1766,7 @@
             }
         }
 
-        // ===== ✅ TRACKING CORRIGÉ - TRAJET D'APPROCHE VISIBLE =====
+        // ===== TRACKING =====
         function openTracking() {
             const modal = document.getElementById('trackingModal');
             if (modal) modal.classList.add('active');
@@ -1710,8 +1783,7 @@
             safeSetStyle('cancelBookingBtn', 'display', 'block');
             currentTrackingMode = 'approche';
             
-            // ✅ Initialiser la carte après un délai pour que le modal soit visible
-            setTimeout(() => initTrackingMap(), 400);
+            setTimeout(() => initTrackingMap(), 300);
         }
 
         function closeTracking() {
@@ -1720,156 +1792,17 @@
             document.body.style.overflow = '';
             if (reservationListener) { reservationListener(); reservationListener = null; }
             if (driverListener) { driverListener(); driverListener = null; }
-            
-            // ✅ Nettoyer les ressources de la carte
-            if (trackingDirectionsRenderer) {
-                trackingDirectionsRenderer.setMap(null);
-                trackingDirectionsRenderer = null;
-            }
-            trackingMap = null;
-            driverMarker = null;
-            clientPickupMarker = null;
         }
 
-        // ✅ NOUVELLE FONCTION: initTrackingMap AVEC GÉOCODAGE AUTOMATIQUE
-        async function initTrackingMap() {
+        function initTrackingMap() {
+            if (!currentBooking?.departCoords) return;
+            
             const mapEl = document.getElementById('trackingMap');
-            if (!mapEl) {
-                console.log('⚠️ Element trackingMap non trouvé');
-                return;
-            }
+            if (!mapEl) return;
             
-            console.log('🗺️ Initialisation carte de suivi...');
-            console.log('📍 Données booking:', currentBooking);
-            
-            // ✅ ÉTAPE 1: Obtenir les coordonnées du client (géocodage si nécessaire)
-            let clientCoords = null;
-            
-            // Vérifier si les coordonnées existent déjà
-            if (currentBooking?.departCoords) {
-                // Gérer les différents formats de coordonnées (Firebase GeoPoint ou objet simple)
-                if (currentBooking.departCoords.latitude !== undefined) {
-                    clientCoords = {
-                        lat: currentBooking.departCoords.latitude,
-                        lng: currentBooking.departCoords.longitude
-                    };
-                } else if (currentBooking.departCoords.lat !== undefined) {
-                    clientCoords = {
-                        lat: currentBooking.departCoords.lat,
-                        lng: currentBooking.departCoords.lng
-                    };
-                }
-                console.log('✅ Coordonnées client trouvées:', clientCoords);
-            }
-            
-            // Si pas de coordonnées, géocoder l'adresse texte
-            if (!clientCoords && currentBooking?.depart) {
-                console.log('📍 Géocodage de l\'adresse:', currentBooking.depart);
-                try {
-                    clientCoords = await geocodeAddress(currentBooking.depart);
-                    if (clientCoords) {
-                        console.log('✅ Coordonnées géocodées:', clientCoords);
-                        // Sauvegarder dans currentBooking pour utilisation ultérieure
-                        currentBooking.departCoords = clientCoords;
-                    }
-                } catch (error) {
-                    console.error('❌ Erreur géocodage:', error);
-                }
-            }
-            
-            // Si toujours pas de coordonnées, utiliser Dakar par défaut
-            if (!clientCoords) {
-                console.log('⚠️ Utilisation des coordonnées par défaut (Dakar)');
-                clientCoords = { lat: 14.6937, lng: -17.4441 };
-                currentBooking.departCoords = clientCoords;
-            }
-            
-            // ✅ ÉTAPE 2: Créer la carte
-            trackingMap = new google.maps.Map(mapEl, { 
-                center: clientCoords, 
-                zoom: 14, 
-                disableDefaultUI: true, 
-                zoomControl: true,
-                styles: [
-                    { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
-                ]
-            });
-            
-            // ✅ ÉTAPE 3: Créer le DirectionsService ET DirectionsRenderer pour le tracking
-            trackingDirectionsService = new google.maps.DirectionsService();
-            trackingDirectionsRenderer = new google.maps.DirectionsRenderer({ 
-                map: trackingMap, 
-                suppressMarkers: true,
-                polylineOptions: { 
-                    strokeColor: '#22c55e', // VERT pour le trajet d'approche
-                    strokeWeight: 6,
-                    strokeOpacity: 0.9
-                }
-            });
-            
-            // ✅ ÉTAPE 4: Marqueur du point de prise en charge (client) - ROUGE
-            clientPickupMarker = new google.maps.Marker({ 
-                position: clientCoords, 
-                map: trackingMap, 
-                icon: { 
-                    path: google.maps.SymbolPath.CIRCLE, 
-                    scale: 14, 
-                    fillColor: '#ef4444', 
-                    fillOpacity: 1, 
-                    strokeColor: 'white', 
-                    strokeWeight: 3 
-                },
-                title: 'Votre position',
-                zIndex: 100
-            });
-            
-            // ✅ ÉTAPE 5: Label "Vous" au dessus du marqueur
-            new google.maps.Marker({
-                position: clientCoords,
-                map: trackingMap,
-                icon: {
-                    url: 'data:image/svg+xml,' + encodeURIComponent(`
-                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="26">
-                            <rect x="0" y="0" width="50" height="22" rx="11" fill="#ef4444"/>
-                            <text x="25" y="15" font-family="Arial" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Vous</text>
-                        </svg>
-                    `),
-                    anchor: new google.maps.Point(25, 38)
-                },
-                zIndex: 99
-            });
-            
-            console.log('✅ Carte de suivi initialisée avec coordonnées:', clientCoords);
-        }
-        
-        // ✅ NOUVELLE FONCTION: Géocoder une adresse texte en coordonnées
-        function geocodeAddress(address) {
-            return new Promise((resolve, reject) => {
-                if (!geocoder) {
-                    geocoder = new google.maps.Geocoder();
-                }
-                
-                // Ajouter "Sénégal" si pas déjà présent pour améliorer la précision
-                let searchAddress = address;
-                if (!address.toLowerCase().includes('sénégal') && !address.toLowerCase().includes('senegal') && !address.toLowerCase().includes('dakar')) {
-                    searchAddress = address + ', Dakar, Sénégal';
-                }
-                
-                console.log('🔍 Recherche géocodage:', searchAddress);
-                
-                geocoder.geocode({ address: searchAddress }, (results, status) => {
-                    if (status === 'OK' && results[0]) {
-                        const location = results[0].geometry.location;
-                        resolve({
-                            lat: location.lat(),
-                            lng: location.lng()
-                        });
-                    } else {
-                        console.warn('⚠️ Géocodage échoué:', status);
-                        reject(new Error('Géocodage échoué: ' + status));
-                    }
-                });
-            });
+            trackingMap = new google.maps.Map(mapEl, { center: currentBooking.departCoords, zoom: 14, disableDefaultUI: true, zoomControl: true });
+            trackingDirectionsRenderer = new google.maps.DirectionsRenderer({ map: trackingMap, suppressMarkers: true, polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
+            clientPickupMarker = new google.maps.Marker({ position: currentBooking.departCoords, map: trackingMap, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#4CAF50', fillOpacity: 1, strokeColor: 'white', strokeWeight: 3 } });
         }
 
         function startReservationListener(reservationId) {
@@ -1888,35 +1821,51 @@
             });
         }
 
+        // ===== ✅ CORRECTION PRINCIPALE: updateStatusTimeline COMPLÈTE =====
         function updateStatusTimeline(statut) {
             console.log('📊 Statut reçu:', statut);
+            
+            // ✅ Gestion de TOUS les statuts possibles
             
             if (statut === 'chauffeur_en_route' || statut === 'en_route') {
                 safeAddClass('step3Icon', 'active');
                 safeRemoveClass('step3Icon', 'current');
                 safeSetText('step3Text', 'Le chauffeur est en route');
                 safeSetText('step3Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+                console.log('✅ Step 3 activé: Chauffeur en route');
             }
             
             if (statut === 'chauffeur_arrive' || statut === 'arrive' || statut === 'chauffeur_sur_place') {
+                // ✅ STEP 4 : Chauffeur arrivé
                 safeAddClass('step4Icon', 'active');
                 safeRemoveClass('step3Icon', 'current');
+                safeSetText('step4Text', '✅ Chauffeur sur place !');
                 safeSetText('step4Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
                 
+                // Mettre à jour l'affichage principal
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">✅ Chauffeur arrivé !</div>
                     <div class="driver-eta" style="font-size: 1.5em; margin-top: 10px;">Votre chauffeur vous attend</div>
                     <div class="driver-eta-label" style="margin-top: 8px;">Montez à bord pour démarrer la course</div>
                 `);
                 
-                if (trackingDirectionsRenderer) trackingDirectionsRenderer.setMap(null);
+                // Cacher la route d'approche
+                if (trackingDirectionsRenderer) {
+                    trackingDirectionsRenderer.setMap(null);
+                }
+                
+                console.log('✅ Step 4 activé: Chauffeur arrivé');
                 showNotification('✅ Votre chauffeur est arrivé !', 'success');
             }
             
             if (statut === 'en_cours' || statut === 'course_en_cours') {
+                // ✅ STEP 5 : Course en cours
                 safeAddClass('step5Icon', 'active');
                 safeRemoveClass('step4Icon', 'current');
+                safeSetText('step5Text', 'Direction votre destination');
                 safeSetText('step5Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+                
+                // Changer le mode de tracking
                 currentTrackingMode = 'course';
                 
                 safeSetHtml('driverApproachingBox', `
@@ -1925,25 +1874,57 @@
                     <div class="driver-eta-label" style="margin-top: 8px;">Bon voyage !</div>
                 `);
                 
+                // Afficher la route vers la destination
+                if (currentBooking?.destinationCoords && lastDriverPosition) {
+                    calculateCourseRoute(lastDriverPosition, currentBooking.destinationCoords);
+                }
+                
+                console.log('✅ Step 5 activé: Course en cours');
                 showNotification('🚗 Course en cours - Bon voyage !', 'success');
             }
             
             if (statut === 'terminee') {
+                // ✅ Course terminée
                 safeAddClass('step5Icon', 'active');
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">🎉 Course terminée!</div>
                     <div class="driver-eta" style="font-size: 1.2em;">Validez votre paiement</div>
                 `);
                 showPaymentButton();
+                console.log('✅ Course terminée - Affichage paiement');
             }
+        }
+
+        // ===== ✅ NOUVELLE FONCTION: calculateCourseRoute =====
+        function calculateCourseRoute(driverPos, destinationPos) {
+            if (!directionsService || !trackingDirectionsRenderer) return;
+            if (!isTrackingModalOpen()) return;
+            
+            directionsService.route({
+                origin: driverPos,
+                destination: destinationPos,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (!isTrackingModalOpen()) return;
+                
+                if (status === 'OK') {
+                    trackingDirectionsRenderer.setDirections(result);
+                    const leg = result.routes[0].legs[0];
+                    
+                    safeSetText('driverETA', Math.ceil(leg.duration.value / 60));
+                    safeSetText('driverDistance', leg.distance.text);
+                    
+                    const arrivalTime = new Date(Date.now() + leg.duration.value * 1000)
+                        .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    safeSetText('driverArrivalTime', arrivalTime);
+                }
+            });
         }
 
         function startDriverTracking(driverId) {
             if (driverListener) { driverListener(); driverListener = null; }
             
-            console.log('👁️ Écoute de la position du chauffeur:', driverId);
-            
-            driverListener = db.collection('drivers').doc(driverId).onSnapshot(async (doc) => {
+            driverListener = db.collection('drivers').doc(driverId).onSnapshot((doc) => {
                 if (!doc.exists) return;
                 if (!isTrackingModalOpen()) return;
                 
@@ -1952,15 +1933,12 @@
                 if (driverData.position?.latitude && driverData.position?.longitude) {
                     const driverPos = { lat: driverData.position.latitude, lng: driverData.position.longitude };
                     lastDriverPosition = driverPos;
-                    
-                    console.log('📍 Position chauffeur:', driverPos);
-                    
-                    // ✅ Appeler les fonctions async
-                    await updateDriverMarker(driverPos);
+                    updateDriverMarker(driverPos);
                     
                     if (currentTrackingMode === 'approche') {
-                        // ✅ CALCUL DU TRAJET D'APPROCHE
-                        await calculateApproachRoute(driverPos);
+                        calculateApproachRoute(driverPos);
+                    } else if (currentTrackingMode === 'course' && currentBooking?.destinationCoords) {
+                        calculateCourseRoute(driverPos, currentBooking.destinationCoords);
                     }
                     
                     updateStep3();
@@ -1968,198 +1946,39 @@
             });
         }
 
-        // ✅ NOUVEAU: updateDriverMarker avec icône voiture
-        async function updateDriverMarker(position) {
+        function updateDriverMarker(position) {
             if (!trackingMap) return;
-            
-            if (driverMarker) { 
-                driverMarker.setPosition(position);
-            } else { 
-                // ✅ Créer le marqueur du chauffeur avec une icône voiture verte
-                driverMarker = new google.maps.Marker({ 
-                    position: position, 
-                    map: trackingMap, 
-                    icon: {
-                        url: 'data:image/svg+xml,' + encodeURIComponent(`
-                            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
-                                <circle cx="22" cy="22" r="20" fill="#22c55e" stroke="#ffffff" stroke-width="3"/>
-                                <text x="22" y="28" font-size="20" text-anchor="middle" fill="white">🚗</text>
-                            </svg>
-                        `),
-                        scaledSize: new google.maps.Size(44, 44),
-                        anchor: new google.maps.Point(22, 22)
-                    },
-                    title: currentBooking?.nomChauffeur || 'Chauffeur',
-                    zIndex: 200
-                });
-            }
-            
-            // Ajuster la vue pour montrer chauffeur et client
-            if (trackingMap) {
-                const clientCoords = await getClientCoordinates();
-                if (clientCoords) {
-                    const bounds = new google.maps.LatLngBounds();
-                    bounds.extend(position);
-                    bounds.extend(clientCoords);
-                    trackingMap.fitBounds(bounds, { padding: 60 });
-                }
-            }
+            if (driverMarker) { driverMarker.setPosition(position); }
+            else { driverMarker = new google.maps.Marker({ position: position, map: trackingMap, icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 8, fillColor: '#2196F3', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }, zIndex: 100 }); }
         }
 
-        // ✅ NOUVELLE FONCTION: calculateApproachRoute AVEC GÉOCODAGE AUTOMATIQUE
-        async function calculateApproachRoute(driverPos) {
-            if (!trackingDirectionsService || !trackingDirectionsRenderer) {
-                console.log('⚠️ DirectionsService non initialisé');
-                return;
-            }
+        function calculateApproachRoute(driverPos) {
+            if (!currentBooking?.departCoords || !directionsService) return;
             if (!isTrackingModalOpen()) {
-                console.log('⚠️ Modal fermé, annulation du calcul');
+                console.log('⚠️ Tracking modal closed, skipping route calculation');
                 return;
             }
             
-            // ✅ ÉTAPE 1: Obtenir les coordonnées du client
-            let clientCoords = await getClientCoordinates();
-            
-            if (!clientCoords) {
-                console.log('❌ Impossible d\'obtenir les coordonnées client');
-                return;
-            }
-            
-            console.log('🛣️ Calcul du trajet d\'approche...');
-            console.log('   Chauffeur:', driverPos);
-            console.log('   Client:', clientCoords);
-            
-            const request = {
-                origin: new google.maps.LatLng(driverPos.lat, driverPos.lng),
-                destination: new google.maps.LatLng(clientCoords.lat, clientCoords.lng),
-                travelMode: google.maps.TravelMode.DRIVING,
-                unitSystem: google.maps.UnitSystem.METRIC
-            };
-            
-            trackingDirectionsService.route(request, (result, status) => {
+            directionsService.route({
+                origin: driverPos,
+                destination: currentBooking.departCoords,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
                 if (!isTrackingModalOpen()) return;
                 
-                if (status === google.maps.DirectionsStatus.OK) {
-                    console.log('✅ Trajet d\'approche calculé avec succès!');
-                    
-                    // ✅ Afficher le trajet sur la carte
-                    trackingDirectionsRenderer.setDirections(result);
-                    
+                if (status === 'OK') {
+                    if (trackingDirectionsRenderer) trackingDirectionsRenderer.setDirections(result);
                     const leg = result.routes[0].legs[0];
                     
-                    // ✅ Mettre à jour l'ETA
-                    const durationMinutes = Math.ceil(leg.duration.value / 60);
-                    safeSetText('driverETA', durationMinutes);
+                    safeSetText('driverETA', Math.ceil(leg.duration.value / 60));
                     safeSetText('driverDistance', leg.distance.text);
                     
                     const arrivalTime = new Date(Date.now() + leg.duration.value * 1000)
                         .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
                     safeSetText('driverArrivalTime', arrivalTime);
-                    
                     safeSetStyle('driverApproachingBox', 'display', 'block');
-                    
-                    console.log('📏 Distance:', leg.distance.text);
-                    console.log('⏱️ Durée:', leg.duration.text);
-                    
-                } else {
-                    console.warn('⚠️ Erreur calcul trajet:', status);
-                    // Fallback: afficher estimation basée sur distance à vol d'oiseau
-                    drawFallbackLine(driverPos, clientCoords);
                 }
             });
-        }
-        
-        // ✅ NOUVELLE FONCTION: Obtenir les coordonnées du client (avec géocodage si nécessaire)
-        async function getClientCoordinates() {
-            // Si déjà en cache dans currentBooking
-            if (currentBooking?._cachedClientCoords) {
-                return currentBooking._cachedClientCoords;
-            }
-            
-            let clientCoords = null;
-            
-            // ✅ Vérifier les différents formats de coordonnées possibles
-            if (currentBooking?.departCoords) {
-                const coords = currentBooking.departCoords;
-                
-                // Format Firebase GeoPoint: { latitude, longitude }
-                if (coords.latitude !== undefined && coords.longitude !== undefined) {
-                    clientCoords = { lat: coords.latitude, lng: coords.longitude };
-                    console.log('✅ Coordonnées trouvées (format GeoPoint):', clientCoords);
-                }
-                // Format simple: { lat, lng }
-                else if (coords.lat !== undefined && coords.lng !== undefined) {
-                    clientCoords = { lat: coords.lat, lng: coords.lng };
-                    console.log('✅ Coordonnées trouvées (format simple):', clientCoords);
-                }
-                // Format _lat, _long (certaines versions de Firebase)
-                else if (coords._lat !== undefined && coords._long !== undefined) {
-                    clientCoords = { lat: coords._lat, lng: coords._long };
-                    console.log('✅ Coordonnées trouvées (format _lat/_long):', clientCoords);
-                }
-            }
-            
-            // ✅ Si pas de coordonnées, géocoder l'adresse textuelle
-            if (!clientCoords && currentBooking?.depart) {
-                console.log('📍 Géocodage de l\'adresse client:', currentBooking.depart);
-                try {
-                    clientCoords = await geocodeAddress(currentBooking.depart);
-                    console.log('✅ Coordonnées géocodées:', clientCoords);
-                } catch (error) {
-                    console.error('❌ Erreur géocodage:', error);
-                }
-            }
-            
-            // ✅ Mettre en cache pour les prochains appels
-            if (clientCoords && currentBooking) {
-                currentBooking._cachedClientCoords = clientCoords;
-                currentBooking.departCoords = clientCoords;
-                
-                // Mettre à jour le marqueur client si nécessaire
-                if (clientPickupMarker) {
-                    clientPickupMarker.setPosition(clientCoords);
-                }
-            }
-            
-            return clientCoords;
-        }
-
-        // ✅ NOUVELLE FONCTION: Fallback si l'API Directions échoue
-        function drawFallbackLine(driverPos, clientPos) {
-            if (!trackingMap) return;
-            
-            console.log('📍 Tracé fallback (ligne droite)');
-            
-            // Tracer une ligne pointillée
-            const fallbackLine = new google.maps.Polyline({
-                path: [driverPos, clientPos],
-                geodesic: true,
-                strokeColor: '#22c55e',
-                strokeOpacity: 0.7,
-                strokeWeight: 4,
-                icons: [{
-                    icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 },
-                    offset: '0',
-                    repeat: '15px'
-                }],
-                map: trackingMap
-            });
-            
-            // Calculer distance approximative
-            const distance = google.maps.geometry.spherical.computeDistanceBetween(
-                new google.maps.LatLng(driverPos.lat, driverPos.lng),
-                new google.maps.LatLng(clientPos.lat, clientPos.lng)
-            );
-            
-            const distanceKm = (distance / 1000).toFixed(1);
-            const durationMin = Math.ceil(distance / 400); // ~24 km/h en ville
-            
-            safeSetText('driverETA', durationMin);
-            safeSetText('driverDistance', distanceKm + ' km');
-            
-            const arrivalTime = new Date(Date.now() + durationMin * 60 * 1000)
-                .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-            safeSetText('driverArrivalTime', arrivalTime);
         }
 
         function updateStep2(data) {
@@ -2269,2252 +2088,24 @@
         window.openWallet = openWallet;
         window.closeWallet = closeWallet;
         window.showWalletScreen = showWalletScreen;
+        window.saveWalletToLocalStorage = saveWalletToLocalStorage;
+        window.loadWalletFromLocalStorage = loadWalletFromLocalStorage;
+        window.syncValidatedRecharges = syncValidatedRecharges;
         window.initMap = initMap;
 
-        console.log('%c✅ Al Bourakh Client v3.9.1 - GÉOCODAGE AUTOMATIQUE', 'color: #00A854; font-size: 16px; font-weight: bold');
-        console.log('%c🛣️ Le trajet d\'approche fonctionne même sans coordonnées GPS (géocodage auto)', 'color: #22c55e; font-size: 12px');
+        // ===== DIAGNOSTIC =====
+        function diagWallet() {
+            console.log('=== DIAGNOSTIC v3.8 ===');
+            console.log('Solde:', walletState.balance, 'FCFA');
+            console.log('Transactions:', walletState.transactions.length);
+            console.log('Nouveau client:', walletState.isNewUser);
+            return walletState;
+        }
+        window.diagWallet = diagWallet;
+
+        console.log('%c✅ Al Bourakh Client v3.8 - STATUTS CORRIGÉS', 'color: #00A854; font-size: 16px; font-weight: bold');
+        console.log('%c🔧 Corrections: updateStatusTimeline complète + calculateCourseRoute', 'color: #2196F3; font-size: 12px');
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places,geometry"></script>
-<!-- ========================================== -->
-<!-- WIDGET CHATBOT AL BOURAKH v3.3 - GEOCODE  -->
-<!-- Géocodage automatique des adresses        -->
-<!-- ========================================== -->
-
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
-    :root {
-        --ab-primary: #0F172A;
-        --ab-secondary: #EAB308;
-        --ab-accent: #2563EB;
-        --ab-success: #22c55e;
-        --ab-danger: #ef4444;
-        --ab-warning: #f59e0b;
-        --ab-bg: #F8FAFC;
-        --ab-text: #334155;
-        --ab-white: #ffffff;
-        --ab-gradient: linear-gradient(135deg, #0F172A, #1e293b);
-        --ab-gradient-gold: linear-gradient(135deg, #EAB308, #fbbf24);
-    }
-
-    #ab-widget-container {
-        font-family: 'Poppins', sans-serif;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    #ab-chat-btn {
-        background: var(--ab-gradient);
-        color: var(--ab-secondary);
-        border: none;
-        border-radius: 50%;
-        width: 68px;
-        height: 68px;
-        cursor: pointer;
-        box-shadow: 0 4px 25px rgba(0,0,0,0.35);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        position: relative;
-        animation: ab-float 3s ease-in-out infinite;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    @keyframes ab-float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
-    }
-
-    #ab-chat-btn:hover {
-        transform: scale(1.1);
-        box-shadow: 0 8px 35px rgba(234, 179, 8, 0.5);
-        animation: none;
-    }
-
-    #ab-chat-btn svg { width: 32px; height: 32px; fill: currentColor; }
-
-    .ab-notification-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: var(--ab-danger);
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        font-size: 12px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: ab-pulse-badge 2s infinite;
-        border: 2px solid white;
-    }
-
-    @keyframes ab-pulse-badge {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.15); }
-    }
-
-    #ab-chat-window {
-        width: 400px;
-        height: 620px;
-        background-color: var(--ab-white);
-        border-radius: 20px;
-        box-shadow: 0 15px 50px rgba(0,0,0,0.25);
-        display: none;
-        flex-direction: column;
-        overflow: hidden;
-        margin-bottom: 16px;
-        border: 1px solid #e2e8f0;
-        animation: ab-slideUp 0.3s ease;
-        max-height: calc(100vh - 100px);
-    }
-
-    @keyframes ab-slideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .ab-header {
-        background: var(--ab-gradient);
-        color: var(--ab-white);
-        padding: 16px 18px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 3px solid var(--ab-secondary);
-    }
-
-    .ab-header-left { display: flex; align-items: center; gap: 12px; }
-
-    .ab-logo {
-        width: 45px;
-        height: 45px;
-        background: var(--ab-gradient-gold);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: var(--ab-primary);
-        font-size: 15px;
-        box-shadow: 0 2px 10px rgba(234, 179, 8, 0.4);
-    }
-
-    .ab-header-info h3 { margin: 0; font-size: 16px; font-weight: 600; }
-    .ab-header-info span { font-size: 11px; opacity: 0.9; display: flex; align-items: center; gap: 6px; }
-
-    .ab-status-dot {
-        width: 9px;
-        height: 9px;
-        background-color: #22c55e;
-        border-radius: 50%;
-        animation: ab-blink 2s infinite;
-        box-shadow: 0 0 6px #22c55e;
-    }
-
-    @keyframes ab-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-    .ab-header-actions { display: flex; align-items: center; gap: 6px; }
-
-    .ab-header-btn {
-        background: rgba(255,255,255,0.1);
-        border: none;
-        color: var(--ab-white);
-        cursor: pointer;
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .ab-header-btn:hover { background: rgba(255,255,255,0.25); }
-    .ab-header-btn.muted { color: var(--ab-danger); background: rgba(239, 68, 68, 0.2); }
-    .ab-header-btn svg { width: 18px; height: 18px; }
-
-    .ab-audio-panel {
-        background: linear-gradient(135deg, #1e293b, #334155);
-        padding: 14px 18px;
-        display: none;
-        flex-direction: column;
-        gap: 14px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .ab-audio-panel.visible { display: flex; }
-
-    .ab-audio-row { display: flex; align-items: center; gap: 12px; }
-    .ab-audio-label { color: rgba(255,255,255,0.85); font-size: 12px; min-width: 65px; font-weight: 500; }
-
-    .ab-audio-slider {
-        flex: 1;
-        -webkit-appearance: none;
-        appearance: none;
-        height: 6px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 3px;
-        outline: none;
-    }
-
-    .ab-audio-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        background: var(--ab-secondary);
-        border-radius: 50%;
-        cursor: pointer;
-        transition: transform 0.2s;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
-
-    .ab-audio-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-
-    .ab-audio-slider::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        background: var(--ab-secondary);
-        border-radius: 50%;
-        cursor: pointer;
-        border: none;
-    }
-
-    .ab-audio-value { color: var(--ab-secondary); font-size: 12px; font-weight: 600; min-width: 42px; text-align: right; }
-
-    .ab-audio-presets { display: flex; gap: 8px; margin-top: 6px; }
-
-    .ab-preset-btn {
-        flex: 1;
-        padding: 8px 12px;
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
-        border-radius: 8px;
-        font-size: 11px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-weight: 500;
-    }
-
-    .ab-preset-btn:hover { background: rgba(255,255,255,0.2); }
-    .ab-preset-btn.active { background: var(--ab-secondary); color: var(--ab-primary); border-color: var(--ab-secondary); }
-
-    #ab-messages {
-        flex: 1;
-        padding: 18px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    #ab-messages::-webkit-scrollbar { width: 6px; }
-    #ab-messages::-webkit-scrollbar-track { background: transparent; }
-    #ab-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-    .ab-msg {
-        max-width: 88%;
-        padding: 14px 18px;
-        border-radius: 18px;
-        font-size: 14px;
-        line-height: 1.55;
-        position: relative;
-        word-wrap: break-word;
-        animation: ab-fadeInUp 0.3s ease;
-    }
-
-    @keyframes ab-fadeInUp {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .ab-msg-bot {
-        background-color: var(--ab-white);
-        color: var(--ab-text);
-        border: 1px solid #e2e8f0;
-        align-self: flex-start;
-        border-bottom-left-radius: 6px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
-
-    .ab-msg-user {
-        background: var(--ab-gradient);
-        color: var(--ab-white);
-        align-self: flex-end;
-        border-bottom-right-radius: 6px;
-        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.3);
-    }
-
-    .ab-msg-system {
-        background: var(--ab-gradient-gold);
-        color: var(--ab-primary);
-        align-self: center;
-        text-align: center;
-        font-weight: 500;
-        font-size: 13px;
-        padding: 10px 16px;
-        border-radius: 12px;
-    }
-
-    .ab-quick-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 12px;
-    }
-
-    .ab-quick-btn {
-        background: var(--ab-bg);
-        border: 1.5px solid #e2e8f0;
-        padding: 10px 16px;
-        border-radius: 22px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.25s;
-        color: var(--ab-primary);
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .ab-quick-btn:hover {
-        background: var(--ab-primary);
-        color: var(--ab-white);
-        border-color: var(--ab-primary);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-    }
-
-    .ab-estimate-card {
-        background: var(--ab-gradient);
-        color: white;
-        padding: 18px;
-        border-radius: 16px;
-        margin-top: 12px;
-        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.3);
-    }
-
-    .ab-estimate-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 14px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .ab-estimate-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-    .ab-estimate-price { font-size: 26px; font-weight: bold; color: var(--ab-secondary); text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-
-    .ab-estimate-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; }
-    .ab-estimate-item { display: flex; align-items: center; gap: 8px; opacity: 0.95; }
-
-    .ab-book-btn {
-        width: 100%;
-        margin-top: 14px;
-        padding: 14px;
-        background: var(--ab-gradient-gold);
-        color: var(--ab-primary);
-        border: none;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.25s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .ab-book-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(234, 179, 8, 0.5);
-    }
-
-    .ab-tarif-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 12px;
-    }
-
-    .ab-tarif-card {
-        background: white;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.25s;
-    }
-
-    .ab-tarif-card:hover {
-        border-color: var(--ab-secondary);
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-    }
-
-    .ab-tarif-card.selected {
-        border-color: var(--ab-success);
-        background: #f0fdf4;
-    }
-
-    .ab-tarif-icon { font-size: 28px; margin-bottom: 6px; }
-    .ab-tarif-name { font-weight: 600; font-size: 13px; color: var(--ab-primary); }
-    .ab-tarif-vehicle { font-size: 11px; color: #64748b; margin: 2px 0; }
-    .ab-tarif-price { font-weight: 700; font-size: 12px; color: var(--ab-success); }
-
-    .ab-form-card {
-        background: var(--ab-white);
-        border: 1.5px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 18px;
-        margin-top: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-
-    .ab-form-title {
-        font-weight: 600;
-        font-size: 15px;
-        margin-bottom: 14px;
-        color: var(--ab-primary);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid var(--ab-secondary);
-    }
-
-    .ab-form-group { margin-bottom: 14px; }
-    .ab-form-group label { display: block; font-size: 12px; color: #64748b; margin-bottom: 6px; font-weight: 500; }
-
-    .ab-form-group input, .ab-form-group select {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 14px;
-        outline: none;
-        box-sizing: border-box;
-        transition: all 0.2s;
-        font-family: inherit;
-    }
-
-    .ab-form-group input:focus, .ab-form-group select:focus {
-        border-color: var(--ab-primary);
-        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
-    }
-
-    .ab-location-btn {
-        background: var(--ab-accent);
-        color: white;
-        border: none;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 8px;
-        font-weight: 500;
-        transition: all 0.2s;
-    }
-
-    .ab-location-btn:hover { background: #1d4ed8; }
-    .ab-location-btn.loading { opacity: 0.7; pointer-events: none; }
-
-    .ab-confirmation {
-        text-align: center;
-        padding: 10px 0;
-    }
-
-    .ab-confirmation-icon {
-        width: 70px;
-        height: 70px;
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px;
-        font-size: 35px;
-        color: white;
-        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
-        animation: ab-bounce 0.5s ease;
-    }
-
-    @keyframes ab-bounce {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-    }
-
-    .ab-confirmation h3 { color: var(--ab-success); margin: 0 0 8px 0; font-size: 18px; }
-    .ab-confirmation-ref { background: #f1f5f9; padding: 10px 15px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 10px 0; }
-
-    .ab-trip-summary {
-        background: #f1f5f9;
-        padding: 14px;
-        border-radius: 10px;
-        margin: 15px 0;
-        text-align: left;
-        font-size: 13px;
-    }
-
-    .ab-trip-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-    .ab-trip-row:last-child { margin-bottom: 0; }
-    .ab-trip-icon { font-size: 16px; }
-    .ab-trip-text { flex: 1; }
-
-    .ab-input-area {
-        padding: 12px 14px;
-        border-top: 1px solid #e2e8f0;
-        background-color: var(--ab-white);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: nowrap;
-    }
-
-    #ab-input {
-        flex: 1;
-        min-width: 0;
-        padding: 12px 16px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 25px;
-        outline: none;
-        font-size: 14px;
-        background: var(--ab-bg);
-        transition: all 0.2s;
-        font-family: inherit;
-    }
-
-    #ab-input:focus {
-        border-color: var(--ab-primary);
-        background: var(--ab-white);
-        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
-    }
-
-    .ab-icon-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--ab-primary);
-        padding: 10px;
-        border-radius: 50%;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        min-width: 44px;
-        min-height: 44px;
-    }
-
-    .ab-icon-btn:hover { background-color: var(--ab-bg); }
-    .ab-icon-btn.send-btn { background: var(--ab-gradient); color: var(--ab-secondary); }
-    .ab-icon-btn.send-btn:hover { box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); }
-    .ab-icon-btn.listening { color: var(--ab-danger); animation: ab-pulse 1s infinite; background: rgba(239, 68, 68, 0.1); }
-    
-    #ab-mic-btn {
-        background: rgba(37, 99, 235, 0.1);
-        color: var(--ab-accent);
-    }
-    
-    #ab-mic-btn:hover {
-        background: rgba(37, 99, 235, 0.2);
-    }
-    
-    #ab-location-btn {
-        background: rgba(34, 197, 94, 0.1);
-        color: var(--ab-success);
-    }
-    
-    #ab-location-btn:hover {
-        background: rgba(34, 197, 94, 0.2);
-    }
-
-    @keyframes ab-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-
-    .ab-typing {
-        display: flex;
-        gap: 5px;
-        padding: 14px 18px;
-        background: var(--ab-white);
-        border-radius: 18px;
-        align-self: flex-start;
-        border: 1px solid #e2e8f0;
-    }
-
-    .ab-typing-dot {
-        width: 9px;
-        height: 9px;
-        background: #94a3b8;
-        border-radius: 50%;
-        animation: ab-typing 1.4s infinite;
-    }
-
-    .ab-typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .ab-typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes ab-typing {
-        0%, 60%, 100% { transform: translateY(0); }
-        30% { transform: translateY(-10px); }
-    }
-
-    .ab-contact-card {
-        background: white;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 14px;
-        margin-top: 10px;
-    }
-
-    .ab-contact-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 0;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .ab-contact-item:last-child { border-bottom: none; }
-
-    .ab-contact-item a {
-        color: var(--ab-accent);
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s;
-    }
-
-    .ab-contact-item a:hover { color: #1d4ed8; }
-
-    .ab-toast {
-        position: fixed;
-        bottom: 100px;
-        right: 30px;
-        background: var(--ab-primary);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 10px;
-        font-size: 13px;
-        z-index: 10001;
-        animation: ab-toastAnim 2.5s forwards;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        font-weight: 500;
-    }
-
-    @keyframes ab-toastAnim {
-        0% { opacity: 0; transform: translateY(15px); }
-        15% { opacity: 1; transform: translateY(0); }
-        85% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-15px); }
-    }
-
-    @media (max-width: 480px) {
-        #ab-widget-container {
-            bottom: 10px;
-            right: 10px;
-            left: 10px;
-        }
-        
-        #ab-chat-window {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100% !important;
-            height: 100% !important;
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 0;
-            margin-bottom: 0;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        #ab-chat-window.open {
-            display: flex !important;
-        }
-        
-        #ab-chat-btn {
-            width: 60px;
-            height: 60px;
-            bottom: 10px;
-            right: 10px;
-        }
-        
-        .ab-header {
-            padding: 12px 15px;
-            border-radius: 0;
-        }
-        
-        .ab-header-info h3 {
-            font-size: 14px;
-        }
-        
-        .ab-logo {
-            width: 40px;
-            height: 40px;
-            font-size: 13px;
-        }
-        
-        #ab-messages {
-            padding: 12px;
-            flex: 1;
-            min-height: 0;
-            overflow-y: auto;
-        }
-        
-        .ab-msg {
-            max-width: 92%;
-            padding: 12px 14px;
-            font-size: 13px;
-        }
-        
-        .ab-quick-actions {
-            gap: 6px;
-        }
-        
-        .ab-quick-btn {
-            padding: 8px 12px;
-            font-size: 11px;
-        }
-        
-        .ab-form-card {
-            padding: 14px;
-            margin-top: 8px;
-        }
-        
-        .ab-form-title {
-            font-size: 14px;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .ab-form-group {
-            margin-bottom: 12px;
-        }
-        
-        .ab-form-group label {
-            font-size: 11px;
-        }
-        
-        .ab-form-group input, 
-        .ab-form-group select {
-            padding: 10px 12px;
-            font-size: 14px;
-        }
-        
-        .ab-location-btn {
-            padding: 8px 12px;
-            font-size: 11px;
-        }
-        
-        .ab-book-btn {
-            padding: 12px;
-            font-size: 13px;
-        }
-        
-        .ab-estimate-card {
-            padding: 14px;
-        }
-        
-        .ab-estimate-price {
-            font-size: 22px;
-        }
-        
-        .ab-estimate-details {
-            grid-template-columns: 1fr;
-            gap: 8px;
-        }
-        
-        .ab-tarif-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        
-        .ab-tarif-card {
-            padding: 10px 8px;
-        }
-        
-        .ab-tarif-icon {
-            font-size: 24px;
-        }
-        
-        .ab-tarif-name {
-            font-size: 12px;
-        }
-        
-        .ab-tarif-vehicle {
-            font-size: 10px;
-        }
-        
-        .ab-tarif-price {
-            font-size: 11px;
-        }
-        
-        .ab-input-area {
-            padding: 10px 8px;
-            gap: 6px;
-            flex-wrap: nowrap;
-            align-items: center;
-        }
-        
-        #ab-input {
-            padding: 10px 14px;
-            font-size: 14px;
-            min-width: 0;
-            flex: 1;
-            border-radius: 20px;
-        }
-        
-        .ab-icon-btn {
-            padding: 10px;
-            width: 44px;
-            height: 44px;
-            min-width: 44px;
-            min-height: 44px;
-            flex-shrink: 0;
-            border-radius: 50%;
-        }
-        
-        .ab-icon-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-        
-        #ab-location-btn {
-            background: #22c55e !important;
-            color: white !important;
-        }
-        
-        #ab-mic-btn {
-            background: #3b82f6 !important;
-            color: white !important;
-        }
-        
-        .ab-icon-btn.send-btn {
-            width: 48px;
-            height: 48px;
-            min-width: 48px;
-            min-height: 48px;
-        }
-        
-        #ab-location-btn,
-        #ab-mic-btn,
-        .ab-icon-btn.send-btn {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-        
-        .ab-confirmation-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 28px;
-        }
-        
-        .ab-confirmation h3 {
-            font-size: 16px;
-        }
-        
-        .ab-confirmation-ref {
-            font-size: 12px;
-            padding: 8px 12px;
-        }
-        
-        .ab-trip-summary {
-            padding: 12px;
-            font-size: 12px;
-        }
-        
-        .ab-audio-panel {
-            padding: 12px 14px;
-        }
-        
-        .ab-audio-row {
-            gap: 8px;
-        }
-        
-        .ab-audio-label {
-            font-size: 11px;
-            min-width: 55px;
-        }
-        
-        .ab-preset-btn {
-            padding: 6px 10px;
-            font-size: 10px;
-        }
-        
-        .ab-contact-card {
-            padding: 12px;
-        }
-        
-        .ab-contact-item {
-            padding: 8px 0;
-            font-size: 13px;
-        }
-        
-        .ab-toast {
-            bottom: 80px;
-            right: 15px;
-            left: 15px;
-            font-size: 12px;
-            padding: 10px 16px;
-        }
-    }
-    
-    @media (min-width: 481px) and (max-width: 768px) {
-        #ab-chat-window {
-            width: 380px;
-            height: 580px;
-            right: 15px;
-            bottom: 80px;
-        }
-        
-        .ab-tarif-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-    
-    @supports (-webkit-touch-callout: none) {
-        #ab-chat-window {
-            height: -webkit-fill-available;
-        }
-    }
-</style>
-
-<div id="ab-widget-container">
-    <div id="ab-chat-window">
-        <div class="ab-header">
-            <div class="ab-header-left">
-                <div class="ab-logo">AB</div>
-                <div class="ab-header-info">
-                    <h3>Assistant Al Bourakh</h3>
-                    <span><div class="ab-status-dot"></div> En ligne 24h/7</span>
-                </div>
-            </div>
-            <div class="ab-header-actions">
-                <button class="ab-header-btn" id="ab-settings-btn" onclick="abToggleAudioPanel()" title="Paramètres audio">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
-                </button>
-                <button class="ab-header-btn" id="ab-mute-btn" onclick="abToggleMute()" title="Activer/Désactiver la voix">
-                    <svg id="ab-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                    </svg>
-                    <svg id="ab-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                        <line x1="23" y1="9" x2="17" y2="15"/>
-                        <line x1="17" y1="9" x2="23" y2="15"/>
-                    </svg>
-                </button>
-                <button class="ab-header-btn" onclick="abToggleChat()" title="Fermer">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        
-        <div class="ab-audio-panel" id="ab-audio-panel">
-            <div class="ab-audio-row">
-                <span class="ab-audio-label">🔊 Volume</span>
-                <input type="range" class="ab-audio-slider" id="ab-volume" min="0" max="100" value="80" oninput="abUpdateVolume(this.value)">
-                <span class="ab-audio-value" id="ab-volume-value">80%</span>
-            </div>
-            <div class="ab-audio-row">
-                <span class="ab-audio-label">⚡ Vitesse</span>
-                <input type="range" class="ab-audio-slider" id="ab-speed" min="50" max="150" value="100" oninput="abUpdateSpeed(this.value)">
-                <span class="ab-audio-value" id="ab-speed-value">1.0x</span>
-            </div>
-            <div class="ab-audio-presets">
-                <button class="ab-preset-btn" onclick="abSetAudioPreset('slow')">🐢 Lent</button>
-                <button class="ab-preset-btn active" onclick="abSetAudioPreset('normal')">👤 Normal</button>
-                <button class="ab-preset-btn" onclick="abSetAudioPreset('fast')">🚀 Rapide</button>
-            </div>
-        </div>
-        
-        <div id="ab-messages"></div>
-        
-        <div class="ab-input-area">
-            <button class="ab-icon-btn" id="ab-location-btn" onclick="abGetMyLocation()" title="Ma position">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
-                    <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
-                    <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
-                </svg>
-            </button>
-            <input type="text" id="ab-input" placeholder="Posez votre question..." onkeypress="abHandleKeyPress(event)">
-            <button class="ab-icon-btn" id="ab-mic-btn" onclick="abToggleVoice()" title="Commande vocale">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                    <line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
-                </svg>
-            </button>
-            <button class="ab-icon-btn send-btn" onclick="abSendMessage()" title="Envoyer">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="22" y1="2" x2="11" y2="13"/>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-
-    <button id="ab-chat-btn" onclick="abToggleChat()">
-        <span class="ab-notification-badge" id="ab-badge" style="display:none;">1</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-        </svg>
-    </button>
-</div>
-
-<script>
-/* =============================================== */
-/* CHATBOT AL BOURAKH v3.3 - GÉOCODAGE AUTO       */
-/* Géocodage automatique des adresses             */
-/* =============================================== */
-
-// ========== ✅ FIREBASE - Réutiliser l'instance principale ==========
-let abDb;
-if (typeof db !== 'undefined') {
-    abDb = db;
-    console.log('🔗 Chatbot connecté à Firebase (via app principale)');
-} else {
-    const abFirebaseConfig = {
-        apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
-        authDomain: "albourakh-sn-ok.firebaseapp.com",
-        projectId: "albourakh-sn-ok",
-        storageBucket: "albourakh-sn-ok.firebasestorage.app",
-        messagingSenderId: "297875396274",
-        appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
-    };
-    if (!firebase.apps.length) {
-        firebase.initializeApp(abFirebaseConfig);
-    }
-    abDb = firebase.firestore();
-    console.log('🔗 Chatbot: Firebase initialisé de manière autonome');
-}
-
-console.log('🤖 Chatbot Al Bourakh v3.3 - GÉOCODAGE AUTO');
-
-// ========== ✅ FONCTION DE GÉOCODAGE AUTOMATIQUE ==========
-async function abGeocodeAddress(address) {
-    return new Promise((resolve) => {
-        // Vérifier si Google Maps est disponible
-        if (typeof google === 'undefined' || !google.maps) {
-            console.warn('⚠️ Google Maps non disponible, utilisation API Nominatim');
-            abGeocodeWithNominatim(address).then(resolve);
-            return;
-        }
-        
-        const geocoder = new google.maps.Geocoder();
-        
-        // Ajouter contexte Sénégal pour améliorer précision
-        let searchAddress = address;
-        if (!address.toLowerCase().includes('sénégal') && 
-            !address.toLowerCase().includes('senegal') && 
-            !address.toLowerCase().includes('dakar')) {
-            searchAddress = address + ', Dakar, Sénégal';
-        }
-        
-        console.log('🔍 Géocodage Google Maps:', searchAddress);
-        
-        geocoder.geocode({ address: searchAddress }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-                const location = results[0].geometry.location;
-                const coords = {
-                    lat: location.lat(),
-                    lng: location.lng()
-                };
-                console.log('✅ Coordonnées trouvées (Google):', coords);
-                resolve(coords);
-            } else {
-                console.warn('⚠️ Géocodage Google échoué:', status, '- fallback Nominatim');
-                abGeocodeWithNominatim(address).then(resolve);
-            }
-        });
-    });
-}
-
-async function abGeocodeWithNominatim(address) {
-    try {
-        let searchAddress = address;
-        if (!address.toLowerCase().includes('sénégal') && 
-            !address.toLowerCase().includes('senegal')) {
-            searchAddress = address + ', Dakar, Sénégal';
-        }
-        
-        console.log('🔍 Géocodage Nominatim:', searchAddress);
-        
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=1`,
-            { headers: { 'Accept-Language': 'fr' } }
-        );
-        
-        const data = await response.json();
-        
-        if (data && data.length > 0) {
-            const coords = {
-                lat: parseFloat(data[0].lat),
-                lng: parseFloat(data[0].lon)
-            };
-            console.log('✅ Coordonnées trouvées (Nominatim):', coords);
-            return coords;
-        }
-    } catch (error) {
-        console.error('❌ Erreur géocodage Nominatim:', error);
-    }
-    
-    // Fallback: coordonnées par défaut Dakar
-    console.warn('⚠️ Géocodage échoué, utilisation coordonnées Dakar par défaut');
-    return { lat: 14.6937, lng: -17.4441 };
-}
-
-// ========== CONFIGURATION TARIFS ==========
-const AB_TARIFS = {
-    standard: { nom: "Standard", vehicule: "Kia Rio / Hyundai i10", priseEnCharge: 1000, parKm: 200, icon: "🚗", price: 1500 },
-    confort: { nom: "Confort", vehicule: "VW Polo / Toyota Yaris", priseEnCharge: 1500, parKm: 300, icon: "🚙", price: 2000 },
-    premium: { nom: "Premium", vehicule: "Hyundai Tucson / Toyota RAV4", priseEnCharge: 2500, parKm: 400, icon: "🚘", price: 3500 },
-    van: { nom: "Van", vehicule: "Renault Trafic / VW Transporter", priseEnCharge: 2000, parKm: 350, icon: "🚐", price: 2500 }
-};
-
-const AB_TARIFS_FIXES = {
-    "dakar-aibd": { depart: "Dakar Centre", destination: "Aéroport AIBD", prix: 15000, distance: 47 },
-    "almadies-aibd": { depart: "Almadies/Ngor", destination: "Aéroport AIBD", prix: 18000, distance: 52 },
-    "plateau-aibd": { depart: "Plateau", destination: "Aéroport AIBD", prix: 15000, distance: 45 },
-    "parcelles-aibd": { depart: "Parcelles Assainies", destination: "Aéroport AIBD", prix: 12000, distance: 38 },
-    "pikine-aibd": { depart: "Pikine/Guédiawaye", destination: "Aéroport AIBD", prix: 10000, distance: 32 },
-    "rufisque-aibd": { depart: "Rufisque", destination: "Aéroport AIBD", prix: 8000, distance: 25 },
-    "thies-aibd": { depart: "Thiès", destination: "Aéroport AIBD", prix: 20000, distance: 60 },
-    "saly-aibd": { depart: "Saly/Mbour", destination: "Aéroport AIBD", prix: 35000, distance: 95 }
-};
-
-// ========== VARIABLES GLOBALES ==========
-let abState = {
-    isChatOpen: false,
-    isListening: false,
-    userLocation: null,
-    currentEstimate: null,
-    reservationData: {},
-    conversationContext: { lastIntent: null, awaitingInput: null },
-    isMuted: false,
-    audioVolume: 0.8,
-    audioSpeed: 1.0
-};
-
-const abChatWindow = document.getElementById('ab-chat-window');
-const abMessagesContainer = document.getElementById('ab-messages');
-const abInputField = document.getElementById('ab-input');
-const abMicBtn = document.getElementById('ab-mic-btn');
-const abMuteBtn = document.getElementById('ab-mute-btn');
-const abBadge = document.getElementById('ab-badge');
-const abAudioPanel = document.getElementById('ab-audio-panel');
-const abSynth = window.speechSynthesis;
-
-// Reconnaissance vocale
-const AbSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let abRecognition;
-
-if (AbSpeechRecognition) {
-    abRecognition = new AbSpeechRecognition();
-    abRecognition.lang = 'fr-FR';
-    abRecognition.continuous = false;
-    abRecognition.interimResults = false;
-    
-    abRecognition.onstart = () => {
-        abState.isListening = true;
-        if (abMicBtn) abMicBtn.classList.add('listening');
-        if (abInputField) abInputField.placeholder = "🎤 Je vous écoute...";
-    };
-
-    abRecognition.onend = () => {
-        abState.isListening = false;
-        if (abMicBtn) abMicBtn.classList.remove('listening');
-        if (abInputField) abInputField.placeholder = "Posez votre question...";
-    };
-
-    abRecognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        if (abInputField) abInputField.value = transcript;
-        abSendMessage();
-    };
-
-    abRecognition.onerror = (event) => {
-        console.error('Erreur reconnaissance vocale:', event.error);
-        abShowToast('❌ Erreur micro: ' + event.error);
-        abState.isListening = false;
-        if (abMicBtn) abMicBtn.classList.remove('listening');
-        if (abInputField) abInputField.placeholder = "Posez votre question...";
-    };
-}
-
-// ========== FONCTION HELPER ==========
-function abGetLastElement(selector) {
-    const elements = document.querySelectorAll(selector);
-    return elements.length > 0 ? elements[elements.length - 1] : null;
-}
-
-// ========== ✅ SYNCHRONISATION AVEC PAGE PRINCIPALE ==========
-function abSyncWithMainApp(reservationData, reservationId) {
-    console.log('🔄 Synchronisation avec la page principale...');
-    console.log('📦 Données à synchroniser:', reservationData);
-    
-    // 1. Remplir les champs du formulaire principal
-    const bookingFrom = document.getElementById('bookingFrom');
-    const bookingTo = document.getElementById('bookingTo');
-    const bookingDate = document.getElementById('bookingDate');
-    const bookingTime = document.getElementById('bookingTime');
-    const bookingPhone = document.getElementById('bookingPhone');
-    const bookingName = document.getElementById('bookingName');
-    
-    if (bookingFrom) bookingFrom.value = reservationData.depart || '';
-    if (bookingTo) bookingTo.value = reservationData.destination || '';
-    if (bookingDate) bookingDate.value = reservationData.dateReservation || '';
-    if (bookingTime) bookingTime.value = reservationData.heureReservation || '';
-    if (bookingPhone) bookingPhone.value = reservationData.clientTelephone || '';
-    if (bookingName) bookingName.value = reservationData.clientNom || '';
-    
-    // 2. Sélectionner le véhicule
-    if (reservationData.vehiculeType) {
-        const vehiclePrice = AB_TARIFS[reservationData.vehiculeType]?.price || 1500;
-        window.selectedVehicle = reservationData.vehiculeType;
-        window.selectedVehiclePrice = vehiclePrice;
-    }
-    
-    // 3. Mettre à jour les coordonnées
-    if (reservationData.departCoords) {
-        window.departureCoords = reservationData.departCoords;
-    }
-    if (reservationData.destinationCoords) {
-        window.destinationCoords = reservationData.destinationCoords;
-    }
-    
-    // 4. Mettre à jour currentBooking pour le tracking
-    window.currentBooking = {
-        id: reservationId,
-        depart: reservationData.depart,
-        destination: reservationData.destination,
-        departCoords: reservationData.departCoords,
-        destinationCoords: reservationData.destinationCoords,
-        prixEstime: reservationData.prixEstime,
-        distanceEstimee: reservationData.distanceEstimee,
-        vehiculeType: reservationData.vehiculeType,
-        modePaiement: reservationData.modePaiement,
-        clientNom: reservationData.clientNom,
-        clientTelephone: reservationData.clientTelephone,
-        dateReservation: reservationData.dateReservation,
-        heureReservation: reservationData.heureReservation,
-        statut: 'en_attente'
-    };
-    
-    console.log('📍 currentBooking mis à jour:', window.currentBooking);
-    
-    // 5. Ouvrir le modal de suivi
-    setTimeout(() => {
-        if (typeof openTracking === 'function') {
-            openTracking();
-            console.log('✅ Modal de suivi ouvert');
-        }
-        
-        setTimeout(() => {
-            const tripFrom = document.getElementById('tripFrom');
-            const tripTo = document.getElementById('tripTo');
-            const tripPrice = document.getElementById('tripPrice');
-            
-            if (tripFrom) tripFrom.textContent = reservationData.depart || '-';
-            if (tripTo) tripTo.textContent = reservationData.destination || '-';
-            if (tripPrice) tripPrice.textContent = (reservationData.prixEstime || 0).toLocaleString() + ' FCFA';
-            
-            console.log('✅ Détails du trajet mis à jour');
-        }, 200);
-        
-        if (typeof startReservationListener === 'function') {
-            startReservationListener(reservationId);
-            console.log('✅ Listener de réservation démarré');
-        }
-    }, 500);
-    
-    if (typeof showNotification === 'function') {
-        showNotification('✅ Réservation synchronisée!', 'success');
-    }
-    
-    console.log('✅ Synchronisation terminée');
-}
-
-// ========== FONCTIONS AUDIO ==========
-function abToggleMute() {
-    abState.isMuted = !abState.isMuted;
-    const soundOn = document.getElementById('ab-sound-on');
-    const soundOff = document.getElementById('ab-sound-off');
-    
-    if (abState.isMuted) {
-        if (soundOn) soundOn.style.display = 'none';
-        if (soundOff) soundOff.style.display = 'block';
-        if (abMuteBtn) abMuteBtn.classList.add('muted');
-        if (abSynth.speaking) abSynth.cancel();
-        abShowToast('🔇 Voix désactivée');
-    } else {
-        if (soundOn) soundOn.style.display = 'block';
-        if (soundOff) soundOff.style.display = 'none';
-        if (abMuteBtn) abMuteBtn.classList.remove('muted');
-        abShowToast('🔊 Voix activée');
-    }
-    localStorage.setItem('ab-muted', abState.isMuted);
-}
-
-function abToggleAudioPanel() {
-    if (abAudioPanel) abAudioPanel.classList.toggle('visible');
-}
-
-function abUpdateVolume(value) {
-    abState.audioVolume = value / 100;
-    const el = document.getElementById('ab-volume-value');
-    if (el) el.textContent = value + '%';
-    localStorage.setItem('ab-volume', value);
-}
-
-function abUpdateSpeed(value) {
-    abState.audioSpeed = value / 100;
-    const el = document.getElementById('ab-speed-value');
-    if (el) el.textContent = abState.audioSpeed.toFixed(1) + 'x';
-    localStorage.setItem('ab-speed', value);
-}
-
-function abSetAudioPreset(preset) {
-    document.querySelectorAll('.ab-preset-btn').forEach(btn => btn.classList.remove('active'));
-    const presets = { slow: 70, normal: 100, fast: 130 };
-    const value = presets[preset] || 100;
-    abState.audioSpeed = value / 100;
-    const speedEl = document.getElementById('ab-speed');
-    const speedValEl = document.getElementById('ab-speed-value');
-    if (speedEl) speedEl.value = value;
-    if (speedValEl) speedValEl.textContent = abState.audioSpeed.toFixed(1) + 'x';
-    const index = preset === 'slow' ? 0 : preset === 'normal' ? 1 : 2;
-    document.querySelectorAll('.ab-preset-btn')[index]?.classList.add('active');
-    localStorage.setItem('ab-speed', value);
-}
-
-function abLoadAudioSettings() {
-    const savedVolume = localStorage.getItem('ab-volume');
-    const savedSpeed = localStorage.getItem('ab-speed');
-    const savedMuted = localStorage.getItem('ab-muted');
-    
-    if (savedVolume) {
-        abState.audioVolume = savedVolume / 100;
-        const volEl = document.getElementById('ab-volume');
-        const volValEl = document.getElementById('ab-volume-value');
-        if (volEl) volEl.value = savedVolume;
-        if (volValEl) volValEl.textContent = savedVolume + '%';
-    }
-    
-    if (savedSpeed) {
-        abState.audioSpeed = savedSpeed / 100;
-        const speedEl = document.getElementById('ab-speed');
-        const speedValEl = document.getElementById('ab-speed-value');
-        if (speedEl) speedEl.value = savedSpeed;
-        if (speedValEl) speedValEl.textContent = abState.audioSpeed.toFixed(1) + 'x';
-    }
-    
-    if (savedMuted === 'true') {
-        abState.isMuted = true;
-        const soundOn = document.getElementById('ab-sound-on');
-        const soundOff = document.getElementById('ab-sound-off');
-        if (soundOn) soundOn.style.display = 'none';
-        if (soundOff) soundOff.style.display = 'block';
-        if (abMuteBtn) abMuteBtn.classList.add('muted');
-    }
-}
-
-// ========== CONVERSION NOMBRES EN FRANÇAIS ==========
-function abConvertNumbersToFrench(text) {
-    text = text.replace(/(\d)\s+(\d)/g, '$1$2');
-    const numberWords = {
-        '500000': 'cinq cent mille', '400000': 'quatre cent mille',
-        '50000': 'cinquante mille', '35000': 'trente-cinq mille',
-        '25000': 'vingt-cinq mille', '20000': 'vingt mille',
-        '18000': 'dix-huit mille', '15000': 'quinze mille',
-        '12000': 'douze mille', '10000': 'dix mille',
-        '8000': 'huit mille', '5000': 'cinq mille',
-        '2500': 'deux mille cinq cents', '2000': 'deux mille',
-        '1500': 'mille cinq cents', '1000': 'mille'
-    };
-    const sortedNumbers = Object.keys(numberWords).sort((a, b) => b.length - a.length);
-    for (const num of sortedNumbers) {
-        const regex = new RegExp('\\b' + num + '\\b', 'g');
-        text = text.replace(regex, numberWords[num]);
-    }
-    text = text.replace(/FCFA/gi, 'francs CFA');
-    return text;
-}
-
-// ========== SYNTHÈSE VOCALE ==========
-function abSpeakText(text) {
-    if (abState.isMuted) return;
-    if (abSynth.speaking) abSynth.cancel();
-    
-    let cleanText = text
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/\*\*/g, '').replace(/\*/g, '')
-        .replace(/[^\p{L}\p{N}\s\.,!?;:'-]/gu, '')
-        .replace(/\n+/g, '. ')
-        .replace(/\s+/g, ' ')
-        .trim();
-    
-    cleanText = abConvertNumbersToFrench(cleanText);
-    
-    if (cleanText.length < 3) return;
-    if (cleanText.length > 600) cleanText = cleanText.substring(0, 600) + '...';
-    
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'fr-FR';
-    utterance.rate = abState.audioSpeed;
-    utterance.volume = abState.audioVolume;
-    utterance.pitch = 1;
-    
-    const voices = abSynth.getVoices();
-    const frenchVoice = voices.find(v => v.lang === 'fr-FR') || voices.find(v => v.lang.startsWith('fr'));
-    if (frenchVoice) utterance.voice = frenchVoice;
-    
-    abSynth.speak(utterance);
-}
-
-function abShowToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'ab-toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2500);
-}
-
-// ========== INITIALISATION ==========
-document.addEventListener('DOMContentLoaded', () => {
-    abLoadAudioSettings();
-    if (abSynth.onvoiceschanged !== undefined) {
-        abSynth.onvoiceschanged = () => abSynth.getVoices();
-    }
-    abSynth.getVoices();
-    abShowWelcomeMessage();
-    setTimeout(() => {
-        if (!abState.isChatOpen && abBadge) abBadge.style.display = 'flex';
-    }, 3000);
-});
-
-function abShowWelcomeMessage() {
-    const hour = new Date().getHours();
-    let greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
-    
-    const welcomeHtml = `
-        <div>${greeting} ! 👋 <strong>Dalal ak diam</strong> chez Al Bourakh !<br><br>
-            Je suis votre assistant virtuel. Comment puis-je vous aider ?</div>
-        <div class="ab-quick-actions">
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('tarifs')">💰 Nos tarifs</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('estimer')">📍 Estimer un trajet</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('reserver')">🚗 Réserver</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('aeroport')">✈️ Aéroport AIBD</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('chauffeur')">👤 Devenir chauffeur</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('contact')">📞 Contact</button>
-        </div>
-    `;
-    abAddMessage('bot', welcomeHtml, true);
-}
-
-// ========== GESTION DU CHAT ==========
-function abToggleChat() {
-    abState.isChatOpen = !abState.isChatOpen;
-    const chatBtn = document.getElementById('ab-chat-btn');
-    
-    if (abChatWindow) {
-        abChatWindow.style.display = abState.isChatOpen ? 'flex' : 'none';
-    }
-    
-    if (abBadge) abBadge.style.display = 'none';
-    
-    if (chatBtn && window.innerWidth <= 480) {
-        chatBtn.style.display = abState.isChatOpen ? 'none' : 'flex';
-    }
-    
-    if (window.innerWidth <= 480) {
-        document.body.style.overflow = abState.isChatOpen ? 'hidden' : '';
-    }
-    
-    if (abState.isChatOpen && abInputField) {
-        setTimeout(() => abInputField.focus(), 300);
-    }
-}
-
-function abToggleVoice() {
-    if (!abRecognition) { 
-        abShowToast('❌ Micro non supporté sur ce navigateur'); 
-        return; 
-    }
-    
-    try {
-        if (abState.isListening) {
-            abRecognition.stop();
-        } else {
-            abRecognition.start();
-        }
-    } catch (error) {
-        abShowToast('❌ Erreur: ' + error.message);
-    }
-}
-
-function abHandleKeyPress(e) {
-    if (e.key === 'Enter') abSendMessage();
-}
-
-function abAddMessage(sender, text, isHtml = false) {
-    const div = document.createElement('div');
-    div.classList.add('ab-msg');
-    div.classList.add(sender === 'user' ? 'ab-msg-user' : sender === 'system' ? 'ab-msg-system' : 'ab-msg-bot');
-    
-    if (isHtml) div.innerHTML = text;
-    else div.innerText = text;
-    
-    if (abMessagesContainer) {
-        abMessagesContainer.appendChild(div);
-        abMessagesContainer.scrollTop = abMessagesContainer.scrollHeight;
-    }
-    
-    if (sender === 'bot') {
-        setTimeout(() => abSpeakText(text), 100);
-    }
-}
-
-function abShowTyping() {
-    const existing = document.getElementById('ab-typing');
-    if (existing) return;
-    
-    const typing = document.createElement('div');
-    typing.className = 'ab-typing';
-    typing.id = 'ab-typing';
-    typing.innerHTML = '<div class="ab-typing-dot"></div><div class="ab-typing-dot"></div><div class="ab-typing-dot"></div>';
-    if (abMessagesContainer) {
-        abMessagesContainer.appendChild(typing);
-        abMessagesContainer.scrollTop = abMessagesContainer.scrollHeight;
-    }
-}
-
-function abHideTyping() {
-    const typing = document.getElementById('ab-typing');
-    if (typing) typing.remove();
-}
-
-// ========== GÉOLOCALISATION ==========
-function abGetMyLocation() {
-    if (!navigator.geolocation) {
-        abAddMessage('system', '❌ Géolocalisation non supportée');
-        return;
-    }
-    
-    abAddMessage('system', '📍 Recherche de votre position...');
-    
-    navigator.geolocation.getCurrentPosition(
-        async (position) => {
-            abState.userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-            
-            try {
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${abState.userLocation.lat}&lon=${abState.userLocation.lng}&zoom=18&addressdetails=1`,
-                    { headers: { 'Accept-Language': 'fr' } }
-                );
-                const data = await response.json();
-                
-                let address = '';
-                if (data.address) {
-                    const a = data.address;
-                    address = [a.road, a.neighbourhood, a.suburb, a.city || a.town || a.village]
-                        .filter(Boolean).slice(0, 3).join(', ');
-                }
-                if (!address) address = data.display_name?.split(',').slice(0, 3).join(',') || `${abState.userLocation.lat.toFixed(4)}, ${abState.userLocation.lng.toFixed(4)}`;
-                
-                abState.userLocation.address = address;
-                window.abDetectedAddress = address;
-                
-                const html = `
-                    <div style="background:#ecfdf5;padding:14px;border-radius:12px;border:2px solid #22c55e;">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                            <span style="font-size:20px;">✅</span>
-                            <strong style="color:#166534;">Position trouvée !</strong>
-                        </div>
-                        <div style="background:white;padding:12px;border-radius:8px;margin-bottom:12px;">
-                            <div style="display:flex;align-items:flex-start;gap:8px;">
-                                <span style="color:#ef4444;font-size:18px;">📍</span>
-                                <span style="color:#333;font-weight:500;" id="ab-detected-address">${address}</span>
-                            </div>
-                        </div>
-                        <button onclick="abConfirmDetectedLocation()" 
-                            style="width:100%;padding:12px;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-                            <span>✓</span> Confirmer comme point de départ
-                        </button>
-                    </div>
-                    <p style="font-size:12px;color:#64748b;margin-top:8px;text-align:center;">Ou tapez une autre adresse ci-dessous</p>
-                `;
-                abAddMessage('bot', html, true);
-                
-            } catch (error) {
-                abAddMessage('bot', `✅ Position GPS détectée. Où souhaitez-vous aller ?`, true);
-            }
-        },
-        (error) => {
-            let errorMsg = 'Erreur de géolocalisation';
-            if (error.code === 1) errorMsg = 'Accès à la position refusé';
-            abAddMessage('system', `❌ ${errorMsg}. Entrez votre adresse manuellement.`);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
-    );
-}
-
-function abConfirmDetectedLocation() {
-    const address = window.abDetectedAddress || (abState.userLocation && abState.userLocation.address) || '';
-    
-    if (!address) {
-        abShowToast('❌ Adresse non disponible');
-        return;
-    }
-    
-    console.log('📍 Confirmation de la position:', address);
-    
-    abState.reservationData.depart = address;
-    abState.reservationData.departCoords = abState.userLocation ? { lat: abState.userLocation.lat, lng: abState.userLocation.lng } : null;
-    
-    const bookingFrom = document.getElementById('bookingFrom');
-    if (bookingFrom) {
-        bookingFrom.value = address;
-        window.departureCoords = abState.reservationData.departCoords;
-    }
-    
-    const html = `
-        <div style="background:#f0fdf4;padding:12px;border-radius:10px;border-left:4px solid #22c55e;margin-bottom:12px;">
-            <strong style="color:#166534;">📍 Départ confirmé:</strong><br>
-            <span style="color:#333;">${address}</span>
-        </div>
-        <div style="font-weight:500;color:#333;">Où souhaitez-vous aller ?</div>
-        <div class="ab-quick-actions" style="margin-top:10px;">
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('aeroport')">✈️ Aéroport AIBD</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('reserver')">🚗 Formulaire complet</button>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-    
-    abState.conversationContext.awaitingInput = 'destination';
-    abShowToast('✅ Position confirmée comme départ');
-}
-
-function abConfirmLocation(address) {
-    window.abDetectedAddress = address;
-    abConfirmDetectedLocation();
-}
-
-// ========== ACTIONS RAPIDES ==========
-function abHandleQuickAction(action) {
-    switch(action) {
-        case 'tarifs': abShowTarifs(); break;
-        case 'estimer': abShowEstimationForm(); break;
-        case 'reserver': abShowReservationForm(); break;
-        case 'aeroport': abShowAeroportTarifs(); break;
-        case 'chauffeur': abShowChauffeurInfo(); break;
-        case 'contact': abShowContact(); break;
-    }
-}
-
-// ========== TARIFS ==========
-function abShowTarifs() {
-    let html = `<div><strong>💰 Grille Tarifaire Al Bourakh</strong></div>`;
-    html += `<div class="ab-tarif-grid">`;
-    for (const [key, tarif] of Object.entries(AB_TARIFS)) {
-        html += `
-            <div class="ab-tarif-card" onclick="abSelectTarifForEstimate('${key}')">
-                <div class="ab-tarif-icon">${tarif.icon}</div>
-                <div class="ab-tarif-name">${tarif.nom}</div>
-                <div class="ab-tarif-vehicle">${tarif.vehicule}</div>
-                <div class="ab-tarif-price">${tarif.priseEnCharge.toLocaleString()} F + ${tarif.parKm} F/km</div>
-            </div>
-        `;
-    }
-    html += `</div>
-        <div style="background:#fef3c7;padding:12px;border-radius:10px;font-size:12px;margin-top:12px;">
-            ✈️ <strong>Tarifs Aéroport AIBD</strong> : Prix fixes selon votre zone de départ
-        </div>
-        <div class="ab-quick-actions">
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('aeroport')">✈️ Tarifs Aéroport</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('estimer')">📍 Estimer mon trajet</button>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-}
-
-function abSelectTarifForEstimate(type) {
-    abState.reservationData.vehicule = type;
-    abShowEstimationForm();
-}
-
-function abShowAeroportTarifs() {
-    let html = `
-        <div><strong>✈️ Tarifs Fixes Aéroport AIBD</strong></div>
-        <p style="font-size:12px;color:#64748b;margin:8px 0;">Prix garantis !</p>
-        <div style="background:#f1f5f9;border-radius:10px;padding:12px;margin-top:10px;">
-    `;
-    for (const [key, tarif] of Object.entries(AB_TARIFS_FIXES)) {
-        html += `
-            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e2e8f0;">
-                <span>📍 ${tarif.depart}</span>
-                <strong style="color:#22c55e;">${tarif.prix.toLocaleString()} F</strong>
-            </div>
-        `;
-    }
-    html += `</div>
-        <div class="ab-quick-actions">
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('reserver')">🚗 Réserver maintenant</button>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-}
-
-// ========== ESTIMATION ==========
-function abShowEstimationForm() {
-    const selectedVehicule = abState.reservationData.vehicule || 'standard';
-    
-    const html = `
-        <div class="ab-form-card">
-            <div class="ab-form-title">📍 Estimation de votre trajet</div>
-            <div class="ab-form-group">
-                <label>Point de départ</label>
-                <input type="text" class="ab-est-depart" placeholder="Ex: Plateau, Dakar" value="${abState.reservationData.depart || ''}">
-                <button class="ab-location-btn" onclick="abUseMyLocationForEstimate()">📍 Ma position GPS</button>
-            </div>
-            <div class="ab-form-group">
-                <label>Destination</label>
-                <input type="text" class="ab-est-destination" placeholder="Ex: Aéroport AIBD, Almadies...">
-            </div>
-            <div class="ab-form-group">
-                <label>Type de véhicule</label>
-                <select class="ab-est-vehicule">
-                    ${Object.entries(AB_TARIFS).map(([k, v]) => 
-                        `<option value="${k}" ${selectedVehicule === k ? 'selected' : ''}>${v.icon} ${v.nom}</option>`
-                    ).join('')}
-                </select>
-            </div>
-            <button class="ab-book-btn" onclick="abCalculateEstimate()">📊 Calculer le prix</button>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-}
-
-function abUseMyLocationForEstimate() {
-    if (abState.userLocation && abState.userLocation.address) {
-        const el = abGetLastElement('.ab-est-depart');
-        if (el) el.value = abState.userLocation.address;
-        abShowToast('✅ Position utilisée');
-    } else {
-        abGetMyLocation();
-    }
-}
-
-async function abCalculateEstimate() {
-    const departEl = abGetLastElement('.ab-est-depart');
-    const destEl = abGetLastElement('.ab-est-destination');
-    const vehiculeEl = abGetLastElement('.ab-est-vehicule');
-    
-    const depart = departEl?.value?.trim();
-    const destination = destEl?.value?.trim();
-    const vehicule = vehiculeEl?.value || 'standard';
-    
-    if (!depart || !destination) {
-        abAddMessage('system', '⚠️ Veuillez remplir le départ et la destination');
-        return;
-    }
-    
-    abShowTyping();
-    await new Promise(r => setTimeout(r, 800));
-    
-    const fixedKey = abCheckFixedTarif(depart, destination);
-    let distance, duration, prix;
-    
-    if (fixedKey) {
-        const fixed = AB_TARIFS_FIXES[fixedKey];
-        distance = fixed.distance;
-        duration = Math.round(distance * 1.2);
-        prix = fixed.prix;
-    } else {
-        distance = await abEstimateDistance(depart, destination);
-        duration = Math.round(distance * 2.5);
-        const tarif = AB_TARIFS[vehicule];
-        prix = tarif.priseEnCharge + (distance * tarif.parKm);
-    }
-    
-    abHideTyping();
-    
-    abState.currentEstimate = { depart, destination, vehicule, distance, duration, prix: Math.round(prix) };
-    abState.reservationData = { ...abState.currentEstimate };
-    
-    abShowEstimateResult(fixedKey !== null);
-}
-
-function abCheckFixedTarif(depart, destination) {
-    const d = depart.toLowerCase();
-    const dest = destination.toLowerCase();
-    
-    if (dest.includes('aibd') || dest.includes('aéroport') || dest.includes('aeroport') || dest.includes('blaise diagne')) {
-        if (d.includes('almadies') || d.includes('ngor')) return 'almadies-aibd';
-        if (d.includes('plateau') || d.includes('centre')) return 'plateau-aibd';
-        if (d.includes('parcelles')) return 'parcelles-aibd';
-        if (d.includes('pikine') || d.includes('guédiawaye')) return 'pikine-aibd';
-        if (d.includes('rufisque')) return 'rufisque-aibd';
-        if (d.includes('thiès') || d.includes('thies')) return 'thies-aibd';
-        if (d.includes('saly') || d.includes('mbour')) return 'saly-aibd';
-        return 'dakar-aibd';
-    }
-    return null;
-}
-
-async function abEstimateDistance(depart, destination) {
-    const d = depart.toLowerCase();
-    const dest = destination.toLowerCase();
-    
-    if (dest.includes('aibd') || dest.includes('aeroport')) return 45;
-    if (dest.includes('thies') || dest.includes('thiès')) return 70;
-    if (dest.includes('saly') || dest.includes('mbour')) return 85;
-    if ((d.includes('plateau') && dest.includes('almadies')) || (d.includes('almadies') && dest.includes('plateau'))) return 9;
-    
-    return 8 + Math.random() * 10;
-}
-
-function abShowEstimateResult(isFixedPrice = false) {
-    const tarif = AB_TARIFS[abState.currentEstimate.vehicule];
-    
-    const html = `
-        <div class="ab-estimate-card">
-            <div class="ab-estimate-header">
-                <span class="ab-estimate-title">${tarif.icon} ${tarif.nom}</span>
-                <span class="ab-estimate-price">${abState.currentEstimate.prix.toLocaleString()} F</span>
-            </div>
-            <div class="ab-estimate-details">
-                <div class="ab-estimate-item">📍 ${abState.currentEstimate.depart}</div>
-                <div class="ab-estimate-item">🎯 ${abState.currentEstimate.destination}</div>
-                <div class="ab-estimate-item">📏 ~${abState.currentEstimate.distance.toFixed(1)} km</div>
-                <div class="ab-estimate-item">⏱️ ~${abState.currentEstimate.duration} min</div>
-            </div>
-            ${isFixedPrice ? '<div style="background:rgba(34,197,94,0.2);padding:8px;border-radius:6px;margin-top:10px;font-size:12px;text-align:center;">✅ Tarif fixe garanti</div>' : ''}
-            <button class="ab-book-btn" onclick="abShowReservationForm()">🚗 Réserver ce trajet</button>
-        </div>
-        <div class="ab-quick-actions">
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('estimer')">🔄 Nouvelle estimation</button>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-}
-
-// ========== FORMULAIRE DE RÉSERVATION ==========
-function abShowReservationForm() {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 30);
-    const defaultDate = now.toISOString().split('T')[0];
-    const defaultTime = now.toTimeString().slice(0, 5);
-    
-    let nomDefaut = document.getElementById('bookingName')?.value || localStorage.getItem('albourakh_name') || '';
-    let telDefaut = document.getElementById('bookingPhone')?.value || localStorage.getItem('albourakh_phone') || '';
-    
-    const html = `
-        <div class="ab-form-card">
-            <div class="ab-form-title">🚗 Réserver votre course</div>
-            <div class="ab-form-group">
-                <label>Votre nom complet *</label>
-                <input type="text" class="ab-res-nom" placeholder="Prénom et Nom" value="${nomDefaut}">
-            </div>
-            <div class="ab-form-group">
-                <label>Téléphone *</label>
-                <input type="tel" class="ab-res-tel" placeholder="+221 77 XXX XX XX" value="${telDefaut}">
-            </div>
-            <div class="ab-form-group">
-                <label>Point de départ *</label>
-                <input type="text" class="ab-res-depart" placeholder="Adresse de départ" value="${abState.reservationData.depart || ''}">
-                <button class="ab-location-btn" onclick="abUseMyLocationForReservation()">📍 Ma position actuelle</button>
-            </div>
-            <div class="ab-form-group">
-                <label>Destination *</label>
-                <input type="text" class="ab-res-dest" placeholder="Adresse de destination" value="${abState.reservationData.destination || ''}">
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div class="ab-form-group">
-                    <label>Date *</label>
-                    <input type="date" class="ab-res-date" value="${defaultDate}" min="${new Date().toISOString().split('T')[0]}">
-                </div>
-                <div class="ab-form-group">
-                    <label>Heure *</label>
-                    <input type="time" class="ab-res-time" value="${defaultTime}">
-                </div>
-            </div>
-            <div class="ab-form-group">
-                <label>Type de véhicule</label>
-                <select class="ab-res-vehicule">
-                    ${Object.entries(AB_TARIFS).map(([k, v]) => 
-                        `<option value="${k}" ${abState.reservationData.vehicule === k ? 'selected' : ''}>${v.icon} ${v.nom}</option>`
-                    ).join('')}
-                </select>
-            </div>
-            <div class="ab-form-group">
-                <label>Mode de paiement</label>
-                <select class="ab-res-paiement">
-                    <option value="cash">💵 Espèces</option>
-                    <option value="orange">📱 Orange Money</option>
-                    <option value="wave">💳 Wave</option>
-                    <option value="wallet">👛 Portefeuille Al Bourakh</option>
-                </select>
-            </div>
-            ${abState.reservationData.prix ? `
-            <div style="background:#ecfdf5;padding:12px;border-radius:10px;margin-bottom:14px;text-align:center;border:2px solid #22c55e;">
-                <span style="color:#166534;">Prix estimé:</span>
-                <strong style="font-size:18px;color:#15803d;"> ${abState.reservationData.prix.toLocaleString()} FCFA</strong>
-            </div>
-            ` : ''}
-            <button class="ab-book-btn" onclick="abSubmitReservation()">✅ Confirmer la réservation</button>
-            <p style="font-size:11px;color:#64748b;text-align:center;margin-top:10px;">* Champs obligatoires</p>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-}
-
-function abUseMyLocationForReservation() {
-    if (abState.userLocation && abState.userLocation.address) {
-        const el = abGetLastElement('.ab-res-depart');
-        if (el) {
-            el.value = abState.userLocation.address;
-            abState.reservationData.depart = abState.userLocation.address;
-            abState.reservationData.departCoords = { lat: abState.userLocation.lat, lng: abState.userLocation.lng };
-        }
-        
-        const bookingFrom = document.getElementById('bookingFrom');
-        if (bookingFrom) {
-            bookingFrom.value = abState.userLocation.address;
-            window.departureCoords = { lat: abState.userLocation.lat, lng: abState.userLocation.lng };
-        }
-        
-        abShowToast('✅ Position utilisée');
-    } else {
-        abGetMyLocation();
-    }
-}
-
-// ========== ✅ SOUMISSION RÉSERVATION AVEC GÉOCODAGE AUTO ==========
-async function abSubmitReservation() {
-    const nomEl = abGetLastElement('.ab-res-nom');
-    const telEl = abGetLastElement('.ab-res-tel');
-    const departEl = abGetLastElement('.ab-res-depart');
-    const destEl = abGetLastElement('.ab-res-dest');
-    const dateEl = abGetLastElement('.ab-res-date');
-    const timeEl = abGetLastElement('.ab-res-time');
-    const vehiculeEl = abGetLastElement('.ab-res-vehicule');
-    const paiementEl = abGetLastElement('.ab-res-paiement');
-    
-    const nom = nomEl?.value?.trim();
-    const tel = telEl?.value?.trim();
-    const depart = departEl?.value?.trim();
-    const dest = destEl?.value?.trim();
-    const date = dateEl?.value;
-    const time = timeEl?.value;
-    const vehicule = vehiculeEl?.value;
-    const paiement = paiementEl?.value;
-    
-    // Validation
-    if (!nom) { abAddMessage('system', '⚠️ Veuillez entrer votre nom'); return; }
-    if (!tel) { abAddMessage('system', '⚠️ Veuillez entrer votre téléphone'); return; }
-    if (!depart) { abAddMessage('system', '⚠️ Veuillez entrer le point de départ'); return; }
-    if (!dest) { abAddMessage('system', '⚠️ Veuillez entrer la destination'); return; }
-    
-    abShowTyping();
-    abAddMessage('system', '📍 Géocodage des adresses en cours...');
-    
-    // Formater le téléphone
-    let telFormatted = tel.replace(/\s/g, '');
-    if (!telFormatted.startsWith('+221') && !telFormatted.startsWith('221')) {
-        telFormatted = '+221' + telFormatted.replace(/^0/, '');
-    }
-    
-    const paiementNames = { cash: 'Espèces', orange: 'Orange Money', wave: 'Wave', wallet: 'Portefeuille Al Bourakh' };
-    
-    // ✅ GÉOCODAGE AUTOMATIQUE DES ADRESSES
-    let departCoords = abState.reservationData.departCoords || null;
-    let destinationCoords = abState.reservationData.destinationCoords || null;
-    
-    // Géocoder le départ si pas de coordonnées
-    if (!departCoords) {
-        console.log('📍 Géocodage du départ:', depart);
-        try {
-            departCoords = await abGeocodeAddress(depart);
-            console.log('✅ Coordonnées départ:', departCoords);
-        } catch (error) {
-            console.error('❌ Erreur géocodage départ:', error);
-        }
-    }
-    
-    // Géocoder la destination si pas de coordonnées
-    if (!destinationCoords) {
-        console.log('📍 Géocodage de la destination:', dest);
-        try {
-            destinationCoords = await abGeocodeAddress(dest);
-            console.log('✅ Coordonnées destination:', destinationCoords);
-        } catch (error) {
-            console.error('❌ Erreur géocodage destination:', error);
-        }
-    }
-    
-    // Calculer un prix estimé si pas déjà fait
-    let prixEstime = abState.reservationData.prix || 0;
-    let distanceEstimee = abState.reservationData.distance || 0;
-    
-    if (prixEstime === 0) {
-        distanceEstimee = await abEstimateDistance(depart, dest);
-        const tarif = AB_TARIFS[vehicule];
-        prixEstime = Math.round(tarif.priseEnCharge + (distanceEstimee * tarif.parKm));
-    }
-    
-    const reservationData = {
-        clientNom: nom,
-        clientTelephone: telFormatted,
-        depart: depart,
-        destination: dest,
-        departCoords: departCoords,         // ✅ COORDONNÉES GÉOCODÉES
-        destinationCoords: destinationCoords, // ✅ COORDONNÉES GÉOCODÉES
-        dateReservation: date,
-        heureReservation: time,
-        vehiculeType: vehicule,
-        modePaiement: paiementNames[paiement] || 'Espèces',
-        prixEstime: prixEstime,
-        distanceEstimee: distanceEstimee,
-        statut: 'en_attente',
-        source: 'chatbot_v3.3_geocode',
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        paiementValide: false,
-        chauffeurAssigne: null
-    };
-    
-    console.log('📦 Données de réservation complètes:', reservationData);
-    
-    try {
-        const docRef = await abDb.collection('reservations').add(reservationData);
-        
-        abHideTyping();
-        
-        const refCode = docRef.id.slice(-8).toUpperCase();
-        const dateFormatted = new Date(`${date}T${time}`).toLocaleString('fr-FR', {
-            weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
-        });
-        
-        const html = `
-            <div class="ab-confirmation">
-                <div class="ab-confirmation-icon">✓</div>
-                <h3>Réservation confirmée !</h3>
-                <div class="ab-confirmation-ref">Réf: ${refCode}</div>
-                <div class="ab-trip-summary">
-                    <div class="ab-trip-row"><span class="ab-trip-icon">📍</span><span class="ab-trip-text"><strong>Départ:</strong> ${depart}</span></div>
-                    <div class="ab-trip-row"><span class="ab-trip-icon">🎯</span><span class="ab-trip-text"><strong>Arrivée:</strong> ${dest}</span></div>
-                    <div class="ab-trip-row"><span class="ab-trip-icon">📅</span><span class="ab-trip-text">${dateFormatted}</span></div>
-                    <div class="ab-trip-row"><span class="ab-trip-icon">🚗</span><span class="ab-trip-text">${AB_TARIFS[vehicule].icon} ${AB_TARIFS[vehicule].nom}</span></div>
-                    <div class="ab-trip-row"><span class="ab-trip-icon">💰</span><span class="ab-trip-text"><strong>${prixEstime.toLocaleString()} FCFA</strong></span></div>
-                </div>
-                <p style="font-size:12px;color:#22c55e;">📍 Coordonnées GPS enregistrées ✓</p>
-                <p style="font-size:12px;color:#64748b;">🔄 Ouverture du suivi en cours...</p>
-            </div>
-        `;
-        
-        abAddMessage('bot', html, true);
-        
-        // Sauvegarder les infos utilisateur
-        localStorage.setItem('albourakh_name', nom);
-        localStorage.setItem('albourakh_phone', telFormatted);
-        
-        // ✅ SYNCHRONISATION AVEC LA PAGE PRINCIPALE
-        abSyncWithMainApp(reservationData, docRef.id);
-        
-        // Fermer le chatbot après un délai
-        setTimeout(() => {
-            abToggleChat();
-        }, 2000);
-        
-        // Reset données
-        abState.reservationData = {};
-        abState.currentEstimate = null;
-        
-    } catch (error) {
-        abHideTyping();
-        console.error('Erreur réservation:', error);
-        abAddMessage('system', `❌ Erreur: ${error.message}`);
-    }
-}
-
-// ========== AUTRES INFOS ==========
-function abShowChauffeurInfo() {
-    const html = `
-        <div><strong>👤 Devenir Chauffeur Al Bourakh</strong></div>
-        <div style="background:#ecfdf5;padding:14px;border-radius:10px;margin:12px 0;">
-            <strong>💰 Revenus potentiels:</strong>
-            <div style="font-size:20px;font-weight:bold;color:#15803d;margin:8px 0;">300 000 - 500 000 FCFA/mois</div>
-        </div>
-        <div style="background:#f1f5f9;padding:14px;border-radius:10px;">
-            <strong>📋 Conditions:</strong>
-            <ul style="margin:8px 0;padding-left:18px;font-size:13px;">
-                <li>Âge minimum: 23 ans</li>
-                <li>Permis: 3 ans minimum</li>
-                <li>Casier judiciaire vierge</li>
-                <li>Smartphone Android/iOS</li>
-            </ul>
-        </div>
-        <div class="ab-quick-actions">
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('contact')">📞 Plus d'infos</button>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-}
-
-function abShowContact() {
-    const html = `
-        <div><strong>📞 Contactez Al Bourakh</strong></div>
-        <div class="ab-contact-card">
-            <div class="ab-contact-item"><span>📱</span><div><strong>Téléphone</strong><br><a href="tel:+221787850101">+221 78 785 01 01</a></div></div>
-            <div class="ab-contact-item"><span>💬</span><div><strong>WhatsApp</strong><br><a href="https://wa.me/221787850101" target="_blank">+221 78 785 01 01</a></div></div>
-            <div class="ab-contact-item"><span>🕐</span><div><strong>Horaires</strong><br><span style="color:#22c55e;font-weight:600;">24h/24 - 7j/7</span></div></div>
-        </div>
-        <div class="ab-quick-actions">
-            <button class="ab-quick-btn" onclick="window.open('https://wa.me/221787850101', '_blank')">💬 WhatsApp</button>
-            <button class="ab-quick-btn" onclick="window.open('tel:+221787850101')">📞 Appeler</button>
-        </div>
-    `;
-    abAddMessage('bot', html, true);
-}
-
-// ========== TRAITEMENT IA ==========
-async function abSendMessage() {
-    const text = abInputField?.value?.trim();
-    if (!text) return;
-
-    abAddMessage('user', text);
-    if (abInputField) abInputField.value = '';
-
-    abShowTyping();
-    await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
-    
-    const response = await abProcessMessage(text);
-    abHideTyping();
-    
-    if (response.text) {
-        abAddMessage('bot', response.text, response.isHtml || false);
-    }
-}
-
-async function abProcessMessage(text) {
-    const q = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
-    if (q.match(/^(bonjour|salam|salut|hello|bonsoir|hey|coucou)/)) {
-        const hour = new Date().getHours();
-        let greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
-        return { 
-            text: `${greeting} ! 👋 Comment puis-je vous aider ?<br><br>
-            <div class="ab-quick-actions">
-                <button class="ab-quick-btn" onclick="abHandleQuickAction('estimer')">📍 Estimer</button>
-                <button class="ab-quick-btn" onclick="abHandleQuickAction('reserver')">🚗 Réserver</button>
-                <button class="ab-quick-btn" onclick="abHandleQuickAction('tarifs')">💰 Tarifs</button>
-            </div>`,
-            isHtml: true
-        };
-    }
-    
-    if (q.match(/(merci|thank)/)) return { text: `Je vous en prie ! 😊 N'hésitez pas si vous avez d'autres questions !` };
-    if (q.match(/(bye|au revoir)/)) return { text: `Au revoir et à bientôt ! 👋 Bonne route !` };
-    
-    if (q.match(/(prix|tarif|combien|cher)/)) {
-        if (q.match(/(aeroport|aibd)/)) { abShowAeroportTarifs(); return { text: '' }; }
-        abShowTarifs(); return { text: '' };
-    }
-    
-    if (q.match(/(estim|calculer|trajet|distance|aller)/)) { abShowEstimationForm(); return { text: '' }; }
-    if (q.match(/(reserv|book|commander|course|taxi|vtc)/)) { abShowReservationForm(); return { text: '' }; }
-    if (q.match(/(aeroport|aibd|avion)/)) { abShowAeroportTarifs(); return { text: '' }; }
-    if (q.match(/(chauffeur|devenir|travail|emploi)/)) { abShowChauffeurInfo(); return { text: '' }; }
-    if (q.match(/(contact|telephone|whatsapp)/)) { abShowContact(); return { text: '' }; }
-    if (q.match(/(position|localisation|gps)/)) { abGetMyLocation(); return { text: '' }; }
-    
-    if (abState.conversationContext.awaitingInput === 'destination' && text.length > 2) {
-        abState.reservationData.destination = text;
-        abState.conversationContext.awaitingInput = null;
-        if (abState.reservationData.depart) {
-            abState.reservationData.vehicule = 'standard';
-            const distance = await abEstimateDistance(abState.reservationData.depart, text);
-            const tarif = AB_TARIFS['standard'];
-            const prix = tarif.priseEnCharge + (distance * tarif.parKm);
-            abState.reservationData.distance = distance;
-            abState.reservationData.prix = Math.round(prix);
-            abState.currentEstimate = { ...abState.reservationData, duration: Math.round(distance * 2.5) };
-            setTimeout(() => abShowEstimateResult(false), 100);
-            return { text: '' };
-        }
-    }
-    
-    return {
-        text: `Je n'ai pas bien compris. Voici ce que je peux faire :<br><br>
-        <div class="ab-quick-actions">
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('estimer')">📍 Estimer</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('reserver')">🚗 Réserver</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('tarifs')">💰 Tarifs</button>
-            <button class="ab-quick-btn" onclick="abHandleQuickAction('contact')">📞 Contact</button>
-        </div>`,
-        isHtml: true
-    };
-}
-
-// ========== EXPORTS ==========
-window.abToggleChat = abToggleChat;
-window.abToggleMute = abToggleMute;
-window.abToggleAudioPanel = abToggleAudioPanel;
-window.abUpdateVolume = abUpdateVolume;
-window.abUpdateSpeed = abUpdateSpeed;
-window.abSetAudioPreset = abSetAudioPreset;
-window.abHandleQuickAction = abHandleQuickAction;
-window.abSendMessage = abSendMessage;
-window.abHandleKeyPress = abHandleKeyPress;
-window.abToggleVoice = abToggleVoice;
-window.abGetMyLocation = abGetMyLocation;
-window.abConfirmLocation = abConfirmLocation;
-window.abConfirmDetectedLocation = abConfirmDetectedLocation;
-window.abUseMyLocationForEstimate = abUseMyLocationForEstimate;
-window.abUseMyLocationForReservation = abUseMyLocationForReservation;
-window.abCalculateEstimate = abCalculateEstimate;
-window.abShowEstimationForm = abShowEstimationForm;
-window.abShowReservationForm = abShowReservationForm;
-window.abSubmitReservation = abSubmitReservation;
-window.abSelectTarifForEstimate = abSelectTarifForEstimate;
-window.abSyncWithMainApp = abSyncWithMainApp;
-window.abGeocodeAddress = abGeocodeAddress;
-
-console.log('%c✅ Chatbot Al Bourakh v3.3 - GÉOCODAGE AUTO', 'color: #22c55e; font-size: 14px; font-weight: bold');
-console.log('%c🔄 Synchronisation avec page principale activée', 'color: #2563eb; font-size: 12px');
-console.log('%c📍 Géocodage automatique des adresses activé', 'color: #f59e0b; font-size: 12px');
-</script>
-<!-- FIN WIDGET CHATBOT AL BOURAKH v3.3 -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&libraries=places"></script>
 </body>
 </html>
