@@ -2517,6 +2517,98 @@
             }
         }
 
+        // Fonction pour remplir automatiquement le formulaire avec les données de réservation
+        function fillBookingForm(booking) {
+            if (!booking) return;
+
+            console.log('📝 Remplissage du formulaire avec:', booking);
+
+            // Remplir les champs texte
+            if (booking.depart) {
+                const fromInput = document.getElementById('bookingFrom');
+                if (fromInput) fromInput.value = booking.depart;
+            }
+
+            if (booking.destination) {
+                const toInput = document.getElementById('bookingTo');
+                if (toInput) toInput.value = booking.destination;
+            }
+
+            if (booking.telephone) {
+                const phoneInput = document.getElementById('bookingPhone');
+                if (phoneInput) phoneInput.value = booking.telephone;
+            }
+
+            if (booking.nom) {
+                const nameInput = document.getElementById('bookingName');
+                if (nameInput) nameInput.value = booking.nom;
+            }
+
+            // Remplir la date (format attendu: YYYY-MM-DD)
+            if (booking.date) {
+                const dateInput = document.getElementById('bookingDate');
+                if (dateInput) {
+                    // Essayer de parser la date du chatbot
+                    let dateStr = booking.date;
+                    // Si format "DD/MM/YYYY" ou "DD-MM-YYYY"
+                    const match = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                    if (match) {
+                        dateStr = `${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`;
+                    }
+                    dateInput.value = dateStr;
+                }
+            }
+
+            // Remplir l'heure (format attendu: HH:MM)
+            if (booking.heure) {
+                const timeInput = document.getElementById('bookingTime');
+                if (timeInput) {
+                    let timeStr = booking.heure;
+                    // Extraire HH:MM si format "HH:MM:SS" ou autre
+                    const match = timeStr.match(/(\d{1,2})[:\-h](\d{2})/i);
+                    if (match) {
+                        timeStr = `${match[1].padStart(2, '0')}:${match[2]}`;
+                    }
+                    timeInput.value = timeStr;
+                }
+            }
+
+            // Sélectionner le véhicule
+            if (booking.vehicule) {
+                const vehicleMap = {
+                    'standard': { type: 'standard', price: 1500 },
+                    'confort': { type: 'confort', price: 2000 },
+                    'van': { type: 'van', price: 2500 },
+                    'premium': { type: 'premium', price: 3500 }
+                };
+                const vehicleKey = booking.vehicule.toLowerCase();
+                if (vehicleMap[vehicleKey]) {
+                    selectVehicle(vehicleMap[vehicleKey].type, vehicleMap[vehicleKey].price);
+                }
+            }
+
+            // Sélectionner le mode de paiement
+            if (booking.paiement) {
+                const paymentMap = {
+                    'espèces': 'cash',
+                    'especes': 'cash',
+                    'cash': 'cash',
+                    'orange money': 'orange',
+                    'orange': 'orange',
+                    'wave': 'wave',
+                    'portefeuille': 'wallet',
+                    'wallet': 'wallet'
+                };
+                const paymentKey = booking.paiement.toLowerCase();
+                if (paymentMap[paymentKey]) {
+                    selectPayment(paymentMap[paymentKey]);
+                }
+            }
+
+            // Notification visuelle
+            addMessage('✅ Les informations de votre réservation ont été reportées dans le formulaire. Vérifiez et validez !', false);
+        }
+
         async function sendChatMessage(spokenText = null) {
             const input = document.getElementById('chatbotInput');
             const message = spokenText || input.value.trim();
@@ -2556,6 +2648,11 @@
                         // Lecture automatique si message vocal envoyé
                         if (spokenText) {
                             speakResponse(data.text);
+                        }
+
+                        // Si données de réservation confirmée, remplir le formulaire
+                        if (data.booking) {
+                            fillBookingForm(data.booking);
                         }
                     } else {
                         addMessage("Désolée, je n'ai pas pu traiter votre demande. Veuillez réessayer.", false);
