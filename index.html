@@ -2482,8 +2482,19 @@
                 // Arrêter toute lecture en cours
                 speechSynthesis.cancel();
 
-                // Supprimer les emojis
-                const cleanText = text.replace(/\p{Emoji}/gu, '').replace(/\s+/g, ' ').trim();
+                // Nettoyer le texte pour la lecture
+                let cleanText = text
+                    // Supprimer les emojis (plage Unicode complète)
+                    .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]/gu, '')
+                    // Supprimer les astérisques (formatage Markdown)
+                    .replace(/\*+/g, '')
+                    // Remplacer FCFA par francs CFA
+                    .replace(/FCFA/gi, 'francs CFA')
+                    // Remplacer les tirets multiples
+                    .replace(/-+/g, ', ')
+                    // Nettoyer les espaces multiples
+                    .replace(/\s+/g, ' ')
+                    .trim();
 
                 const utterance = new SpeechSynthesisUtterance(cleanText);
                 utterance.lang = 'fr-FR';
