@@ -2482,7 +2482,10 @@
                 // Arrêter toute lecture en cours
                 speechSynthesis.cancel();
 
-                const utterance = new SpeechSynthesisUtterance(text);
+                // Supprimer les emojis
+                const cleanText = text.replace(/\p{Emoji}/gu, '').replace(/\s+/g, ' ').trim();
+
+                const utterance = new SpeechSynthesisUtterance(cleanText);
                 utterance.lang = 'fr-FR';
                 utterance.rate = 1;
                 utterance.pitch = 1.1;
@@ -2493,9 +2496,6 @@
                 if (frenchVoice) utterance.voice = frenchVoice;
 
                 speechSynthesis.speak(utterance);
-                console.log('🔊 Lecture vocale:', text.substring(0, 50) + '...');
-            } else {
-                console.warn('Synthèse vocale non supportée');
             }
         }
 
