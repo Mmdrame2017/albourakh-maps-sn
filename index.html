@@ -1852,11 +1852,51 @@
         }
 
         function closeTracking() {
+            console.log('🚪 Fermeture du modal de suivi...');
+
+            // Fermer le modal
             const modal = document.getElementById('trackingModal');
             if (modal) modal.classList.remove('active');
             document.body.style.overflow = '';
-            if (reservationListener) { reservationListener(); reservationListener = null; }
-            if (driverListener) { driverListener(); driverListener = null; }
+
+            // Arrêter les listeners Firestore
+            if (reservationListener) {
+                console.log('🔴 Arrêt du listener de réservation');
+                reservationListener();
+                reservationListener = null;
+            }
+            if (driverListener) {
+                console.log('🔴 Arrêt du listener de chauffeur');
+                driverListener();
+                driverListener = null;
+            }
+
+            // Nettoyer complètement la carte et les routes
+            if (trackingDirectionsRenderer) {
+                console.log('🗺️ Suppression de la route d\'approche');
+                trackingDirectionsRenderer.setMap(null);
+                trackingDirectionsRenderer = null;
+            }
+            if (driverMarker) {
+                console.log('🚗 Suppression du marqueur chauffeur');
+                driverMarker.setMap(null);
+                driverMarker = null;
+            }
+            if (clientPickupMarker) {
+                console.log('📍 Suppression du marqueur client');
+                clientPickupMarker.setMap(null);
+                clientPickupMarker = null;
+            }
+            if (trackingMap) {
+                console.log('🗺️ Nettoyage de la carte de suivi');
+                trackingMap = null;
+            }
+
+            // Réinitialiser les variables
+            lastDriverPosition = null;
+            currentTrackingMode = null;
+
+            console.log('✅ Modal de suivi fermé et nettoyé');
         }
 
         function initTrackingMap() {
@@ -1871,13 +1911,18 @@
         }
 
         function startReservationListener(reservationId) {
+            console.log('🔵 Démarrage du listener pour la réservation:', reservationId);
             reservationListener = db.collection('reservations').doc(reservationId).onSnapshot(async (doc) => {
-                if (!doc.exists) return;
+                if (!doc.exists) {
+                    console.log('⚠️ Document de réservation n\'existe pas');
+                    return;
+                }
                 const data = doc.data();
+                console.log('📥 Mise à jour reçue du Firestore - Statut:', data.statut);
                 currentBooking = { id: doc.id, ...data };
-                
+
                 updateStatusTimeline(data.statut);
-                
+
                 if (data.chauffeurAssigne && !driverListener) {
                     updateStep2(data);
                     startDriverTracking(data.chauffeurAssigne);
@@ -1961,13 +2006,17 @@
 
             if (statut === 'annulee' || statut === 'annulée' || statut === 'cancelled') {
                 // ❌ Réservation annulée
-                console.log('❌ Réservation annulée détectée');
+                console.log('❌ ANNULATION DÉTECTÉE - Statut:', statut);
+                console.log('📋 Réservation actuelle:', currentBooking?.id);
                 showNotification('❌ Réservation annulée', 'error');
 
                 // Fermer le modal de suivi après un court délai pour que l'utilisateur voie la notification
+                console.log('⏳ Fermeture du modal dans 2 secondes...');
                 setTimeout(() => {
+                    console.log('🔄 Exécution de la fermeture du modal');
                     closeTracking();
                     currentBooking = null;
+                    console.log('✅ Réservation annulée et modal fermé');
                 }, 2000);
             }
         }
@@ -2125,12 +2174,20 @@
 
         async function cancelBooking() {
             if (!confirm('Annuler cette réservation?')) return;
+
+            console.log('🚫 Annulation de la réservation demandée');
             if (currentBooking?.id) {
-                try { await db.collection('reservations').doc(currentBooking.id).update({ statut: 'annulee' }); }
-                catch (e) { console.error('Erreur:', e); }
+                try {
+                    console.log('📤 Mise à jour du statut vers "annulee" dans Firestore pour:', currentBooking.id);
+                    await db.collection('reservations').doc(currentBooking.id).update({ statut: 'annulee' });
+                    console.log('✅ Statut mis à jour dans Firestore');
+                } catch (e) {
+                    console.error('❌ Erreur lors de l\'annulation:', e);
+                }
             }
             closeTracking();
             showNotification('Réservation annulée', 'info');
+            console.log('✅ Annulation terminée');
         }
 
         function scrollToBooking() {
