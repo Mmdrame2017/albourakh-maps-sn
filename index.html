@@ -420,19 +420,19 @@
             <div style="margin-top: 25px;">
                 <h3 style="text-align: center; color: #00A854; margin-bottom: 12px;"><i class="fas fa-credit-card"></i> Paiement</h3>
                 <div class="payment-methods" id="paymentMethods">
-                    <div class="payment-method" onclick="selectPayment('cash')">
+                    <div class="payment-method" data-payment="cash" onclick="selectPayment('cash')">
                         <div class="payment-method-icon">💵</div>
                         <div class="payment-method-name">Espèces</div>
                     </div>
-                    <div class="payment-method" onclick="selectPayment('orange')">
+                    <div class="payment-method" data-payment="orange" onclick="selectPayment('orange')">
                         <div class="payment-method-icon">📱</div>
                         <div class="payment-method-name">Orange Money</div>
                     </div>
-                    <div class="payment-method" onclick="selectPayment('wave')">
+                    <div class="payment-method" data-payment="wave" onclick="selectPayment('wave')">
                         <div class="payment-method-icon">💳</div>
                         <div class="payment-method-name">Wave</div>
                     </div>
-                    <div class="payment-method wallet-option" onclick="selectPayment('wallet')">
+                    <div class="payment-method wallet-option" data-payment="wallet" onclick="selectPayment('wallet')">
                         <div class="payment-method-icon">👛</div>
                         <div class="payment-method-name">Portefeuille</div>
                         <div class="wallet-balance-mini" id="walletBalanceMini">0 FCFA</div>
@@ -1677,13 +1677,14 @@
             selectedPayment = method;
             document.querySelectorAll('.payment-method').forEach(el => {
                 el.classList.remove('selected');
-                // Sélectionner visuellement le bon paiement
-                if (el.onclick && el.onclick.toString().includes(`'${method}'`)) {
+                // Sélectionner visuellement le bon paiement via data-payment
+                if (el.dataset.payment === method) {
                     el.classList.add('selected');
+                    console.log('✅ Paiement sélectionné visuellement:', method);
                 }
             });
             const names = { cash: 'Espèces', orange: 'Orange Money', wave: 'Wave', wallet: 'Portefeuille' };
-            showNotification(`✅ Paiement: ${names[method]}`, 'success');
+            showNotification(`✅ Paiement: ${names[method] || method}`, 'success');
         }
 
         function calculateDistance(p1, p2) {
@@ -2439,6 +2440,8 @@
             return recog;
         }
 
+        let welcomeMessageSpoken = false; // Pour ne lire le message de bienvenue qu'une fois
+
         function toggleChatbot() {
             const modal = document.getElementById('chatbotModal');
             const fab = document.getElementById('chatbotFab');
@@ -2446,6 +2449,15 @@
             fab.innerHTML = modal.classList.contains('active')
                 ? '<i class="fas fa-times"></i>'
                 : '<i class="fas fa-microphone"></i>';
+
+            // Lire le message de bienvenue à haute voix à la première ouverture
+            if (modal.classList.contains('active') && !welcomeMessageSpoken) {
+                welcomeMessageSpoken = true;
+                const welcomeMessage = "Bonjour ! Je suis Khadija, votre assistante Al Bourakh. Je peux vous aider à réserver un VTC, calculer un tarif ou vérifier votre portefeuille. Comment puis-je vous aider ?";
+                setTimeout(() => {
+                    speakText(welcomeMessage);
+                }, 500);
+            }
         }
 
         function addMessage(text, isUser = false) {
