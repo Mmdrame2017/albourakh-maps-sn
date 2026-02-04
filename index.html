@@ -780,6 +780,7 @@
         let directionsService, directionsRenderer, trackingDirectionsRenderer;
         let userMarker, departureMarker, destinationMarker, driverMarker, clientPickupMarker;
         let selectedVehicle = null, selectedVehiclePrice = 0, selectedPayment = null;
+        let chatbotEstimatedPrice = null; // Prix estimé par le chatbot (prioritaire sur le calcul formulaire)
         let mapSelectionMode = null;
         let departureCoords = null, destinationCoords = null;
         let userCurrentPosition = null; // Position GPS actuelle de l'utilisateur
@@ -1714,7 +1715,16 @@
             let distance = 10;
             if (departureCoords && destinationCoords) distance = calculateDistance(departureCoords, destinationCoords);
             const pricePerKm = { standard: 200, confort: 250, van: 300, premium: 400 };
-            const totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicle]));
+
+            // Utiliser le prix du chatbot s'il est disponible, sinon calculer
+            let totalPrice;
+            if (chatbotEstimatedPrice && chatbotEstimatedPrice > 0) {
+                totalPrice = chatbotEstimatedPrice;
+                console.log('💰 Utilisation du prix chatbot:', totalPrice, 'FCFA');
+            } else {
+                totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicle]));
+                console.log('💰 Prix calculé par le formulaire:', totalPrice, 'FCFA');
+            }
 
             if (selectedPayment === 'wallet' && walletState.balance < totalPrice) {
                 showNotification(`⚠️ Solde insuffisant (${walletState.balance.toLocaleString()} FCFA)`, 'error');
@@ -1772,6 +1782,7 @@
                 const docRef = await db.collection('reservations').add(bookingData);
                 currentBooking = { id: docRef.id, ...bookingData };
                 paymentValidated = false;
+                chatbotEstimatedPrice = null; // Réinitialiser pour la prochaine réservation
                 hideLoading();
                 showNotification('✅ Réservation confirmée!', 'success');
                 openTracking();
@@ -2557,8 +2568,22 @@
             if (booking.depart) {
                 const fromInput = document.getElementById('bookingFrom');
                 if (fromInput) {
-                    fromInput.value = booking.depart;
-                    console.log('✅ Départ rempli:', booking.depart);
+                    let departValue = booking.depart;
+
+                    // Si le départ est "Ma position" ou "Votre position actuelle", utiliser l'adresse réelle
+                    const positionKeywords = ['ma position', 'votre position', 'position actuelle', 'position courante', 'où je suis'];
+                    const departLower = departValue.toLowerCase();
+                    if (positionKeywords.some(kw => departLower.includes(kw))) {
+                        if (userCurrentAddress) {
+                            departValue = userCurrentAddress;
+                            console.log('📍 Position remplacée par adresse réelle:', userCurrentAddress);
+                        } else {
+                            console.log('⚠️ Position demandée mais userCurrentAddress non disponible');
+                        }
+                    }
+
+                    fromInput.value = departValue;
+                    console.log('✅ Départ rempli:', departValue);
                 } else {
                     console.log('❌ Champ bookingFrom non trouvé');
                 }
@@ -2664,20 +2689,51 @@
                 const paymentMap = {
                     'espèces': 'cash',
                     'especes': 'cash',
+                    'espece': 'cash',
                     'cash': 'cash',
+                    'liquide': 'cash',
                     'orange money': 'orange',
                     'orange': 'orange',
+                    'om': 'orange',
                     'wave': 'wave',
                     'portefeuille': 'wallet',
-                    'wallet': 'wallet'
+                    'portefeuille al bourakh': 'wallet',
+                    'portefeuille albourakh': 'wallet',
+                    'wallet': 'wallet',
+                    'al bourakh': 'wallet',
+                    'albourakh': 'wallet'
                 };
                 const paymentKey = booking.paiement.toLowerCase().trim();
                 console.log('💳 Paiement reçu:', booking.paiement, '-> clé:', paymentKey);
-                if (paymentMap[paymentKey]) {
-                    selectPayment(paymentMap[paymentKey]);
-                    console.log('✅ Paiement sélectionné:', paymentKey);
+
+                // Chercher une correspondance partielle si pas de correspondance exacte
+                let matchedPayment = paymentMap[paymentKey];
+                if (!matchedPayment) {
+                    for (const [key, value] of Object.entries(paymentMap)) {
+                        if (paymentKey.includes(key) || key.includes(paymentKey)) {
+                            matchedPayment = value;
+                            console.log('💳 Correspondance partielle trouvée:', key, '->', value);
+                            break;
+                        }
+                    }
+                }
+
+                if (matchedPayment) {
+                    selectPayment(matchedPayment);
+                    console.log('✅ Paiement sélectionné:', matchedPayment);
                 } else {
                     console.log('⚠️ Paiement non trouvé dans le mapping:', paymentKey);
+                }
+            }
+
+            // Stocker le prix estimé par le chatbot
+            if (booking.prix) {
+                // Extraire le nombre du prix (peut être "11500", "11 500", "11500 FCFA", etc.)
+                const prixStr = booking.prix.toString().replace(/[^\d]/g, '');
+                const prixNum = parseInt(prixStr, 10);
+                if (!isNaN(prixNum) && prixNum > 0) {
+                    chatbotEstimatedPrice = prixNum;
+                    console.log('💰 Prix chatbot stocké:', chatbotEstimatedPrice, 'FCFA');
                 }
             }
 
