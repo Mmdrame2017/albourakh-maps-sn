@@ -1723,6 +1723,25 @@
             if (!selectedVehicle) { showNotification('⚠️ Sélectionnez un véhicule', 'error'); return; }
             if (!selectedPayment) { showNotification('⚠️ Sélectionnez un paiement', 'error'); return; }
 
+            // VALIDATION DATE/HEURE: Vérifier que la réservation est dans le futur
+            try {
+                const bookingDateTime = new Date(`${date}T${time}`);
+                const now = new Date();
+                const minFutureTime = new Date(now.getTime() + 5 * 60 * 1000); // Maintenant + 5 minutes
+
+                if (bookingDateTime < minFutureTime) {
+                    const isPast = bookingDateTime < now;
+                    if (isPast) {
+                        showNotification('❌ Impossible de réserver pour une heure déjà passée', 'error');
+                    } else {
+                        showNotification('⚠️ Réservation minimum 5 minutes à l\'avance', 'error');
+                    }
+                    return;
+                }
+            } catch (e) {
+                console.error('Erreur validation date/heure:', e);
+            }
+
             // Utiliser la distance réelle Google Maps si disponible, sinon utiliser Haversine
             let distance = 10;
             if (realRoadDistance && realRoadDistance > 0) {
