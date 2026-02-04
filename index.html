@@ -782,6 +782,7 @@
         let userMarker, departureMarker, destinationMarker, driverMarker, clientPickupMarker;
         let selectedVehicle = null, selectedVehiclePrice = 0, selectedPayment = null;
         let chatbotEstimatedPrice = null; // Prix estimé par le chatbot (prioritaire sur le calcul formulaire)
+        let realRoadDistance = null; // Distance réelle par la route (Google Maps)
         let mapSelectionMode = null;
         let departureCoords = null, destinationCoords = null;
         let userCurrentPosition = null; // Position GPS actuelle de l'utilisateur
@@ -1656,7 +1657,15 @@
         function calculateRoute() {
             if (!departureCoords || !destinationCoords) return;
             directionsService.route({ origin: departureCoords, destination: destinationCoords, travelMode: google.maps.TravelMode.DRIVING }, (result, status) => {
-                if (status === 'OK') directionsRenderer.setDirections(result);
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    // Extraire la distance réelle par la route (en km)
+                    const route = result.routes[0];
+                    if (route && route.legs && route.legs[0]) {
+                        realRoadDistance = route.legs[0].distance.value / 1000; // Convertir mètres en km
+                        console.log('📍 Distance réelle Google Maps:', realRoadDistance.toFixed(2), 'km');
+                    }
+                }
             });
         }
 
@@ -1714,8 +1723,15 @@
             if (!selectedVehicle) { showNotification('⚠️ Sélectionnez un véhicule', 'error'); return; }
             if (!selectedPayment) { showNotification('⚠️ Sélectionnez un paiement', 'error'); return; }
 
+            // Utiliser la distance réelle Google Maps si disponible, sinon utiliser Haversine
             let distance = 10;
-            if (departureCoords && destinationCoords) distance = calculateDistance(departureCoords, destinationCoords);
+            if (realRoadDistance && realRoadDistance > 0) {
+                distance = realRoadDistance;
+                console.log('📍 Utilisation distance Google Maps:', distance.toFixed(2), 'km');
+            } else if (departureCoords && destinationCoords) {
+                distance = calculateDistance(departureCoords, destinationCoords);
+                console.log('⚠️ Utilisation distance Haversine (à vol d\'oiseau):', distance.toFixed(2), 'km');
+            }
             const pricePerKm = { standard: 200, confort: 250, van: 300, premium: 400 };
 
             // Utiliser le prix du chatbot s'il est disponible, sinon calculer
@@ -1725,7 +1741,7 @@
                 console.log('💰 Utilisation du prix chatbot:', totalPrice, 'FCFA');
             } else {
                 totalPrice = Math.round(selectedVehiclePrice + (distance * pricePerKm[selectedVehicle]));
-                console.log('💰 Prix calculé par le formulaire:', totalPrice, 'FCFA');
+                console.log('💰 Prix calculé par le formulaire:', totalPrice, 'FCFA', `(${distance.toFixed(2)} km)`);
             }
 
             if (selectedPayment === 'wallet' && walletState.balance < totalPrice) {
@@ -1785,6 +1801,7 @@
                 currentBooking = { id: docRef.id, ...bookingData };
                 paymentValidated = false;
                 chatbotEstimatedPrice = null; // Réinitialiser pour la prochaine réservation
+                realRoadDistance = null; // Réinitialiser la distance Google Maps
                 hideLoading();
                 showNotification('✅ Réservation confirmée!', 'success');
                 openTracking();
