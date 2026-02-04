@@ -2736,9 +2736,20 @@
                 const timeInput = document.getElementById('bookingTime');
                 if (timeInput) {
                     let timeStr = booking.heure;
+
+                    // Si "Maintenant", "Tout de suite", etc., utiliser l'heure actuelle
+                    const nowKeywords = ['maintenant', 'tout de suite', 'immédiatement', 'immediatement', 'maintenant', 'de suite', 'asap'];
+                    const timeLower = timeStr.toLowerCase();
+                    if (nowKeywords.some(kw => timeLower.includes(kw))) {
+                        const now = new Date();
+                        const heures = now.getHours().toString().padStart(2, '0');
+                        const minutes = now.getMinutes().toString().padStart(2, '0');
+                        timeStr = `${heures}:${minutes}`;
+                        console.log('🕐 "Maintenant" converti en:', timeStr);
+                    }
                     // Format "21h" ou "21h30"
-                    const matchH = timeStr.match(/(\d{1,2})h(\d{0,2})/i);
-                    if (matchH) {
+                    else if (timeStr.match(/(\d{1,2})h(\d{0,2})/i)) {
+                        const matchH = timeStr.match(/(\d{1,2})h(\d{0,2})/i);
                         const heures = matchH[1].padStart(2, '0');
                         const minutes = matchH[2] ? matchH[2].padStart(2, '0') : '00';
                         timeStr = `${heures}:${minutes}`;
