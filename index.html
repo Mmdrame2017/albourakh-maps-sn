@@ -1939,6 +1939,18 @@
                 showPaymentButton();
                 console.log('✅ Course terminée - Affichage paiement');
             }
+
+            if (statut === 'annulee' || statut === 'annulée' || statut === 'cancelled') {
+                // ❌ Réservation annulée
+                console.log('❌ Réservation annulée détectée');
+                showNotification('❌ Réservation annulée', 'error');
+
+                // Fermer le modal de suivi après un court délai pour que l'utilisateur voie la notification
+                setTimeout(() => {
+                    closeTracking();
+                    currentBooking = null;
+                }, 2000);
+            }
         }
 
         // ===== ✅ NOUVELLE FONCTION: calculateCourseRoute =====
