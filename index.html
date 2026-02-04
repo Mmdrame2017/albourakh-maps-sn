@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version 2024-02-04-v2 - Khadija voice fix -->
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -2441,6 +2442,65 @@
         }
 
         let welcomeMessageSpoken = false; // Pour ne lire le message de bienvenue qu'une fois
+        let voicesLoaded = false; // Pour savoir si les voix sont prêtes
+
+        // Précharger les voix dès que possible
+        if ('speechSynthesis' in window) {
+            speechSynthesis.getVoices(); // Premier appel pour déclencher le chargement
+            speechSynthesis.onvoiceschanged = () => {
+                voicesLoaded = true;
+                console.log('🔊 Voix chargées:', speechSynthesis.getVoices().length);
+            };
+        }
+
+        // Fonction pour parler avec attente des voix si nécessaire
+        function speakWelcome(text) {
+            if (!('speechSynthesis' in window)) {
+                console.log('❌ speechSynthesis non supporté');
+                return;
+            }
+
+            const doSpeak = () => {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 1;
+                utterance.pitch = 1.1;
+
+                const voices = speechSynthesis.getVoices();
+                console.log('🔊 Voix disponibles:', voices.length);
+                const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
+                if (frenchVoice) {
+                    utterance.voice = frenchVoice;
+                    console.log('🔊 Voix française sélectionnée:', frenchVoice.name);
+                }
+
+                utterance.onstart = () => console.log('🔊 Début lecture bienvenue');
+                utterance.onend = () => console.log('🔊 Fin lecture bienvenue');
+                utterance.onerror = (e) => console.log('❌ Erreur lecture:', e.error);
+
+                speechSynthesis.speak(utterance);
+            };
+
+            // Si les voix sont déjà chargées, parler directement
+            if (voicesLoaded || speechSynthesis.getVoices().length > 0) {
+                doSpeak();
+            } else {
+                // Sinon attendre qu'elles soient chargées
+                console.log('⏳ Attente chargement des voix...');
+                speechSynthesis.onvoiceschanged = () => {
+                    voicesLoaded = true;
+                    doSpeak();
+                };
+                // Fallback: essayer quand même après 1 seconde
+                setTimeout(() => {
+                    if (!voicesLoaded) {
+                        console.log('⚠️ Fallback: tentative sans attendre les voix');
+                        doSpeak();
+                    }
+                }, 1000);
+            }
+        }
 
         function toggleChatbot() {
             const modal = document.getElementById('chatbotModal');
@@ -2455,7 +2515,7 @@
                 welcomeMessageSpoken = true;
                 const welcomeMessage = "Bonjour ! Je suis Khadija, votre assistante Al Bourakh. Je peux vous aider à réserver un VTC, calculer un tarif ou vérifier votre portefeuille. Comment puis-je vous aider ?";
                 setTimeout(() => {
-                    speakText(welcomeMessage);
+                    speakWelcome(welcomeMessage);
                 }, 500);
             }
         }
