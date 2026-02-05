@@ -2179,8 +2179,31 @@
             if (currentBooking?.id) {
                 try {
                     console.log('📤 Mise à jour du statut vers "annulee" dans Firestore pour:', currentBooking.id);
-                    await db.collection('reservations').doc(currentBooking.id).update({ statut: 'annulee' });
-                    console.log('✅ Statut mis à jour dans Firestore');
+
+                    // Utiliser une transaction batch pour mettre à jour la réservation ET le chauffeur
+                    const batch = db.batch();
+
+                    // Mettre à jour la réservation
+                    const reservationRef = db.collection('reservations').doc(currentBooking.id);
+                    batch.update(reservationRef, {
+                        statut: 'annulee',
+                        annuleePar: 'client',
+                        dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Mettre à jour le chauffeur si assigné
+                    if (currentBooking.chauffeurAssigne) {
+                        console.log('📤 Réinitialisation du statut du chauffeur:', currentBooking.chauffeurAssigne);
+                        const driverRef = db.collection('drivers').doc(currentBooking.chauffeurAssigne);
+                        batch.update(driverRef, {
+                            statut: 'disponible',
+                            currentBookingId: null,
+                            reservationEnCours: null
+                        });
+                    }
+
+                    await batch.commit();
+                    console.log('✅ Statut mis à jour dans Firestore (réservation + chauffeur)');
                 } catch (e) {
                     console.error('❌ Erreur lors de l\'annulation:', e);
                 }
