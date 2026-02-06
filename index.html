@@ -1854,6 +1854,9 @@
         function closeTracking() {
             console.log('🚪 Fermeture du modal de suivi...');
 
+            // Arrêter l'alerte sonore si elle est active
+            stopDriverArrivedAlert();
+
             // Fermer le modal
             const modal = document.getElementById('trackingModal');
             if (modal) modal.classList.remove('active');
@@ -1931,6 +1934,86 @@
             });
         }
 
+        // ===== NOTIFICATION SONORE POUR ARRIVÉE CHAUFFEUR =====
+        let driverArrivedAlertInterval = null;
+        let beepAudioContext = null;
+
+        function playDriverArrivedAlert() {
+            // Arrêter tout alert précédent
+            if (driverArrivedAlertInterval) {
+                clearInterval(driverArrivedAlertInterval);
+                driverArrivedAlertInterval = null;
+            }
+
+            console.log('🔔 Démarrage de l\'alerte sonore d\'arrivée du chauffeur');
+
+            let repetitionCount = 0;
+            const maxRepetitions = 6; // 0s, 5s, 10s, 15s, 20s, 25s = 6 répétitions sur 30 secondes
+
+            // Jouer immédiatement la première série
+            playBeepSeries(repetitionCount);
+
+            // Puis répéter toutes les 5 secondes
+            driverArrivedAlertInterval = setInterval(() => {
+                repetitionCount++;
+                if (repetitionCount >= maxRepetitions) {
+                    clearInterval(driverArrivedAlertInterval);
+                    driverArrivedAlertInterval = null;
+                    console.log('✅ Alerte sonore terminée');
+                    return;
+                }
+                playBeepSeries(repetitionCount);
+            }, 5000);
+        }
+
+        function playBeepSeries(repetitionCount) {
+            try {
+                if (!beepAudioContext) {
+                    beepAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                // Volume de base qui augmente avec chaque répétition (de 0.2 à 0.5)
+                const baseVolume = 0.2 + (repetitionCount * 0.05);
+
+                console.log(`🔊 Série de bips ${repetitionCount + 1}/6 - Volume de base: ${baseVolume.toFixed(2)}`);
+
+                // Jouer 5 bips avec volumes progressivement croissants
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const oscillator = beepAudioContext.createOscillator();
+                        const gainNode = beepAudioContext.createGain();
+
+                        oscillator.connect(gainNode);
+                        gainNode.connect(beepAudioContext.destination);
+
+                        // Fréquence: 800 Hz (son d'alerte)
+                        oscillator.frequency.value = 800;
+                        oscillator.type = 'sine';
+
+                        const now = beepAudioContext.currentTime;
+
+                        // Volume qui augmente pour chaque bip de la série (de baseVolume à baseVolume + 0.2)
+                        const volume = Math.min(baseVolume + (i * 0.04), 0.6);
+                        gainNode.gain.setValueAtTime(volume, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+                        oscillator.start(now);
+                        oscillator.stop(now + 0.15);
+                    }, i * 200); // 200ms entre chaque bip
+                }
+            } catch (error) {
+                console.warn('⚠️ Impossible de jouer l\'alerte sonore:', error.message);
+            }
+        }
+
+        function stopDriverArrivedAlert() {
+            if (driverArrivedAlertInterval) {
+                console.log('🔕 Arrêt de l\'alerte sonore');
+                clearInterval(driverArrivedAlertInterval);
+                driverArrivedAlertInterval = null;
+            }
+        }
+
         // ===== ✅ CORRECTION PRINCIPALE: updateStatusTimeline COMPLÈTE =====
         function updateStatusTimeline(statut) {
             console.log('📊 Statut reçu:', statut);
@@ -1951,25 +2034,31 @@
                 safeRemoveClass('step3Icon', 'current');
                 safeSetText('step4Text', '✅ Chauffeur sur place !');
                 safeSetText('step4Time', new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
-                
+
                 // Mettre à jour l'affichage principal
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">✅ Chauffeur arrivé !</div>
                     <div class="driver-eta" style="font-size: 1.5em; margin-top: 10px;">Votre chauffeur vous attend</div>
                     <div class="driver-eta-label" style="margin-top: 8px;">Montez à bord pour démarrer la course</div>
                 `);
-                
+
                 // Cacher la route d'approche
                 if (trackingDirectionsRenderer) {
                     trackingDirectionsRenderer.setMap(null);
                 }
-                
+
                 console.log('✅ Step 4 activé: Chauffeur arrivé');
                 showNotification('✅ Votre chauffeur est arrivé !', 'success');
+
+                // 🔔 Démarrer l'alerte sonore
+                playDriverArrivedAlert();
             }
             
             if (statut === 'en_cours' || statut === 'course_en_cours') {
                 // ✅ STEP 5 : Course en cours
+                // Arrêter l'alerte sonore si elle est active
+                stopDriverArrivedAlert();
+
                 safeAddClass('step5Icon', 'active');
                 safeRemoveClass('step4Icon', 'current');
                 safeSetText('step5Text', 'Direction votre destination');
@@ -1995,6 +2084,9 @@
             
             if (statut === 'terminee') {
                 // ✅ Course terminée
+                // Arrêter l'alerte sonore si elle est active
+                stopDriverArrivedAlert();
+
                 safeAddClass('step5Icon', 'active');
                 safeSetHtml('driverApproachingBox', `
                     <div class="driver-approaching-title">🎉 Course terminée!</div>
@@ -2008,6 +2100,10 @@
                 // ❌ Réservation annulée
                 console.log('❌ ANNULATION DÉTECTÉE - Statut:', statut);
                 console.log('📋 Réservation actuelle:', currentBooking?.id);
+
+                // Arrêter immédiatement l'alerte sonore
+                stopDriverArrivedAlert();
+
                 showNotification('❌ Réservation annulée', 'error');
 
                 // Fermer le modal de suivi après un court délai pour que l'utilisateur voie la notification
